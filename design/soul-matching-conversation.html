@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#3e2c28",
+                    "tertiary-fixed": "#ffd9e1",
+                    "primary": "#994531",
+                    "tertiary-fixed-dim": "#ffb1c4",
+                    "surface-bright": "#fff8f6",
+                    "surface-container-low": "#fff1ed",
+                    "on-tertiary-fixed-variant": "#881645",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#ffe9e4",
+                    "secondary-container": "#90f2fc",
+                    "on-surface": "#281814",
+                    "on-secondary-fixed": "#002022",
+                    "on-tertiary-container": "#700034",
+                    "on-background": "#281814",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "surface-dim": "#f2d3cc",
+                    "secondary": "#006970",
+                    "surface-container-highest": "#fadcd5",
+                    "primary-fixed": "#ffdad2",
+                    "outline": "#88726d",
+                    "secondary-fixed-dim": "#73d5df",
+                    "on-surface-variant": "#55433e",
+                    "inverse-primary": "#ffb4a3",
+                    "tertiary": "#a8315c",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#ffb4a3",
+                    "outline-variant": "#dbc1bb",
+                    "on-secondary-container": "#006f77",
+                    "surface-variant": "#fadcd5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#004f55",
+                    "surface": "#fff8f6",
+                    "primary-container": "#e8836b",
+                    "inverse-on-surface": "#ffede9",
+                    "tertiary-container": "#fa719c",
+                    "secondary-fixed": "#90f2fc",
+                    "surface-tint": "#994531",
+                    "on-tertiary-fixed": "#3f001a",
+                    "background": "#fff8f6",
+                    "surface-container-high": "#ffe2db",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#3d0600",
+                    "on-primary-container": "#641e0e",
+                    "on-primary-fixed-variant": "#7a2e1d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-gap-md": "16px",
+                    "stack-gap-lg": "32px",
+                    "stack-gap-sm": "8px",
+                    "unit": "8px",
+                    "section-margin": "48px",
+                    "container-padding": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Quicksand"],
+                    "headline-xl": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "headline-md": ["Nunito Sans"],
+                    "headline-xl-mobile": ["Nunito Sans"],
+                    "body-md": ["Quicksand"],
+                    "headline-sm": ["Nunito Sans"],
+                    "label-md": ["Quicksand"],
+                    "body-sm": ["Quicksand"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fff8f6;
+            background-image: radial-gradient(at 0% 0%, rgba(250, 220, 213, 0.4) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(144, 242, 252, 0.1) 0px, transparent 50%);
+            min-height: 100vh;
+        }
+        .chat-container {
+            height: calc(100vh - 160px);
+            scrollbar-width: none;
+        }
+        .chat-container::-webkit-scrollbar {
+            display: none;
+        }
+        .mesh-bg {
+            background: linear-gradient(120deg, #ffe9e4 0%, #fff8f6 100%);
+        }
+        .active-indicator {
+            box-shadow: 0 0 0 2px #fff8f6;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding py-stack-gap-sm bg-surface/80 shadow-[0px_8px_24px_rgba(92,71,66,0.08)] glass-nav">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity scale-95 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="Elena Ross" class="w-10 h-10 rounded-full object-cover" data-alt="A professional and warm portrait of Elena Ross in her 40s with a kind expression. She has soft features, wearing a linen cream blouse, set against a blurred background of a sun-drenched library with soft bokeh. The lighting is warm and natural, emphasizing a sense of emotional safety and nurturing tactile connection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBjPbovMASiEvRgvc-3SoRMKG0ccAk_AQJkS-waxohJ16L5XC45si6Vv-SvvnDPbCK29_oNNMOx8JqLUTjsUAR3sS07ltzVOMC2IY5ZdsYYLojU8AVEfToBTgEDAi7m6CLyD1WMlLu0IdlH3GA3QLuTtuBoAchG2NMZpn512BOBuiETwwrmpODieukkxSYKf0NC3TaJz8Kh2_4JcvJOGb5NYEEKylst0jgNf3mwX6ECEjshR2pqbHH0yLyxWfsmugZWyKl8ohdG9PZ"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary rounded-full active-indicator"></div>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm-mobile text-on-surface">Elena Ross</h1>
+<div class="flex items-center gap-2">
+<span class="text-label-md font-label-md text-secondary">Online now</span>
+<span class="bg-primary-container/20 text-on-primary-container px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">98% Match</span>
+</div>
+</div>
+</div>
+</div>
+<button class="hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-outline">more_vert</span>
+</button>
+</header>
+<!-- Main Chat Canvas -->
+<main class="chat-container pt-24 pb-32 px-container-padding overflow-y-auto space-y-stack-gap-lg">
+<!-- Incoming Message -->
+<div class="flex flex-col items-start max-w-[85%] animate-fade-in">
+<div class="bg-surface-container-high text-on-surface p-stack-gap-md rounded-t-xl rounded-br-xl rounded-bl-sm shadow-[0px_4px_12px_rgba(92,71,66,0.04)]">
+<p class="font-body-md text-body-md">I really resonated with what you shared about finding peace in the small moments. How has your morning been?</p>
+</div>
+<span class="text-label-md text-outline-variant mt-2 ml-1">9:12 AM</span>
+</div>
+<!-- Kindred Spark Prompt -->
+<div class="py-stack-gap-lg flex justify-center">
+<div class="bg-tertiary-fixed/30 border border-tertiary-fixed-dim/50 rounded-lg p-stack-gap-md max-w-sm w-full flex flex-col items-center text-center space-y-2">
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill">auto_awesome</span>
+<span class="font-label-md text-label-md font-bold">Kindred Spark</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Elena also enjoys Morning Meditations. Share your favorite practice?</p>
+<button class="mt-2 text-primary font-label-md text-label-md hover:underline">Share reflection</button>
+</div>
+</div>
+<!-- Outgoing Message -->
+<div class="flex flex-col items-end ml-auto max-w-[85%]">
+<div class="bg-primary-container text-on-primary-container p-stack-gap-md rounded-t-xl rounded-bl-xl rounded-br-sm shadow-[0px_8px_24px_rgba(92,71,66,0.08)]">
+<p class="font-body-md text-body-md">It's been a gentle start. I've been practicing the breathing exercises we matched on.</p>
+</div>
+<div class="flex items-center gap-1 mt-2 mr-1">
+<span class="text-label-md text-outline-variant">9:15 AM</span>
+<span class="material-symbols-outlined text-[14px] text-secondary" data-weight="fill">done_all</span>
+</div>
+</div>
+<!-- Typing Indicator (Simulated) -->
+<div class="flex items-center gap-2 ml-1 opacity-60">
+<div class="flex gap-1">
+<span class="w-1.5 h-1.5 bg-outline rounded-full animate-bounce"></span>
+<span class="w-1.5 h-1.5 bg-outline rounded-full animate-bounce [animation-delay:0.2s]"></span>
+<span class="w-1.5 h-1.5 bg-outline rounded-full animate-bounce [animation-delay:0.4s]"></span>
+</div>
+<span class="text-label-md font-label-md">Elena is typing...</span>
+</div>
+</main>
+<!-- Bottom Input Area -->
+<footer class="fixed bottom-0 left-0 w-full p-container-padding bg-surface/90 glass-nav z-50">
+<div class="flex items-center gap-stack-gap-sm max-w-4xl mx-auto">
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-highest text-primary hover:bg-primary-fixed transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">add</span>
+</button>
+<div class="flex-1 relative">
+<input class="w-full bg-surface-container text-on-surface border-none rounded-full px-6 py-3.5 focus:ring-2 focus:ring-primary-container font-body-md placeholder:text-outline-variant transition-all shadow-inner" placeholder="Share a reflection..." type="text"/>
+</div>
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-secondary-container text-on-secondary-container hover:opacity-90 active:scale-90 transition-all duration-200 shadow-sm">
+<span class="material-symbols-outlined">mic</span>
+</button>
+</div>
+<!-- Bottom Nav Simulation (Hidden on active chat focus usually, but keeping context) -->
+<nav class="hidden md:flex justify-around mt-6 pt-4 border-t border-outline-variant/10">
+<div class="flex flex-col items-center text-on-surface-variant opacity-60">
+<span class="material-symbols-outlined">spa</span>
+<span class="text-label-md font-label-md">Sanctuary</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant opacity-60">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-label-md font-label-md">Matches</span>
+</div>
+<div class="flex flex-col items-center text-on-tertiary-fixed-variant bg-tertiary-fixed rounded-full px-6 py-1">
+<span class="material-symbols-outlined" data-weight="fill">auto_awesome</span>
+<span class="text-label-md font-label-md font-bold">Soul Chat</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant opacity-60">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-md font-label-md">Profile</span>
+</div>
+</nav>
+</footer>
+<script>
+        // Simple auto-scroll to bottom on load
+        window.onload = function() {
+            const container = document.querySelector('.chat-container');
+            container.scrollTop = container.scrollHeight;
+        };
+
+        // Micro-interaction for input
+        const input = document.querySelector('input');
+        input.addEventListener('focus', () => {
+            // In a real app, this might hide the FAB or expand the input
+        });
+    </script>
+</body></html>

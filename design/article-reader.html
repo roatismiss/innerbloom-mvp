@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "on-tertiary": "#ffffff",
+                  "secondary-container": "#90f2fc",
+                  "background": "#fff8f6",
+                  "secondary-fixed": "#90f2fc",
+                  "on-primary-fixed": "#3d0600",
+                  "error-container": "#ffdad6",
+                  "surface-container-low": "#fff1ed",
+                  "on-secondary": "#ffffff",
+                  "surface-container-highest": "#fadcd5",
+                  "surface-bright": "#fff8f6",
+                  "tertiary-fixed": "#ffd9e1",
+                  "surface": "#fff8f6",
+                  "primary": "#994531",
+                  "on-primary": "#ffffff",
+                  "inverse-primary": "#ffb4a3",
+                  "on-error-container": "#93000a",
+                  "on-tertiary-container": "#700034",
+                  "inverse-surface": "#3e2c28",
+                  "on-surface-variant": "#55433e",
+                  "on-secondary-fixed-variant": "#004f55",
+                  "secondary-fixed-dim": "#73d5df",
+                  "surface-container-lowest": "#ffffff",
+                  "surface-container-high": "#ffe2db",
+                  "outline-variant": "#dbc1bb",
+                  "surface-container": "#ffe9e4",
+                  "outline": "#88726d",
+                  "tertiary-fixed-dim": "#ffb1c4",
+                  "primary-container": "#e8836b",
+                  "on-background": "#281814",
+                  "on-tertiary-fixed-variant": "#881645",
+                  "on-secondary-fixed": "#002022",
+                  "inverse-on-surface": "#ffede9",
+                  "primary-fixed": "#ffdad2",
+                  "secondary": "#006970",
+                  "primary-fixed-dim": "#ffb4a3",
+                  "tertiary": "#a8315c",
+                  "error": "#ba1a1a",
+                  "on-primary-container": "#641e0e",
+                  "surface-tint": "#994531",
+                  "on-tertiary-fixed": "#3f001a",
+                  "on-secondary-container": "#006f77",
+                  "on-primary-fixed-variant": "#7a2e1d",
+                  "tertiary-container": "#fa719c",
+                  "surface-variant": "#fadcd5",
+                  "surface-dim": "#f2d3cc",
+                  "on-surface": "#281814",
+                  "on-error": "#ffffff"
+          },
+          "borderRadius": {
+                  "DEFAULT": "1rem",
+                  "lg": "2rem",
+                  "xl": "3rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "stack-gap-sm": "8px",
+                  "unit": "8px",
+                  "container-padding": "24px",
+                  "section-margin": "48px",
+                  "stack-gap-md": "16px",
+                  "stack-gap-lg": "32px"
+          },
+          "fontFamily": {
+                  "headline-xl": ["Nunito Sans"],
+                  "body-md": ["Quicksand"],
+                  "headline-lg": ["Nunito Sans"],
+                  "headline-sm": ["Nunito Sans"],
+                  "headline-md": ["Nunito Sans"],
+                  "body-sm": ["Quicksand"],
+                  "label-md": ["Quicksand"],
+                  "headline-xl-mobile": ["Nunito Sans"],
+                  "body-lg": ["Quicksand"]
+          },
+          "fontSize": {
+                  "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                  "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                  "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                  "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                  "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                  "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                  "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                  "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-[20px] dark:bg-surface/80 flex justify-between items-center px-container-padding h-16 shadow-[0px_8px_24px_rgba(92,71,66,0.08)]">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm-mobile md:text-headline-sm text-on-surface">Article</h1>
+<div class="flex gap-2">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="bookmark">bookmark</span>
+</button>
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<main class="pt-16 pb-32">
+<!-- Hero Section -->
+<section class="relative w-full h-[442px] min-h-[400px] overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A tranquil sunlit forest with soft rays of light filtering through lush green canopy leaves, creating a peaceful and serene atmosphere. The color palette is dominated by warm earthy tones, latte browns, and soft peach glows, evoking a sense of calm and mental refuge. The lighting is high-key and gentle, emphasizing a digital hug aesthetic that feels safe and approachable for anyone seeking stillness." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy2oQj_wTzQRLMd_8Ra08-eZrX4j-jwOcZ1Zl0mHomOSS646g3voJuf25Q7TqwrycvLY1YywMClov7T4lSQNAPYDb9JAWBBXG5LNcvRcdJd_XGAdcYy-ZuNkdxYiT0n4E4JYXrrcJHleqjA3nPL961MBeSEpSHglzo0hhIOUrzvTpDR_7q5BRTB39JOpMvaD38t238im-A1lskWZggjsXOMwoM2NzQPQuoR8V0AUD_5cWMJ07gT8DHAJkBhqpWG719pSfJPF7msPGv"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent"></div>
+</section>
+<!-- Article Content -->
+<article class="max-w-[600px] mx-auto px-container-padding -mt-24 relative z-10">
+<div class="bg-surface-container-lowest rounded-lg p-stack-gap-lg shadow-[0px_8px_24px_rgba(92,71,66,0.08)]">
+<!-- Metadata -->
+<div class="flex items-center gap-stack-gap-md mb-stack-gap-md">
+<div class="w-12 h-12 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional portrait of Dr. Elena Ross, a warm and empathetic psychologist, with a soft smile and friendly eyes. The photograph has a shallow depth of field with a clean, brightly lit background in peach glow tones, adhering to a nurturing and patient aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCBdDn-pSWkqsI7AQhij5rTzXbk84sTaYW5CD7gAAvnkmwPMjU8UlxizvMEY3M91ZmOalsom9vmHRXFgLAff3xyHAy8d8MHTXiIpY9LeFxqKkx5K8_5fgT_bKygDn-3qKBA26j3ziBhdK25MAo3i719Snpdo7oZaEipaySH9DsWuusmEDUD5ho3SFp1MfIhRAD2cdkDj7KeVg_c-dGjRrQdXngkYp2UolttNJuogSfZz9hgZ3fnh3HrNxKHeMFbphjXDLJlr5_RDD1"/>
+</div>
+<div>
+<p class="font-headline-sm text-on-surface text-label-md">Dr. Elena Ross</p>
+<p class="font-body-sm text-on-surface-variant">Mental Health Specialist • 8 min read</p>
+</div>
+</div>
+<h2 class="font-headline-xl-mobile md:font-headline-xl text-headline-xl-mobile md:text-headline-xl text-on-surface mb-stack-gap-lg leading-tight">
+          Understanding Anxiety: Finding Stillness in the Storm
+        </h2>
+<!-- Body Text -->
+<div class="space-y-stack-gap-lg text-on-surface-variant font-body-lg">
+<p>
+            In the modern world, anxiety often feels like an unwelcome guest that refuses to leave. It is a physiological response designed to protect us, yet in our high-stress environments, it can become a persistent hum of static that obscures the beauty of the present moment.
+          </p>
+<div class="bg-surface-container p-stack-gap-md rounded-DEFAULT border-l-4 border-primary-container">
+<p class="italic text-on-primary-fixed-variant">"Stillness is not the absence of movement, but the presence of focus amidst the chaos."</p>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">The Nature of Worry</h3>
+<p>
+            Worry is the mind's attempt to solve problems before they even exist. While forward-thinking is a skill, chronic worry keeps the nervous system in a state of high alert. Understanding that thoughts are not facts is the first step toward reclaiming your peace.
+          </p>
+<img class="w-full h-64 object-cover rounded-lg shadow-sm my-stack-gap-lg" data-alt="A single white pebble resting perfectly still on the surface of calm, rippled water at dawn. The colors are soft ethereal blue and peach glow, reflecting a quiet and meditative mood. The composition is minimalist and centered, illustrating the concept of finding a core of stillness within a changing environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACZUHxyVsKDWW7nr0cTAkb4lAh_HipoTel1BTADmFAPRS5sEMoP951UIYMZJZShj7MYOHsgIHqjWprdoHzXAeQ0tVm8Y2digBhhJY7CMUNwF8supxYOSm2hIGMJZW7WC3or4z2SLCseNk2tYFeWk0wg__ZkalBb0Qy_-ITjkMgWarpgRBqejM8Q6wzy_12zQ0-grYmXcGgBMZEIx6KRk1fqYcJuHyHArp22YfjVqYqUfbzidjxC4O6aKdD-YP7aSoXJGT8UHxQPL-3"/>
+<h3 class="font-headline-md text-headline-md text-on-surface">Breath as an Anchor</h3>
+<p>
+            The breath is the only part of the autonomic nervous system that we can consciously control. By slowing the exhale, we signal to the brain that we are safe. This simple act can shift us from 'fight or flight' to 'rest and digest' within seconds.
+          </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-gap-md my-stack-gap-lg">
+<div class="p-stack-gap-md bg-secondary-fixed/10 rounded-lg flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="air">air</span>
+<div>
+<p class="font-label-md text-secondary">Box Breathing</p>
+<p class="text-body-sm">Inhale 4, Hold 4, Exhale 4, Hold 4.</p>
+</div>
+</div>
+<div class="p-stack-gap-md bg-tertiary-fixed/30 rounded-lg flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="self_improvement">self_improvement</span>
+<div>
+<p class="font-label-md text-tertiary">Mindful Check-in</p>
+<p class="text-body-sm">Notice 5 things you can see right now.</p>
+</div>
+</div>
+</div>
+<p>
+            Finding stillness doesn't mean the storm has stopped. It means you have found the center where you can breathe, observe, and choose your response with kindness and clarity.
+          </p>
+</div>
+<!-- Action Buttons -->
+<div class="mt-section-margin pt-stack-gap-lg border-t border-outline-variant flex flex-col md:flex-row gap-stack-gap-md">
+<button class="flex-1 bg-primary-container text-on-primary-container font-label-md py-4 rounded-full flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="bookmark_add">bookmark_add</span>
+            Save to Library
+          </button>
+<button class="flex-1 bg-surface-container-high text-on-surface-variant font-label-md py-4 rounded-full flex items-center justify-center gap-2 hover:bg-surface-container-highest active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+            Share Article
+          </button>
+</div>
+</div>
+<!-- Suggested Next -->
+<div class="mt-section-margin">
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-stack-gap-md">Continue Reading</h4>
+<div class="flex gap-stack-gap-md overflow-x-auto scrollbar-hide pb-4 -mx-container-padding px-container-padding">
+<div class="min-w-[280px] bg-surface-container-low p-stack-gap-md rounded-lg shadow-sm">
+<div class="h-32 w-full bg-surface-container-highest rounded-DEFAULT mb-3 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Soft morning light shining through an open window with white curtains fluttering gently. The scene is quiet and minimalist, with a warm latte color palette and soft coral accents. It represents a peaceful morning routine and mental clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkyLXG_ELjSKmlRGusJ8ZsHk7l9NYgJtryuz7t7UzP8PFBIh6jDwf2-hDhOt9xlt7DEOlXVVBzM5JFRtu2tmX1VzjYZaKvx3xR_LetN6Y2Itng6G498pczwu7OBWwJXK-LVdlIgnePGKafzSioF0FYb2wKgy31YDZsl2ikj6yRuy6ZhQImG-vJEE4nUpTlZLR1cjkaY1CuUgcXvWUTihJHggm06KBUH-ZkFy5nIdVVcZcmagoI7g5BxK7T4BKVZ20Pacffo-JN7uDc"/>
+</div>
+<p class="font-label-md text-primary mb-1">Self-Care</p>
+<p class="font-headline-sm text-body-lg text-on-surface line-clamp-2">Morning Rituals for Lasting Peace</p>
+</div>
+<div class="min-w-[280px] bg-surface-container-low p-stack-gap-md rounded-lg shadow-sm">
+<div class="h-32 w-full bg-surface-container-highest rounded-DEFAULT mb-3 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Abstract soft-focus image of golden light reflecting on a calm lake surface at sunset. The mood is deeply tranquil and empathetic, using a palette of peach glow and warm earth tones to create a sense of emotional safety and sanctuary." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUWsTvAbxtHfA5tT5JsYeJ9FyQwhfsj3h3ahrkbPkWBG9q_YTKdq5ShbeLatu7bJWklzWcryg3NtT4t6EPTYK7alpZMhRB0_jLoblHAOfwTFuGws-a3cVL_rr99J6EAj1A5zizdAKAyvJ8d7gwyaBApb6tr6dljFQvu0NhWG9fMdNN7qoPpaFBCG5z9CPIXD2toWbcX_jpp10oLA84z3V0spNKGkZH_OXAFtKq66HY0eT9wy640S82BM6m8ai8ITvpjePdwp0zHhk7"/>
+</div>
+<p class="font-label-md text-primary mb-1">Meditation</p>
+<p class="font-headline-sm text-body-lg text-on-surface line-clamp-2">The Science of Deep Sleep</p>
+</div>
+</div>
+</div>
+</article>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-surface/80 backdrop-blur-[20px] dark:bg-surface/80 rounded-t-lg shadow-[0px_-8px_24px_rgba(92,71,66,0.08)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1 hover:bg-surface-container-low transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-on-primary-fixed-variant text-on-primary-container dark:text-primary-fixed rounded-full px-4 py-1 active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="menu_book" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-label-md text-label-md">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1 hover:bg-surface-container-low transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="favorite">favorite</span>
+<span class="font-label-md text-label-md">Connect</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1 hover:bg-surface-container-low transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+    // Simple micro-interaction for bookmark toggle
+    document.querySelectorAll('[data-icon="bookmark"], [data-icon="bookmark_add"]').forEach(btn => {
+      btn.closest('button').addEventListener('click', function() {
+        const icon = this.querySelector('.material-symbols-outlined');
+        const isFilled = icon.style.fontVariationSettings.includes("'FILL' 1");
+        icon.style.fontVariationSettings = isFilled ? "'FILL' 0" : "'FILL' 1";
+
+        if (!isFilled) {
+          icon.classList.add('text-primary');
+          // Add a little pop animation
+          this.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.2)' },
+            { transform: 'scale(1)' }
+          ], { duration: 300 });
+        }
+      });
+    });
+
+    // Handle scroll for navbar transparency/elevation
+    const header = document.querySelector('header');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        header.classList.add('shadow-md');
+        header.classList.remove('shadow-none');
+      } else {
+        header.classList.remove('shadow-md');
+      }
+    });
+  </script>
+</body></html>

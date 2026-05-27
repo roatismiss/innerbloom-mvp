@@ -1,0 +1,25 @@
+{
+  "name": "InnerBloom",
+  "short_name": "InnerBloom",
+  "description": "An emotionally-intelligent space to bloom — daily mood, soul matches, and gentle community.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8f6",
+  "theme_color": "#994531",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

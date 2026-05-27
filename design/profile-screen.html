@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "outline-variant": "#dbc1bb",
+            "on-surface": "#281814",
+            "surface-bright": "#fff8f6",
+            "surface-container-high": "#ffe2db",
+            "primary-fixed-dim": "#ffb4a3",
+            "on-primary": "#ffffff",
+            "primary": "#994531",
+            "surface-tint": "#994531",
+            "secondary-container": "#90f2fc",
+            "on-secondary": "#ffffff",
+            "on-error-container": "#93000a",
+            "surface-variant": "#fadcd5",
+            "tertiary-fixed-dim": "#ffb1c4",
+            "tertiary-container": "#fa719c",
+            "surface-container-highest": "#fadcd5",
+            "surface": "#fff8f6",
+            "on-tertiary-fixed-variant": "#881645",
+            "on-tertiary-container": "#700034",
+            "primary-fixed": "#ffdad2",
+            "on-primary-fixed": "#3d0600",
+            "on-primary-fixed-variant": "#7a2e1d",
+            "surface-container-low": "#fff1ed",
+            "on-tertiary-fixed": "#3f001a",
+            "inverse-surface": "#3e2c28",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#ffede9",
+            "surface-container-lowest": "#ffffff",
+            "background": "#fff8f6",
+            "on-secondary-fixed-variant": "#004f55",
+            "on-tertiary": "#ffffff",
+            "on-secondary-fixed": "#002022",
+            "surface-container": "#ffe9e4",
+            "primary-container": "#e8836b",
+            "tertiary-fixed": "#ffd9e1",
+            "secondary-fixed": "#90f2fc",
+            "outline": "#88726d",
+            "on-surface-variant": "#55433e",
+            "secondary-fixed-dim": "#73d5df",
+            "on-primary-container": "#641e0e",
+            "on-error": "#ffffff",
+            "on-background": "#281814",
+            "inverse-primary": "#ffb4a3",
+            "on-secondary-container": "#006f77",
+            "secondary": "#006970",
+            "tertiary": "#a8315c",
+            "surface-dim": "#f2d3cc",
+            "error": "#ba1a1a"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "stack-gap-md": "16px",
+            "unit": "8px",
+            "stack-gap-sm": "8px",
+            "section-margin": "48px",
+            "container-padding": "24px",
+            "stack-gap-lg": "32px"
+          },
+          fontFamily: {
+            "body-md": ["Quicksand"],
+            "headline-xl-mobile": ["Nunito Sans"],
+            "headline-md": ["Nunito Sans"],
+            "body-sm": ["Quicksand"],
+            "body-lg": ["Quicksand"],
+            "headline-lg": ["Nunito Sans"],
+            "headline-sm": ["Nunito Sans"],
+            "label-md": ["Quicksand"],
+            "headline-xl": ["Nunito Sans"]
+          },
+          fontSize: {
+            "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "headline-xl-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+            "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: 100dvh;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-container/30">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl border-b border-outline-variant/20">
+<div class="flex items-center gap-stack-gap-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-300 active:scale-95 text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">InnerBloom</h1>
+</div>
+<div class="flex items-center gap-stack-gap-sm">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-300 active:scale-95 text-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 max-w-[600px] mx-auto px-container-padding space-y-stack-lg">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center gap-stack-gap-md mb-8">
+<div class="relative">
+<div class="w-32 h-32 rounded-full p-1 ring-4 ring-primary/10 bg-gradient-to-tr from-primary to-secondary p-0.5">
+<div class="w-full h-full rounded-full border-4 border-surface overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXoHXvNMhgIAmQbIzFpCinOQq4zWWsdUMKOuRFQ6s2GF_IB8Eiv7KrHBD3RlpEBUAkl7IE-5xjqPqp2_znocjwNJCEBEMfTmVw-OKYaqhE-vgcxolZu5qnupwZWBjjTEWeOCjXgZLADBFzBZcSgYfKtKwPYbaXyW-ohp7Xa0uuBoKozdlZqH4hbDTJL-tdhS9MZ4oRKUaNR5bQ-dMJk8TY-FLVVhG-Uru4JpUjLaMOzCVmU478AunwThmZaF58CYpv3ZmbJmwWw9MW"/>
+</div>
+</div>
+<button class="absolute bottom-0 right-0 w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-4 border-surface hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+<div class="text-center">
+<div class="flex items-center justify-center gap-2 mb-1">
+<h2 class="font-headline-md text-headline-md text-on-surface">Maya Chen</h2>
+<span class="bg-tertiary-container text-on-tertiary-container font-label-md text-label-md px-3 py-0.5 rounded-full">Level 7</span>
+</div>
+<p class="font-body-md text-on-surface-variant italic">"Blooming at my own pace."</p>
+</div>
+</section>
+<!-- Growth Dashboard Section -->
+<section class="space-y-stack-gap-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Growth Journey</h3>
+<button class="text-primary font-label-md hover:underline flex items-center gap-1">
+          Insights <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-stack-gap-md">
+<!-- Expanded Stat Card 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/30 shadow-sm flex flex-col justify-between min-h-[140px]">
+<div>
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+<span class="font-label-md">Check-ins</span>
+</div>
+<p class="font-headline-lg text-on-surface">124</p>
+</div>
+<div class="flex items-center gap-1 text-green-600 font-label-md">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+12% this month</span>
+</div>
+</div>
+<!-- Expanded Stat Card 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/30 shadow-sm flex flex-col justify-between min-h-[140px]">
+<div>
+<div class="flex items-center gap-2 text-tertiary mb-2">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+<span class="font-label-md">Journals</span>
+</div>
+<p class="font-headline-lg text-on-surface">48</p>
+</div>
+<p class="text-on-surface-variant font-label-md">8 streak days</p>
+</div>
+</div>
+<!-- Social Proof / Community Metric Row -->
+<div class="bg-surface-container-low p-4 rounded-lg flex items-center justify-between border border-primary/10">
+<div class="flex items-center gap-stack-gap-md">
+<div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+<div>
+<p class="font-label-md text-on-surface">Community Impact</p>
+<p class="text-on-surface-variant text-body-sm">1.2k Hugs Shared</p>
+</div>
+</div>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-slate-200"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-slate-300"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-slate-400"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-[10px] font-bold">+12</div>
+</div>
+</div>
+</section>
+<!-- Achievements Section -->
+<section class="space-y-stack-gap-md pt-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Milestones</h3>
+<button class="text-primary font-label-md hover:underline">View All</button>
+</div>
+<div class="flex gap-stack-gap-md overflow-x-auto hide-scrollbar py-2 -mx-2 px-2">
+<div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shadow-sm border-2 border-primary/20">
+<span class="material-symbols-outlined text-[32px]">workspace_premium</span>
+</div>
+<p class="text-center text-[12px] font-label-md leading-tight">7 Day Streak</p>
+</div>
+<div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container shadow-sm border-2 border-secondary/20">
+<span class="material-symbols-outlined text-[32px]">self_improvement</span>
+</div>
+<p class="text-center text-[12px] font-label-md leading-tight">Mindfulness Master</p>
+</div>
+<div class="flex-shrink-0 w-24 flex flex-col items-center gap-2 opacity-40 grayscale">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant shadow-sm border-2 border-outline-variant">
+<span class="material-symbols-outlined text-[32px]">group_add</span>
+</div>
+<p class="text-center text-[12px] font-label-md leading-tight">Circle Leader</p>
+</div>
+<div class="flex-shrink-0 w-24 flex flex-col items-center gap-2 opacity-40 grayscale">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant shadow-sm border-2 border-outline-variant">
+<span class="material-symbols-outlined text-[32px]">emoji_events</span>
+</div>
+<p class="text-center text-[12px] font-label-md leading-tight">First Bloom</p>
+</div>
+</div>
+</section>
+<!-- High-End Premium Membership Section -->
+<section class="relative overflow-hidden p-8 rounded-lg bg-on-surface text-surface shadow-xl border-4 border-primary-container/20">
+<div class="relative z-10 space-y-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed-dim" style="font-variation-settings: 'FILL' 1;">stars</span>
+<h3 class="font-headline-sm text-headline-sm">InnerBloom+</h3>
+</div>
+<p class="font-body-md opacity-90 max-w-[280px]">Deepen your growth with exclusive professional tools.</p>
+<ul class="space-y-2">
+<li class="flex items-center gap-3 text-body-sm opacity-80">
+<span class="material-symbols-outlined text-[18px] text-primary-fixed-dim">check_circle</span>
+            AI-Powered Voice Journaling
+          </li>
+<li class="flex items-center gap-3 text-body-sm opacity-80">
+<span class="material-symbols-outlined text-[18px] text-primary-fixed-dim">check_circle</span>
+            Weekly Advanced Insights
+          </li>
+</ul>
+<button class="bg-primary-container text-on-primary-container w-full py-3 rounded-full font-label-md hover:brightness-110 transition-all active:scale-[0.98] mt-4 flex items-center justify-center gap-2 shadow-lg">
+          Explore Premium Plans
+          <span class="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+</button>
+</div>
+<!-- Decorative Elements -->
+<div class="absolute -right-16 -top-16 w-48 h-48 bg-primary/20 rounded-full blur-[60px]"></div>
+<div class="absolute -left-16 -bottom-16 w-48 h-48 bg-secondary/10 rounded-full blur-[60px]"></div>
+<span class="absolute right-6 top-8 material-symbols-outlined text-primary-fixed-dim/20 text-[100px] pointer-events-none" style="font-variation-settings: 'FILL' 1;">spa</span>
+</section>
+<!-- Journal History Preview Section -->
+<section class="space-y-stack-gap-md pt-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Activity</h3>
+<button class="text-primary font-label-md hover:underline">Full History</button>
+</div>
+<div class="space-y-3">
+<div class="bg-surface-container-lowest p-4 rounded-lg flex items-center gap-4 border border-outline-variant/20 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex flex-col items-center justify-center text-on-surface-variant">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-lg font-bold">12</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-on-surface">Morning Dew Reflections</h4>
+<p class="text-body-sm text-on-surface-variant truncate">The garden felt particularly quiet today...</p>
+</div>
+<span class="material-symbols-outlined text-outline text-[20px]">chevron_right</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-lg flex items-center gap-4 border border-outline-variant/20 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex flex-col items-center justify-center text-on-surface-variant">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-lg font-bold">10</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-on-surface">Finding Balance</h4>
+<p class="text-body-sm text-on-surface-variant truncate">Working through some complicated feelings...</p>
+</div>
+<span class="material-symbols-outlined text-outline text-[20px]">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Grouped Settings Section -->
+<section class="space-y-stack-gap-lg pt-4">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Account Settings</h3>
+<div class="space-y-6">
+<!-- Account Category -->
+<div class="space-y-2">
+<p class="font-label-md text-primary px-2 uppercase tracking-wider text-[11px]">General</p>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/20 divide-y divide-outline-variant/10 overflow-hidden shadow-sm">
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-stack-gap-md text-on-surface">
+<span class="material-symbols-outlined opacity-70">person_outline</span>
+<span class="font-label-md">Personal Information</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-stack-gap-md text-on-surface">
+<span class="material-symbols-outlined opacity-70">notifications_active</span>
+<span class="font-label-md">Notification Preferences</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-stack-gap-md text-on-surface">
+<span class="material-symbols-outlined opacity-70">card_membership</span>
+<span class="font-label-md">Subscription Status</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Privacy & Support Category -->
+<div class="space-y-2">
+<p class="font-label-md text-primary px-2 uppercase tracking-wider text-[11px]">Privacy &amp; Support</p>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/20 divide-y divide-outline-variant/10 overflow-hidden shadow-sm">
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-stack-gap-md text-on-surface">
+<span class="material-symbols-outlined opacity-70">lock</span>
+<span class="font-label-md">Privacy &amp; Security</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-stack-gap-md text-on-surface">
+<span class="material-symbols-outlined opacity-70">help_center</span>
+<span class="font-label-md">Help &amp; Support</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Notifications Feed Section -->
+<section class="space-y-stack-gap-md pt-8">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Notifications</h3>
+<button class="text-primary font-label-md hover:underline">Mark all read</button>
+</div>
+<!-- Notification Tabs -->
+<div class="flex gap-2">
+<button class="px-5 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm">All</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest transition-colors">Hugs</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest transition-colors">Community</button>
+</div>
+<!-- Notifications List -->
+<div class="space-y-stack-gap-md">
+<!-- Notification 1 -->
+<div class="flex gap-stack-gap-md p-4 bg-surface-container-lowest rounded-lg border border-outline-variant/20 shadow-sm">
+<div class="w-12 h-12 flex-shrink-0 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<p class="font-label-md text-on-surface">Alex sent you a Virtual Hug</p>
+<span class="text-[12px] text-outline">2m ago</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-tight">Your recent journal entry about 'Morning Dew' inspired them.</p>
+</div>
+</div>
+<!-- Notification 2 -->
+<div class="flex gap-stack-gap-md p-4 bg-surface-container-lowest rounded-lg border border-outline-variant/20 shadow-sm">
+<div class="w-12 h-12 flex-shrink-0 rounded-full bg-tertiary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">psychology</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<p class="font-label-md text-on-surface">Insight Ready</p>
+<span class="text-[12px] text-outline">1h ago</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-tight">Your weekly Bloom report is ready. You've grown a lot!</p>
+</div>
+</div>
+<!-- Notification 3 -->
+<div class="flex gap-stack-gap-md p-4 bg-surface-container-lowest rounded-lg border border-outline-variant/20 shadow-sm">
+<div class="w-12 h-12 flex-shrink-0 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">group</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<p class="font-label-md text-on-surface">New Community Wave</p>
+<span class="text-[12px] text-outline">3h ago</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-tight">15 new people joined the 'Mindful Gardening' circle.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Sign Out / App Version Footer -->
+<footer class="pt-12 pb-8 flex flex-col items-center gap-4">
+<button class="text-error font-label-md hover:underline flex items-center gap-2 px-6 py-2 rounded-full border border-error/20 hover:bg-error/5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+        Sign Out
+      </button>
+<div class="text-center opacity-40">
+<p class="text-[11px] font-label-md">InnerBloom v2.4.0 (Gold)</p>
+<p class="text-[10px] font-body-sm">Designed for peace of mind.</p>
+</div>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Soul Match: Finding Connections</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@600;700&amp;family=Quicksand:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#994531",
+                    "primary-fixed-dim": "#ffb4a3",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#281814",
+                    "secondary-fixed-dim": "#73d5df",
+                    "surface-variant": "#fadcd5",
+                    "surface-container-high": "#ffe2db",
+                    "on-primary-fixed-variant": "#7a2e1d",
+                    "secondary-fixed": "#90f2fc",
+                    "surface-bright": "#fff8f6",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#fff1ed",
+                    "on-secondary-fixed": "#002022",
+                    "on-background": "#281814",
+                    "secondary": "#006970",
+                    "on-tertiary-fixed": "#3f001a",
+                    "inverse-surface": "#3e2c28",
+                    "surface": "#fff8f6",
+                    "on-primary-fixed": "#3d0600",
+                    "on-surface-variant": "#55433e",
+                    "on-secondary-fixed-variant": "#004f55",
+                    "primary-fixed": "#ffdad2",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#a8315c",
+                    "inverse-primary": "#ffb4a3",
+                    "tertiary-container": "#fa719c",
+                    "on-tertiary": "#ffffff",
+                    "background": "#fff8f6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#fadcd5",
+                    "outline": "#88726d",
+                    "surface-dim": "#f2d3cc",
+                    "surface-container": "#ffe9e4",
+                    "outline-variant": "#dbc1bb",
+                    "tertiary-fixed": "#ffd9e1",
+                    "on-tertiary-container": "#700034",
+                    "primary-container": "#e8836b",
+                    "tertiary-fixed-dim": "#ffb1c4",
+                    "inverse-on-surface": "#ffede9",
+                    "on-primary-container": "#641e0e",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed-variant": "#881645",
+                    "error": "#ba1a1a",
+                    "primary": "#994531",
+                    "secondary-container": "#90f2fc",
+                    "on-secondary-container": "#006f77"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-gap-md": "16px",
+                    "container-padding": "24px",
+                    "unit": "8px",
+                    "stack-gap-sm": "8px",
+                    "section-margin": "48px",
+                    "stack-gap-lg": "32px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Nunito Sans"],
+                    "headline-sm": ["Nunito Sans"],
+                    "body-md": ["Quicksand"],
+                    "body-lg": ["Quicksand"],
+                    "headline-xl": ["Nunito Sans"],
+                    "body-sm": ["Quicksand"],
+                    "headline-xl-mobile": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "label-md": ["Quicksand"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.1; }
+            100% { transform: scale(0.8); opacity: 0.3; }
+        }
+        @keyframes float-ethereal {
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(0deg); }
+            50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: rotate(180deg); }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(360deg); }
+        }
+        .resonance-field {
+            animation: float-ethereal 12s ease-in-out infinite;
+            background: linear-gradient(135deg, #ffdad2 0%, #fa719c 50%, #90f2fc 100%);
+            filter: blur(40px);
+            opacity: 0.4;
+        }
+        .glass-panel {
+            background: rgba(255, 248, 246, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .mesh-background {
+            background-color: #fff8f6;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(232, 131, 107, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(144, 242, 252, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(250, 113, 156, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(255, 218, 210, 0.2) 0px, transparent 50%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="mesh-background text-on-surface font-body-md min-h-screen flex flex-col items-center justify-center overflow-hidden">
+<!-- Immersive Content Area -->
+<main class="relative z-10 w-full max-w-[600px] px-container-padding flex flex-col items-center text-center space-y-stack-gap-lg">
+<!-- Resonance Field Container -->
+<div class="relative w-72 h-72 flex items-center justify-center mb-8">
+<!-- Decorative Rings -->
+<div class="absolute inset-0 border-2 border-primary/10 rounded-full scale-125 opacity-20" style="animation: pulse-ring 4s infinite ease-in-out;"></div>
+<div class="absolute inset-0 border border-secondary/20 rounded-full scale-150 opacity-10" style="animation: pulse-ring 6s infinite ease-in-out -1s;"></div>
+<!-- Core Organic Shape (The AI Soul) -->
+<div class="resonance-field absolute inset-0"></div>
+<!-- Centered Identity Icon -->
+<div class="relative z-20 w-24 h-24 bg-surface-container-lowest rounded-full flex items-center justify-center shadow-[0px_8px_24px_rgba(92,71,66,0.08)]">
+<span class="material-symbols-outlined text-primary text-5xl font-variation-settings-fill" style="font-variation-settings: 'FILL' 1;">
+                    favorite
+                </span>
+</div>
+</div>
+<!-- Typography Cluster -->
+<div class="space-y-stack-gap-sm">
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile md:font-headline-xl md:text-headline-xl text-primary tracking-tight">
+                Finding your kindred spirits
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[400px] mx-auto opacity-80 leading-relaxed">
+                We're analyzing your emotional resonance to find the perfect harmony.
+            </p>
+</div>
+<!-- Progress Interaction Section -->
+<div class="w-full max-w-[320px] pt-8 space-y-stack-gap-md">
+<!-- Progress Label -->
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-md text-label-md text-primary tracking-widest uppercase">
+                    66% HARMONIZED
+                </span>
+<span class="material-symbols-outlined text-secondary animate-pulse text-xl">
+                    rebase_edit
+                </span>
+</div>
+<!-- Custom Progress Bar -->
+<div class="relative h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary-container rounded-full transition-all duration-700 ease-out shadow-[0px_0px_12px_rgba(232,131,107,0.4)]" id="progress-bar" style="width: 66%;"></div>
+</div>
+<!-- Soft Sub-hint -->
+<p class="font-body-sm text-body-sm text-outline italic">
+                Scanning deep values and communication styles...
+            </p>
+</div>
+</main>
+<!-- Glassmorphic Decorative Accents -->
+<div class="fixed top-12 left-12 w-32 h-32 bg-secondary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="fixed bottom-24 right-12 w-48 h-48 bg-tertiary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Hidden Scripts for Atmospheric Micro-interactions -->
+<script>
+        // Subtle progress bar animation pulse
+        const progressBar = document.getElementById('progress-bar');
+        setInterval(() => {
+            const currentWidth = parseFloat(progressBar.style.width);
+            if (currentWidth < 98) {
+                const nextWidth = currentWidth + (Math.random() * 0.5);
+                progressBar.style.width = nextWidth + '%';
+            }
+        }, 3000);
+
+        // Responsive handling for viewport height issues on mobile
+        const setVh = () => {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        window.addEventListener('resize', setVh);
+        setVh();
+    </script>
+<!-- Background Elements description for AI -->
+<div class="hidden">
+<img data-alt="An ethereal and artistic digital visual representation of emotional resonance. Two soft, glowing orbs of warm latte and peach glow colors are gently merging in a vast, clean, light-mode sanctuary space. Soft focus, blurred edges, and a sense of calm atmospheric depth. The lighting is high-key and optimistic, reflecting a premium digital hug aesthetic with gentle shadows and organic movements." src="https://lh3.googleusercontent.com/aida-public/AB6AXuABEFtC0UP-yzHaOzzGxpAUcFzXeEZG0avNE2DtiLJtJVeDSuKMTTPxHHnenyN3GIh5zNYOzfBPnKccsthmwS_L0dJSuZ4g_UPM85SjFmkk0XgGthIzuBwaktCkG0TMzIqi9nDgxJo_ZHrO4p88NcjWRsSk9lZcz14pYOj-oIOd2SbtY-s-S0SpjUNBY0EcwZkwNEmAGkFAKPUTq8Fv9MNOkPvbkm9s4wK59CRLkS71jxzfiMjaxTAUTlzUwGhovfdRUPBj1hZ0Iurp"/>
+</div>
+</body></html>

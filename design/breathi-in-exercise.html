@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InnerBloom - Mindfulness Exercises</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-secondary-fixed": "#002022", "on-tertiary-fixed": "#3f001a", "surface-container-low": "#fff1ed", "tertiary-fixed-dim": "#ffb1c4", "on-primary": "#ffffff", "secondary-container": "#90f2fc", "on-secondary-fixed-variant": "#004f55", "tertiary-container": "#fa719c", primary: "#994531", "surface-container": "#ffe9e4", "primary-fixed-dim": "#ffb4a3", "on-primary-fixed": "#3d0600", "inverse-surface": "#3e2c28", secondary: "#006970", "secondary-fixed": "#90f2fc", "surface-bright": "#fff8f6", "on-tertiary-fixed-variant": "#881645", error: "#ba1a1a", "inverse-on-surface": "#ffede9", "outline-variant": "#dbc1bb", "error-container": "#ffdad6", "on-secondary": "#ffffff", "on-tertiary-container": "#700034", "surface-container-highest": "#fadcd5", "primary-fixed": "#ffdad2", "on-tertiary": "#ffffff", "on-error": "#ffffff", "secondary-fixed-dim": "#73d5df", "on-surface-variant": "#55433e", outline: "#88726d", "surface-container-lowest": "#ffffff", "on-error-container": "#93000a", surface: "#fff8f6", "inverse-primary": "#ffb4a3", "tertiary-fixed": "#ffd9e1", "surface-dim": "#f2d3cc", "on-primary-fixed-variant": "#7a2e1d", "surface-tint": "#994531", tertiary: "#a8315c", "on-surface": "#281814", background: "#fff8f6", "surface-variant": "#fadcd5", "on-primary-container": "#641e0e", "primary-container": "#e8836b", "on-background": "#281814", "surface-container-high": "#ffe2db", "on-secondary-container": "#006f77"}, borderRadius: {DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px"}, spacing: {"section-margin": "48px", "stack-gap-sm": "8px", "container-padding": "24px", "stack-gap-lg": "32px", unit: "8px", "stack-gap-md": "16px"}, fontFamily: {"body-lg": ["Quicksand"], "headline-sm": ["Nunito Sans"], "headline-xl": ["Nunito Sans"], "body-sm": ["Quicksand"], "headline-lg": ["Nunito Sans"], "body-md": ["Quicksand"], "label-md": ["Quicksand"], "headline-md": ["Nunito Sans"], "headline-xl-mobile": ["Nunito Sans"], headline: ["Nunito Sans"], display: ["Nunito Sans"], body: ["Quicksand"], label: ["Quicksand"]}, fontSize: {"body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}], "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}], "headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}], "body-sm": ["14px", {lineHeight: "1.5", fontWeight: "400"}], "headline-lg": ["32px", {lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "700"}], "body-md": ["16px", {lineHeight: "1.6", fontWeight: "400"}], "label-md": ["14px", {lineHeight: "20px", letterSpacing: "0.02em", fontWeight: "600"}], "headline-md": ["24px", {lineHeight: "32px", fontWeight: "600"}], "headline-xl-mobile": ["32px", {lineHeight: "40px", fontWeight: "700"}]}}}};</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md selection:bg-secondary-container">
+<!-- Top Navigation -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-surface/80 backdrop-blur-xl">
+<div class="flex items-center gap-stack-gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">InnerBloom</h1>
+<div class="flex items-center gap-stack-gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-container-padding max-w-2xl mx-auto space-y-stack-gap-lg">
+<!-- Search & Categories Section -->
+<section class="space-y-stack-gap-md">
+<div class="space-y-stack-gap-sm">
+<h2 class="font-headline-lg text-headline-lg-mobile text-on-surface">Mindfulness Library</h2>
+<p class="font-body-md text-on-surface-variant">Find your center with guided practices tailored for your peace of mind.</p>
+</div>
+<div class="flex gap-stack-gap-sm overflow-x-auto pb-2 no-scrollbar">
+<button class="bg-secondary-container text-on-secondary-container px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap">All Exercises</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap">Breathing</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap">Meditation</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap">Focus</button>
+</div>
+</section>
+<!-- Bento Grid Library -->
+<section class="grid grid-cols-2 gap-stack-gap-md">
+<!-- Box Breathing Card (Large) -->
+<div class="col-span-2 bg-surface-container-low rounded-lg p-6 flex flex-col justify-between shadow-[0px_8px_24px_rgba(92,71,66,0.08)] group hover:scale-[1.01] transition-transform cursor-pointer">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-3 py-1 rounded-full text-[12px] font-bold uppercase tracking-wider">Most Popular</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface pt-2">Box Breathing</h3>
+<p class="font-body-sm text-on-surface-variant">Reset your nervous system in 5 minutes.</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="air">air</span>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-between border-t border-outline-variant pt-4">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-outline" data-icon="schedule">schedule</span>
+<span class="font-label-md text-label-md text-on-surface-variant">5 min</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-outline" data-icon="signal_cellular_alt">signal_cellular_alt</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Easy</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+<!-- Focus Meditation Card -->
+<div class="bg-surface-container rounded-lg p-5 flex flex-col gap-stack-gap-md shadow-[0px_8px_24px_rgba(92,71,66,0.08)]">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="psychology">psychology</span>
+</div>
+<div class="space-y-1">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Deep Focus</h4>
+<p class="font-body-sm text-on-surface-variant leading-tight">10 min • Medium</p>
+</div>
+</div>
+<!-- Zen Garden Card -->
+<div class="bg-surface-container rounded-lg p-5 flex flex-col gap-stack-gap-md shadow-[0px_8px_24px_rgba(92,71,66,0.08)]">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-primary" data-icon="nature">nature</span>
+</div>
+<div class="space-y-1">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Zen Space</h4>
+<p class="font-body-sm text-on-surface-variant leading-tight">15 min • Advanced</p>
+</div>
+</div>
+</section>
+<!-- Featured Section -->
+<section class="bg-surface-container-highest rounded-lg p-8 relative overflow-hidden group">
+<!-- Background Blob Decoration -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-tertiary-fixed-dim/30 rounded-full blur-3xl"></div>
+<div class="relative z-10 space-y-stack-gap-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">Ready for your daily bloom?</h2>
+<p class="font-body-md text-on-surface-variant max-w-[80%]">Step into an immersive breathing journey designed to sync your body and mind.</p>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-full font-label-md text-label-md flex items-center gap-stack-gap-sm hover:scale-105 transition-transform">
+                    Start Immersive Session
+                    <span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+</button>
+</div>
+</section>
+</main>
+<!-- ACTIVE EXERCISE OVERLAY (Simulated Modal/Full Screen) -->
+<!-- In a real app, this would be hidden until triggered. Displayed here to fulfill the prompt. -->
+<div class="fixed inset-0 z-[100] bg-gradient-to-b from-surface-container-low to-secondary-fixed flex flex-col items-center justify-between py-16 px-container-padding overflow-hidden">
+<!-- Header Controls -->
+<div class="w-full flex justify-between items-center">
+<button class="w-12 h-12 rounded-full bg-white/40 backdrop-blur-md flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-label-md text-label-md text-primary tracking-widest uppercase">Box Breathing</span>
+<span class="font-body-sm text-on-surface-variant">02:45 remaining</span>
+</div>
+<button class="w-12 h-12 rounded-full bg-white/40 backdrop-blur-md flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined" data-icon="volume_up">volume_up</span>
+</button>
+</div>
+<!-- Central Breathing Animation Area -->
+<div class="relative flex items-center justify-center w-full max-w-sm aspect-square">
+<!-- Organic Blobs Background -->
+<div class="absolute w-72 h-72 bg-tertiary-fixed-dim/20 rounded-full blur-3xl animate-pulse"></div>
+<!-- The Breathing Circle -->
+<div class="w-64 h-64 rounded-full border-[12px] border-primary/20 flex items-center justify-center relative">
+<!-- Inner Animated Circle (Expansion/Contraction simulated by sizing) -->
+<div class="w-48 h-48 bg-primary-container rounded-full flex items-center justify-center shadow-lg transition-all duration-[4000ms] ease-in-out">
+<span class="font-headline-lg text-headline-lg text-on-primary-container">Breathe In</span>
+</div>
+</div>
+<!-- Phase Indicator Dots -->
+<div class="absolute -bottom-12 flex gap-3">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+</div>
+</div>
+<!-- Bottom Controls -->
+<div class="flex flex-col items-center gap-stack-gap-lg w-full">
+<p class="font-body-lg text-body-lg text-on-surface-variant text-center px-8 italic">"Feel the air filling your lungs, expanding your chest with warmth."</p>
+<div class="flex items-center gap-stack-gap-lg">
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-primary group-active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[32px]" data-icon="pause" style="font-variation-settings: 'FILL' 1;">pause</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Pause</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-16 h-16 rounded-full bg-error-container flex items-center justify-center text-error group-active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[32px]" data-icon="stop" style="font-variation-settings: 'FILL' 1;">stop</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">End Session</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Shell (Desktop) -->
+<nav class="hidden md:flex fixed top-0 right-0 h-16 items-center px-container-padding z-50 gap-stack-gap-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Journal</a>
+<a class="font-label-md text-label-md text-primary bg-secondary-container px-4 py-1.5 rounded-full" href="#">Bloom</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Community</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Profile</a>
+</nav>
+<!-- Bottom Navigation Shell (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container-lowest/90 backdrop-blur-xl rounded-t-lg shadow-[0px_-8px_24px_rgba(92,71,66,0.08)]">
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1.5">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1.5">
+<span class="material-symbols-outlined" data-icon="book">book</span>
+<span class="font-label-md text-label-md">Journal</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1.5 transition-all duration-500 scale-90">
+<span class="material-symbols-outlined" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="font-label-md text-label-md">Bloom</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1.5">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Community</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1.5">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,411 @@
+<!--
+  CANONICAL HOME SCREEN REFERENCE — InnerBloom
+
+  This HTML is the source of truth for the home page (rendered as
+  src/app/(main)/checkin.tsx). Every layout, color, type, and interaction
+  in the React Native implementation must mirror this file exactly.
+
+  If the design changes, update THIS file first, then port the change
+  to checkin.tsx. Do not let the implementation drift.
+
+  Approved by user on 2026-05-25.
+-->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-fixed": "#002022",
+            "on-tertiary-fixed": "#3f001a",
+            "surface-container-low": "#fff1ed",
+            "tertiary-fixed-dim": "#ffb1c4",
+            "on-primary": "#ffffff",
+            "secondary-container": "#90f2fc",
+            "on-secondary-fixed-variant": "#004f55",
+            "tertiary-container": "#fa719c",
+            primary: "#994531",
+            "surface-container": "#ffe9e4",
+            "primary-fixed-dim": "#ffb4a3",
+            "on-primary-fixed": "#3d0600",
+            "inverse-surface": "#3e2c28",
+            secondary: "#006970",
+            "secondary-fixed": "#90f2fc",
+            "surface-bright": "#fff8f6",
+            "on-tertiary-fixed-variant": "#881645",
+            error: "#ba1a1a",
+            "inverse-on-surface": "#ffede9",
+            "outline-variant": "#dbc1bb",
+            "error-container": "#ffdad6",
+            "on-secondary": "#ffffff",
+            "on-tertiary-container": "#700034",
+            "surface-container-highest": "#fadcd5",
+            "primary-fixed": "#ffdad2",
+            "on-tertiary": "#ffffff",
+            "on-error": "#ffffff",
+            "secondary-fixed-dim": "#73d5df",
+            "on-surface-variant": "#55433e",
+            outline: "#88726d",
+            "surface-container-lowest": "#ffffff",
+            "on-error-container": "#93000a",
+            surface: "#fff8f6",
+            "inverse-primary": "#ffb4a3",
+            "tertiary-fixed": "#ffd9e1",
+            "surface-dim": "#f2d3cc",
+            "on-primary-fixed-variant": "#7a2e1d",
+            "surface-tint": "#994531",
+            tertiary: "#a8315c",
+            "on-surface": "#281814",
+            background: "#fff8f6",
+            "surface-variant": "#fadcd5",
+            "on-primary-container": "#641e0e",
+            "primary-container": "#e8836b",
+            "on-background": "#281814",
+            "surface-container-high": "#ffe2db",
+            "on-secondary-container": "#006f77"
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            lg: "2rem",
+            xl: "3rem",
+            full: "9999px"
+          },
+          spacing: {
+            "section-margin": "48px",
+            "stack-gap-sm": "8px",
+            "container-padding": "24px",
+            "stack-gap-lg": "32px",
+            unit: "8px",
+            "stack-gap-md": "16px"
+          },
+          fontFamily: {
+            "body-lg": ["Quicksand"],
+            "headline-sm": ["Nunito Sans"],
+            "headline-xl": ["Nunito Sans"],
+            "body-sm": ["Quicksand"],
+            "headline-lg": ["Nunito Sans"],
+            "body-md": ["Quicksand"],
+            "label-md": ["Quicksand"],
+            "headline-md": ["Nunito Sans"],
+            "headline-xl-mobile": ["Nunito Sans"],
+            headline: ["Nunito Sans"],
+            display: ["Nunito Sans"],
+            body: ["Quicksand"],
+            label: ["Quicksand"]
+          },
+          fontSize: {
+            "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}],
+            "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}],
+            "headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}],
+            "body-sm": ["14px", {lineHeight: "1.5", fontWeight: "400"}],
+            "headline-lg": ["32px", {lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "700"}],
+            "body-md": ["16px", {lineHeight: "1.6", fontWeight: "400"}],
+            "label-md": ["14px", {lineHeight: "20px", letterSpacing: "0.02em", fontWeight: "600"}],
+            "headline-md": ["24px", {lineHeight: "32px", fontWeight: "600"}],
+            "headline-xl-mobile": ["32px", {lineHeight: "40px", fontWeight: "700"}]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #fff8f6;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .soft-shadow {
+      box-shadow: 0px 8px 24px rgba(92, 71, 66, 0.08);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .trend-bar {
+      transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  </style>
+</head>
+<body class="text-on-background selection:bg-secondary-container selection:text-on-secondary-container overflow-x-hidden">
+<!-- Refined TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-20 bg-surface/90 backdrop-blur-xl border-b border-surface-container">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="w-11 h-11 rounded-full border-2 border-primary/20 p-0.5">
+<img alt="Profile" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApSgPTkTEtRCoihcOFOolOJH8DpWq-xWNDquVXQDNU_Ue1pgQrECRouxEatRFVytCZNFSpHYHWs1O6VCd3CE-BMRb8sf568yFdukyR1ckduL8WCBSo9puySCIUTvhgBWouEOsl-NKiQzkhHy2kyRLHs1S6cCUvE3KFfciDl-0hJ9UXcYGclhIF22JyFdJ8QK6Rrmw1jzCAflS5rWLJX48OhSjXc0TCSutYK_T_Y9ChlB8btkRzzwf7by00imVljDM4_a9grOEwB3qV"/>
+</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface rounded-full"></div>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-[18px] leading-tight text-primary font-bold">InnerBloom</span>
+<span class="text-[12px] text-on-surface-variant font-medium">Premium Member</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-error rounded-full border border-surface"></span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-40 px-container-padding max-w-[600px] mx-auto space-y-stack-gap-lg">
+<!-- Premium Greeting -->
+<section class="flex flex-col gap-1">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Good morning, Maya</h1>
+<p class="font-body-md text-on-surface-variant opacity-80 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">wb_sunny</span>
+      A clear sky and a calm mind await you today.
+    </p>
+</section>
+<!-- Daily Focus Section -->
+<section class="bg-primary/5 rounded-lg p-5 border border-primary/10 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">target</span>
+</div>
+<div class="flex-1">
+<span class="text-[12px] font-bold text-primary uppercase tracking-wider">Today's Focus</span>
+<h3 class="font-headline-sm text-[18px] text-on-surface">Setting Kind Intentions</h3>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-full text-label-md font-bold shadow-sm active:scale-95 transition-transform">
+      Start
+    </button>
+</section>
+<!-- Mood Check-in & Trends -->
+<section class="space-y-stack-gap-md">
+<div class="bg-surface-container-low p-6 rounded-lg soft-shadow border border-white/40">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6">How are you blooming?</h2>
+<div class="flex justify-between items-center mb-8">
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-active:scale-90 transition-transform border-2 border-transparent">
+<span class="material-symbols-outlined">sentiment_very_satisfied</span>
+</div>
+<span class="font-label-md text-[12px] text-on-surface-variant">Radiant</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center ring-4 ring-primary-container/30 group-active:scale-90 transition-transform">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</div>
+<span class="font-label-md text-[12px] text-primary font-bold">Good</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-active:scale-90 transition-transform border-2 border-transparent">
+<span class="material-symbols-outlined">sentiment_neutral</span>
+</div>
+<span class="font-label-md text-[12px] text-on-surface-variant">Steady</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-active:scale-90 transition-transform border-2 border-transparent">
+<span class="material-symbols-outlined">sentiment_dissatisfied</span>
+</div>
+<span class="font-label-md text-[12px] text-on-surface-variant">Tired</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-active:scale-90 transition-transform border-2 border-transparent">
+<span class="material-symbols-outlined">sentiment_very_dissatisfied</span>
+</div>
+<span class="font-label-md text-[12px] text-on-surface-variant">Low</span>
+</button>
+</div>
+<!-- Mini Trend Chart -->
+<div class="pt-6 border-t border-outline-variant/30">
+<div class="flex justify-between items-end h-16 gap-3 px-2">
+<div class="flex-1 flex flex-col items-center gap-1">
+<div class="w-full bg-primary/20 rounded-t-sm trend-bar" style="height: 40%"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">M</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1">
+<div class="w-full bg-primary/20 rounded-t-sm trend-bar" style="height: 60%"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">T</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1">
+<div class="w-full bg-primary/40 rounded-t-sm trend-bar" style="height: 85%"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">W</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1">
+<div class="w-full bg-primary/20 rounded-t-sm trend-bar" style="height: 50%"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">T</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1">
+<div class="w-full bg-primary/60 rounded-t-sm trend-bar" style="height: 90%"></div>
+<span class="text-[10px] text-primary font-bold">F</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container rounded-t-sm trend-bar" style="height: 5%"></div>
+<span class="text-[10px] text-on-surface-variant opacity-30 font-bold">S</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1">
+<div class="w-full bg-surface-container rounded-t-sm trend-bar" style="height: 5%"></div>
+<span class="text-[10px] text-on-surface-variant opacity-30 font-bold">S</span>
+</div>
+</div>
+<p class="text-center text-[12px] text-on-surface-variant mt-3 font-medium">Your mood has been improving consistently this week.</p>
+</div>
+</div>
+</section>
+<!-- Quick Actions Grid -->
+<section class="space-y-stack-gap-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Quick Care</h2>
+<div class="grid grid-cols-2 gap-4">
+<button class="bg-white border border-surface-container-high p-4 rounded-lg flex flex-col items-start gap-3 soft-shadow active:bg-surface-container-low transition-colors">
+<div class="w-10 h-10 rounded-full bg-secondary-container/30 text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined">add_reaction</span>
+</div>
+<span class="font-label-md text-on-surface">Log Mood</span>
+</button>
+<button class="bg-white border border-surface-container-high p-4 rounded-lg flex flex-col items-start gap-3 soft-shadow active:bg-surface-container-low transition-colors">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/30 text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined">edit_note</span>
+</div>
+<span class="font-label-md text-on-surface">Start Journal</span>
+</button>
+<button class="bg-white border border-surface-container-high p-4 rounded-lg flex flex-col items-start gap-3 soft-shadow active:bg-surface-container-low transition-colors">
+<div class="w-10 h-10 rounded-full bg-primary-fixed/30 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">air</span>
+</div>
+<span class="font-label-md text-on-surface">Breathing</span>
+</button>
+<button class="bg-error/5 border border-error/10 p-4 rounded-lg flex flex-col items-start gap-3 soft-shadow active:bg-error/10 transition-colors">
+<div class="w-10 h-10 rounded-full bg-error/10 text-error flex items-center justify-center">
+<span class="material-symbols-outlined">emergency_home</span>
+</div>
+<span class="font-label-md text-error font-bold">Emergency Calm</span>
+</button>
+</div>
+</section>
+<!-- Personalized Affirmation/Insight -->
+<section class="bg-surface-container-highest/50 p-6 rounded-lg soft-shadow relative overflow-hidden border border-white/20">
+<div class="absolute -right-12 -bottom-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary mb-4 text-3xl">auto_awesome</span>
+<p class="font-body-lg text-body-lg italic text-on-surface font-medium leading-relaxed">
+        "You are doing a wonderful job navigating your emotions today. Remember that your growth is not linear, but every small petal counts."
+      </p>
+<div class="mt-6 flex items-center gap-3 bg-white/60 backdrop-blur px-4 py-2 rounded-full border border-white/40">
+<img alt="Bloom AI" class="w-6 h-6 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApSgPTkTEtRCoihcOFOolOJH8DpWq-xWNDquVXQDNU_Ue1pgQrECRouxEatRFVytCZNFSpHYHWs1O6VCd3CE-BMRb8sf568yFdukyR1ckduL8WCBSo9puySCIUTvhgBWouEOsl-NKiQzkhHy2kyRLHs1S6cCUvE3KFfciDl-0hJ9UXcYGclhIF22JyFdJ8QK6Rrmw1jzCAflS5rWLJX48OhSjXc0TCSutYK_T_Y9ChlB8btkRzzwf7by00imVljDM4_a9grOEwB3qV"/>
+<span class="font-label-md text-[12px] text-on-surface-variant">Insight from Bloom AI</span>
+</div>
+</div>
+</section>
+<!-- Your Journey Section -->
+<section class="space-y-stack-gap-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Your Journey</h2>
+<div class="grid grid-cols-2 gap-stack-gap-md">
+<div class="bg-surface-container-lowest p-5 rounded-lg border border-surface-container-high soft-shadow flex flex-col items-center text-center">
+<span class="text-4xl mb-2">🌱</span>
+<span class="font-headline-md text-headline-md text-primary">7 Days</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Current Streak</span>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg border border-surface-container-high soft-shadow flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-tertiary text-4xl mb-2">task_alt</span>
+<span class="font-headline-md text-headline-md text-on-surface">Quest</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Mindfulness Week</span>
+</div>
+</div>
+</section>
+<!-- Upcoming Community Circles -->
+<section class="space-y-stack-gap-md">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Upcoming Circles</h2>
+<button class="text-primary font-label-md text-label-md">Join Queue</button>
+</div>
+<div class="space-y-3">
+<div class="bg-white p-4 rounded-lg border border-surface-container-high flex items-center gap-4 soft-shadow">
+<div class="flex-shrink-0 w-12 h-12 bg-secondary-container text-on-secondary-container rounded-lg flex flex-col items-center justify-center">
+<span class="text-[10px] font-bold uppercase">Today</span>
+<span class="text-[16px] font-bold">18:00</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-on-surface">Solo Living Support</h4>
+<p class="text-[12px] text-on-surface-variant">12 others are attending</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<div class="bg-white p-4 rounded-lg border border-surface-container-high flex items-center gap-4 soft-shadow opacity-70">
+<div class="flex-shrink-0 w-12 h-12 bg-surface-container text-on-surface-variant rounded-lg flex flex-col items-center justify-center">
+<span class="text-[10px] font-bold uppercase">Sat</span>
+<span class="text-[16px] font-bold">10:30</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-on-surface">Anxiety Breathwork</h4>
+<p class="text-[12px] text-on-surface-variant">Weekly Session</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Recommended Section -->
+<section class="space-y-stack-gap-md">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Recommended</h2>
+<button class="text-primary font-label-md text-label-md">See All</button>
+</div>
+<div class="flex gap-stack-gap-md overflow-x-auto custom-scroll -mx-4 px-4 pb-4">
+<!-- Card 1 -->
+<div class="flex-shrink-0 w-64 bg-surface-container-lowest rounded-lg overflow-hidden soft-shadow border border-surface-container-high">
+<div class="h-32 w-full bg-surface-container relative">
+<img alt="Meditation" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARbUiNgY4rzIBzfPMBckEAuuCAOcZUR4gYLBzCBZf-i3VcHe6L-FVex6ZsRjgYcuAn2mt-dl3jup_p-J9RNuQNAUYyvaHM9Ud7nHMRTqXbmj38xUgINaQ7H1q_D6UxNeDDkYIEsrYru5yuIpcJXdmlaaKHRwYAlQQ998YTu6n7Q_o1RUQAt6K80S_CWv4Nf6d32gibJvdE2yMMZKdWYiLMsXP1GvHhN-5uJ2EXknDtIvdkXcO8N-grDLa2eu9Oztkd6M94PgUW182W"/>
+<span class="absolute top-3 right-3 bg-white/80 backdrop-blur px-2 py-1 rounded-full text-[10px] font-bold text-on-surface uppercase">10 MIN</span>
+</div>
+<div class="p-4">
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Gentle Morning Release</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Release tension from your sleep.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex-shrink-0 w-64 bg-surface-container-lowest rounded-lg overflow-hidden soft-shadow border border-surface-container-high">
+<div class="h-32 w-full bg-surface-container relative">
+<img alt="Journaling" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4UvfAnZOOLcCavI22pzP-bnY6Bef_sF6NHxzraqS4O2B1uxp_vnBGHs9UuHivigs-CeD9v2yRhHYntL6jDf_8N2soiyHwZua-PGEwMq4jffGZdx-p18WJ4_TdV9O3PQn5IL1ibg-6OUgj2K9DwhDt7rdJk5v1d2YmdRPoz8lHjcBVczE1rBS-o2KAB9a094zN-6VkmXgsbZF-C2FDjUhpKRlCQC-ZfUnVtF4k5ahQgc_uYuMDQInQ9tFWI838GeCof0YUJt9Sbsvg"/>
+<span class="absolute top-3 right-3 bg-white/80 backdrop-blur px-2 py-1 rounded-full text-[10px] font-bold text-on-surface uppercase">PROMPT</span>
+</div>
+<div class="p-4">
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Gratitude Reflections</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Write down three tiny joys.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-6 pt-3 bg-surface-container-lowest/90 backdrop-blur-xl rounded-t-lg shadow-[0px_-8px_24px_rgba(92,71,66,0.08)] border-t border-surface-container">
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1.5 transition-all duration-300 scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-[10px] font-bold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:bg-surface-container-high rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="font-label-md text-[10px] font-bold">Journal</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:bg-surface-container-high rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-md text-[10px] font-bold">Bloom</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:bg-surface-container-high rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-[10px] font-bold">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:bg-surface-container-high rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">play_circle</span>
+<span class="font-label-md text-[10px] font-bold">Reels</span>
+</a>
+</nav>
+<!-- Floating Action Button -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-on-primary rounded-full soft-shadow flex items-center justify-center active:scale-95 transition-transform z-40">
+<span class="material-symbols-outlined text-3xl">chat_bubble</span>
+</button>
+</body></html>

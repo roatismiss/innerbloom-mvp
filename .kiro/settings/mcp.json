@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "transport": "http",
+      "disabled": false,
+      "autoApprove": [
+        "get_design_context",
+        "get_metadata"
+      ]
+    }
+  }
+}

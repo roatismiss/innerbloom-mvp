@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InnerBloom - Soul Match Quiz</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@600;700&amp;family=Quicksand:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#7a2e1d",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#ffe2db",
+                    "tertiary-fixed-dim": "#ffb1c4",
+                    "on-secondary-fixed": "#002022",
+                    "on-primary": "#ffffff",
+                    "surface-variant": "#fadcd5",
+                    "inverse-surface": "#3e2c28",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#fff1ed",
+                    "on-tertiary-fixed-variant": "#881645",
+                    "on-primary-container": "#641e0e",
+                    "background": "#fff8f6",
+                    "on-background": "#281814",
+                    "inverse-primary": "#ffb4a3",
+                    "tertiary": "#a8315c",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#73d5df",
+                    "surface-tint": "#994531",
+                    "primary": "#994531",
+                    "secondary-container": "#90f2fc",
+                    "surface-dim": "#f2d3cc",
+                    "tertiary-fixed": "#ffd9e1",
+                    "surface-container-highest": "#fadcd5",
+                    "inverse-on-surface": "#ffede9",
+                    "tertiary-container": "#fa719c",
+                    "on-surface-variant": "#55433e",
+                    "on-surface": "#281814",
+                    "surface": "#fff8f6",
+                    "primary-fixed-dim": "#ffb4a3",
+                    "on-tertiary-container": "#700034",
+                    "primary-fixed": "#ffdad2",
+                    "outline-variant": "#dbc1bb",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed-variant": "#004f55",
+                    "primary-container": "#e8836b",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#fff8f6",
+                    "secondary-fixed": "#90f2fc",
+                    "on-primary-fixed": "#3d0600",
+                    "on-tertiary-fixed": "#3f001a",
+                    "surface-container": "#ffe9e4",
+                    "secondary": "#006970",
+                    "outline": "#88726d",
+                    "on-secondary-container": "#006f77"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-gap-md": "16px",
+                    "unit": "8px",
+                    "stack-gap-lg": "32px",
+                    "section-margin": "48px",
+                    "container-padding": "24px",
+                    "stack-gap-sm": "8px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Quicksand"],
+                    "body-md": ["Quicksand"],
+                    "headline-xl": ["Nunito Sans"],
+                    "headline-sm": ["Nunito Sans"],
+                    "headline-md": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "label-md": ["Quicksand"],
+                    "headline-xl-mobile": ["Nunito Sans"],
+                    "body-sm": ["Quicksand"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .quiz-card-selected {
+            border: 2px solid #994531 !important;
+            background-color: #ffe9e4 !important;
+            transform: scale(1.02);
+        }
+        .progress-glow {
+            box-shadow: 0 0 12px rgba(153, 69, 49, 0.3);
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-surface/80 backdrop-blur-xl">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-300 active:scale-95 text-primary">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Soul Match Quiz</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-300 active:scale-95 text-primary">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</header>
+<main class="flex-grow pt-24 pb-32 px-container-padding max-w-[600px] mx-auto w-full">
+<!-- Progress Section -->
+<div class="mb-stack-gap-lg">
+<div class="flex justify-between items-center mb-stack-gap-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">Step 1 of 4</span>
+<span class="font-label-md text-label-md text-primary font-bold">25%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4 rounded-full progress-glow transition-all duration-700 ease-out"></div>
+</div>
+</div>
+<!-- Question Header -->
+<section class="mb-stack-gap-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-stack-gap-sm leading-tight">
+                How would you describe your current emotional energy?
+            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                Take a deep breath. There are no wrong answers, only your unique truth in this moment.
+            </p>
+</section>
+<!-- Options Bento/Grid -->
+<div class="grid grid-cols-1 gap-stack-gap-md" id="quiz-options">
+<!-- Option 1 -->
+<button class="group relative flex items-center gap-4 p-5 bg-surface-container-low rounded-lg transition-all duration-300 hover:bg-surface-container shadow-[0px_8px_24px_rgba(92,71,66,0.08)] border-2 border-transparent text-left overflow-hidden" onclick="selectOption(this)">
+<div class="w-12 h-12 flex-shrink-0 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="wb_sunny">wb_sunny</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Radiant &amp; Social</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Feeling vibrant and ready to connect with others.</p>
+</div>
+</button>
+<!-- Option 2 -->
+<button class="group relative flex items-center gap-4 p-5 bg-surface-container-low rounded-lg transition-all duration-300 hover:bg-surface-container shadow-[0px_8px_24px_rgba(92,71,66,0.08)] border-2 border-transparent text-left overflow-hidden" onclick="selectOption(this)">
+<div class="w-12 h-12 flex-shrink-0 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="nights_stay">nights_stay</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Quiet &amp; Reflective</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Turning inward for peace and gentle observation.</p>
+</div>
+</button>
+<!-- Option 3 -->
+<button class="group relative flex items-center gap-4 p-5 bg-surface-container-low rounded-lg transition-all duration-300 hover:bg-surface-container shadow-[0px_8px_24px_rgba(92,71,66,0.08)] border-2 border-transparent text-left overflow-hidden" onclick="selectOption(this)">
+<div class="w-12 h-12 flex-shrink-0 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="self_improvement">self_improvement</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Healing &amp; Introspective</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Focusing on personal growth and emotional mending.</p>
+</div>
+</button>
+<!-- Option 4 -->
+<button class="group relative flex items-center gap-4 p-5 bg-surface-container-low rounded-lg transition-all duration-300 hover:bg-surface-container shadow-[0px_8px_24px_rgba(92,71,66,0.08)] border-2 border-transparent text-left overflow-hidden" onclick="selectOption(this)">
+<div class="w-12 h-12 flex-shrink-0 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed-variant transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Seeking Inspiration</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Open to new ideas, beauty, and creative sparks.</p>
+</div>
+</button>
+</div>
+<!-- Decorative Illustration Element -->
+<div class="mt-stack-gap-lg p-6 bg-surface-container-highest/30 rounded-lg flex flex-col items-center text-center">
+<img class="w-32 h-32 object-cover rounded-full mb-4 shadow-lg border-4 border-white" data-alt="A soft, ethereal digital painting of glowing, warm energy spheres swirling in a gentle, hazy Cream and Peach Glow atmosphere. The lighting is low-key and soothing, evoking a sense of calm emotional healing and patient growth. The visual style is organic and fluid, perfectly aligning with a digital hug and sanctuary aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4hZ3zTeoAwPYkGJsGsRSDLDVoGG0ZJ0b8zp8SRJUFz-jde0S2enhUN8EUoE-tv2STDexVySCs0kPfGMADpGRN6IasOSzJaye6pdq70kylFsmyihNLaN0kvCu1g11kNvJXtKt1tuDaPMYE4nrXQiGgrx1-Lp9DjjbcphhXIaS0KOftd6rtadcx9J5uORrXkkRlQROE1kSU6ZXeqqz-D780sldkWOXYE6F6W4bgFP8E1nH_Bkc2e43L3LGOkJfRP86fh0kR7j-oyo0S"/>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">"Your energy is your unique signature today."</p>
+</div>
+</main>
+<!-- Fixed Bottom Actions -->
+<footer class="fixed bottom-0 left-0 w-full p-container-padding bg-surface/90 backdrop-blur-xl flex flex-col gap-4">
+<button class="w-full h-14 rounded-full bg-primary text-on-primary font-bold text-body-lg flex items-center justify-center gap-2 opacity-50 cursor-not-allowed transition-all duration-300 active:scale-95 shadow-lg" disabled="" id="continue-btn">
+            Continue
+            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<p class="text-center font-label-md text-label-md text-outline">You can update your energy profile anytime</p>
+</footer>
+<script>
+        function selectOption(element) {
+            // Remove selection from all other options
+            const options = document.querySelectorAll('#quiz-options button');
+            options.forEach(opt => {
+                opt.classList.remove('quiz-card-selected');
+                opt.classList.add('bg-surface-container-low');
+            });
+
+            // Add selection to clicked element
+            element.classList.add('quiz-card-selected');
+            element.classList.remove('bg-surface-container-low');
+
+            // Enable continue button
+            const continueBtn = document.getElementById('continue-btn');
+            continueBtn.disabled = false;
+            continueBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            continueBtn.classList.add('hover:bg-on-primary-fixed-variant');
+
+            // Micro-interaction: Subtle vibration/feedback
+            if (window.navigator.vibrate) {
+                window.navigator.vibrate(10);
+            }
+        }
+
+        // Initialize progress bar animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBar = document.querySelector('.bg-primary.w-1\\/4');
+            setTimeout(() => {
+                progressBar.style.width = '25%';
+            }, 100);
+        });
+    </script>
+</body></html>
