@@ -12,6 +12,8 @@ import { callRpc, sb } from './client';
 export type ConversationWithOther = ConversationRow & {
   other_user_id: string;
   other_alias: string;
+  other_display_name: string | null;
+  other_avatar_url:   string | null;
 };
 
 export function useConversation(conversationId: string | null | undefined) {
@@ -53,14 +55,22 @@ export function useConversationWithOther(conversationId: string | null | undefin
 
       const { data: other } = await sb()
         .from('public_profiles')
-        .select('anonymous_alias')
+        .select('anonymous_alias, display_name, avatar_url')
         .eq('id', otherId)
         .maybeSingle();
 
+      const o = other as {
+        anonymous_alias: string;
+        display_name: string | null;
+        avatar_url: string | null;
+      } | null;
+
       return {
         ...conv,
-        other_user_id: otherId,
-        other_alias: other?.anonymous_alias ?? 'Bloom',
+        other_user_id:      otherId,
+        other_alias:        o?.anonymous_alias ?? 'Bloom',
+        other_display_name: o?.display_name ?? null,
+        other_avatar_url:   o?.avatar_url ?? null,
       };
     },
   });

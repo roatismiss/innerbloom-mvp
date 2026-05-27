@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DEFAULT_MOOD_INTENSITY, greeting, moodColor } from '../../lib/mood';
 import { useTodayIntention } from '../../lib/queries/intentions';
 import { useMoodHistory, useSubmitMood, useTodayForMe } from '../../lib/queries/mood';
+import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
 import { useIntentionsStore } from '../../store/intentions';
 import { useMoodStore } from '../../store/mood';
 import { useUIStore } from '../../store/ui';
@@ -133,6 +134,7 @@ export default function DashboardScreen() {
   const todayForMe = useTodayForMe();
   const moodHistory = useMoodHistory(7);
   const submitMood = useSubmitMood();
+  const unreadCount = useUnreadNotificationsCount().data;
   const todayMood = localMood ?? (todayForMe.data?.mood
     ? {
         category: todayForMe.data.mood.category,
@@ -267,9 +269,13 @@ export default function DashboardScreen() {
             </View>
           </View>
           <View style={s.topBarRight}>
-            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+            <TouchableOpacity
+              style={s.iconBtn}
+              activeOpacity={0.7}
+              onPress={() => router.push('/(main)/notifications')}
+            >
               <MaterialCommunityIcons name="bell-outline" size={22} color={C.onSurfaceVariant} />
-              <View style={s.notifDot} />
+              {(unreadCount ?? 0) > 0 ? <View style={s.notifDot} /> : null}
             </TouchableOpacity>
           </View>
         </View>

@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -177,18 +178,35 @@ export default function ConversationScreen() {
             <MaterialCommunityIcons name="arrow-left" size={24} color={C.primary} />
           </TouchableOpacity>
 
-          {/* Avatar (anonymous) + alias */}
+          {/* Avatar (real if set, fallback flower) + name (display_name wins) */}
           <View style={s.profileRow}>
-            <View style={s.avatarBubble}>
-              <MaterialCommunityIcons name="flower-tulip" size={20} color={C.primary} />
-              <View style={s.onlineDot} />
-            </View>
+            {conversation.data?.other_avatar_url ? (
+              <View style={s.avatarBubbleImg}>
+                <Image
+                  source={{ uri: conversation.data.other_avatar_url }}
+                  style={s.avatarImg}
+                  contentFit="cover"
+                />
+                <View style={s.onlineDot} />
+              </View>
+            ) : (
+              <View style={s.avatarBubble}>
+                <MaterialCommunityIcons name="flower-tulip" size={20} color={C.primary} />
+                <View style={s.onlineDot} />
+              </View>
+            )}
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={s.personName} numberOfLines={1}>
-                {conversation.data?.other_alias ?? 'Bloom'}
+                {conversation.data?.other_display_name?.trim()
+                  || conversation.data?.other_alias
+                  || 'Bloom'}
               </Text>
               <View style={s.statusRow}>
-                <Text style={s.onlineLabel}>Anonymous</Text>
+                <Text style={s.onlineLabel}>
+                  {conversation.data?.other_display_name
+                    ? conversation.data.other_alias
+                    : 'Anonymous'}
+                </Text>
                 {conversation.data?.is_kept ? (
                   <View style={s.keptPill}>
                     <MaterialCommunityIcons name="flower" size={10} color={C.onSecondaryContainer} />
@@ -671,6 +689,14 @@ const s = StyleSheet.create({
     width: 40, height: 40, borderRadius: 20,
     backgroundColor: C.primaryFixed,
     alignItems: 'center', justifyContent: 'center',
+  },
+  avatarBubbleImg: {
+    width: 40, height: 40, borderRadius: 20,
+    position: 'relative',
+  },
+  avatarImg: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: C.surfaceContainerHigh,
   },
   onlineDot: {
     position: 'absolute', bottom: 0, right: 0,

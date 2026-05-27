@@ -89,7 +89,10 @@ export default function LoginScreen() {
           setUser({ id: data.user.id, anonymousAlias: p?.anonymous_alias ?? 'Bloom User', createdAt: data.user.created_at });
           setOnboarded(onboarded);
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          router.replace(onboarded ? '/(main)/checkin' : '/onboarding/mood');
+          // Returning users land on Dashboard — mood check-in is inline there.
+          // No need to gate them on a separate full-screen mood picker every
+          // login; the dashboard surfaces today's mood as active if set.
+          router.replace(onboarded ? '/(main)/dashboard' : '/onboarding/mood');
         }
       }
     } catch (e: any) {

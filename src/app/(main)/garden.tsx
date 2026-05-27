@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
@@ -216,11 +217,17 @@ function PendingRequestCard({ row }: { row: PendingKindredRequestRow }) {
   return (
     <View style={s.pendingCard}>
       <View style={s.pendingHead}>
-        <View style={s.pendingBadge}>
-          <MaterialCommunityIcons name="flower" size={16} color={C.tertiary} />
-        </View>
+        {row.from_avatar_url ? (
+          <Image source={{ uri: row.from_avatar_url }} style={s.pendingAvatarImg} contentFit="cover" />
+        ) : (
+          <View style={s.pendingBadge}>
+            <MaterialCommunityIcons name="flower" size={16} color={C.tertiary} />
+          </View>
+        )}
         <View style={{ flex: 1 }}>
-          <Text style={s.pendingAlias}>{row.from_alias}</Text>
+          <Text style={s.pendingAlias}>
+            {row.from_display_name?.trim() || row.from_alias}
+          </Text>
           <Text style={s.pendingSub}>wants to keep blooming with you</Text>
         </View>
       </View>
@@ -272,12 +279,18 @@ function KindredCard({
   return (
     <Animated.View entering={FadeInDown.delay(index * 60).springify()}>
       <Pressable style={s.card} onPress={onOpen} android_ripple={{ color: C.surfaceContainer }}>
-        <View style={s.cardAvatar}>
-          <MaterialCommunityIcons name="flower-tulip" size={24} color={C.primary} />
-        </View>
+        {row.other_avatar_url ? (
+          <Image source={{ uri: row.other_avatar_url }} style={s.cardAvatarImg} contentFit="cover" />
+        ) : (
+          <View style={s.cardAvatar}>
+            <MaterialCommunityIcons name="flower-tulip" size={24} color={C.primary} />
+          </View>
+        )}
         <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
           <View style={s.cardTopRow}>
-            <Text style={s.cardAlias} numberOfLines={1}>{row.other_alias}</Text>
+            <Text style={s.cardAlias} numberOfLines={1}>
+              {row.other_display_name?.trim() || row.other_alias}
+            </Text>
             <Text style={s.cardWhen}>{lastWhen}</Text>
           </View>
           <Text style={s.cardSnippet} numberOfLines={2}>{lastLine}</Text>
@@ -386,6 +399,10 @@ const s = StyleSheet.create({
     borderRadius: 24, padding: 18, gap: 12,
   },
   pendingHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  pendingAvatarImg: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: C.tertiaryFixed,
+  },
   pendingBadge: {
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: C.tertiaryFixed,
@@ -431,6 +448,10 @@ const s = StyleSheet.create({
     borderRadius: 24, padding: 16,
     borderWidth: 1, borderColor: C.surfaceContainerHigh,
     ...SOFT_SHADOW,
+  },
+  cardAvatarImg: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: C.surfaceContainerHigh,
   },
   cardAvatar: {
     width: 48, height: 48, borderRadius: 24,

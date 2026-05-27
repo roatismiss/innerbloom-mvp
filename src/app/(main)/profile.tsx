@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 import { unregisterPushTokenForCurrentDevice } from '../../lib/queries/notifications';
+import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
 import {
   useMyProfile,
   useProfileStats,
@@ -137,7 +138,7 @@ const SETTINGS_PRIVACY: SettingItem[] = [
 
 // ─── Avatar with gradient ring ──────────────────────────────────────────────
 
-function GradientAvatar() {
+function GradientAvatar({ uri }: { uri: string | null }) {
   const SIZE = 128;
   return (
     <View style={{ width: SIZE, height: SIZE }}>
@@ -151,7 +152,13 @@ function GradientAvatar() {
         <Circle cx={SIZE / 2} cy={SIZE / 2} r={SIZE / 2} fill="url(#ringGrad)" />
       </Svg>
       <View style={s.avatarInner}>
-        <Image source={{ uri: AVATAR_URI }} style={s.avatarImg} contentFit="cover" />
+        {uri ? (
+          <Image source={{ uri }} style={s.avatarImg} contentFit="cover" />
+        ) : (
+          <View style={[s.avatarImg, { backgroundColor: C.primaryFixedDim, alignItems: 'center', justifyContent: 'center' }]}>
+            <MaterialCommunityIcons name="flower-tulip" size={56} color={C.primary} />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -177,8 +184,16 @@ export default function ProfileScreen() {
 
   // Prefer the freshly-fetched server alias; fall back to whatever auth gave
   // us, then to a quiet placeholder so the screen never looks broken.
+  // Prefer the user-chosen display_name when set; alias is the canonical
+  // anonymous identity and always present.
+  const profileDisplayName = (myProfile.data as { display_name?: string | null } | null | undefined)?.display_name;
   const displayName =
-    myProfile.data?.anonymous_alias ?? user?.anonymousAlias ?? 'Bloom';
+    profileDisplayName?.trim()
+    || myProfile.data?.anonymous_alias
+    || user?.anonymousAlias
+    || 'Bloom';
+
+  const unreadCount = useUnreadNotificationsCount().data;
 
   // "Level" is a soft proxy for engagement until we have a real XP system.
   // Every 10 combined check-ins + journals nudges it up. Starts at L1.
@@ -229,8 +244,13 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <Text style={s.brand}>InnerBloom</Text>
           </View>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={s.iconBtn}
+            activeOpacity={0.7}
+            onPress={() => router.push('/(main)/notifications')}
+          >
             <MaterialCommunityIcons name="bell-outline" size={24} color={C.primary} />
+            {(unreadCount ?? 0) > 0 ? <View style={s.profileBellDot} /> : null}
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -253,12 +273,18 @@ export default function ProfileScreen() {
       >
         {/* ─── Profile Header ─── */}
         <Animated.View entering={FadeInDown.delay(60).springify()} style={s.profileHeader}>
-          <View style={s.avatarWrap}>
-            <GradientAvatar />
-            <TouchableOpacity style={s.editBtn} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={s.avatarWrap}
+            activeOpacity={0.85}
+            onPress={() => router.push('/(main)/edit-profile')}
+          >
+            <GradientAvatar
+              uri={(myProfile.data as { avatar_url?: string | null } | null | undefined)?.avatar_url ?? null}
+            />
+            <View style={s.editBtn}>
               <MaterialCommunityIcons name="pencil" size={18} color={C.onPrimary} />
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
 
           <View style={s.nameWrap}>
             <View style={s.nameRow}>
@@ -612,6 +638,14 @@ const s = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  profileBellDot: {
+    position: 'absolute',
+    top: 9, right: 9,
+    width: 9, height: 9, borderRadius: 5,
+    backgroundColor: C.primary,
+    borderWidth: 2, borderColor: C.surface,
   },
 
   // ── Profile header ─────────────────────────────────────────────────────

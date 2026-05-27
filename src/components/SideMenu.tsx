@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../lib/supabase';
 import { usePendingKindredRequests } from '../lib/queries/kindred';
 import { unregisterPushTokenForCurrentDevice } from '../lib/queries/notifications';
+import { useMyProfile } from '../lib/queries/profile';
 import { useAuthStore } from '../store/auth';
 import { useUIStore } from '../store/ui';
 
@@ -72,9 +73,10 @@ const PRIMARY_NAV: NavItem[] = [
 ];
 
 const SECONDARY_NAV: NavItem[] = [
-  { key: 'settings', label: 'Settings & Privacy', icon: 'cog-outline' },
-  { key: 'premium',  label: 'Premium Status',     icon: 'crown-outline', badge: 'Active', badgeColor: C.tertiary, iconColor: C.tertiary },
-  { key: 'help',     label: 'Help & Support',     icon: 'help-circle-outline' },
+  { key: 'edit-profile', label: 'Edit Profile',        icon: 'account-edit-outline', route: '/(main)/edit-profile' },
+  { key: 'notifications', label: 'Notifications',      icon: 'bell-outline',         route: '/(main)/notifications' },
+  { key: 'settings',     label: 'Settings & Privacy', icon: 'cog-outline',          comingSoon: true },
+  { key: 'help',         label: 'Help & Support',     icon: 'help-circle-outline',  comingSoon: true },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -87,6 +89,9 @@ export function SideMenu() {
   const signOut = useAuthStore((s) => s.signOut);
   const pendingKindred = usePendingKindredRequests();
   const pendingCount = pendingKindred.data?.length ?? 0;
+  const myProfile = useMyProfile();
+  const profileAvatar = (myProfile.data as { avatar_url?: string | null } | null | undefined)?.avatar_url;
+  const profileName = (myProfile.data as { display_name?: string | null } | null | undefined)?.display_name;
 
   // Inject live badge into the Soul Garden nav row.
   const primaryNav = PRIMARY_NAV.map((item) =>
@@ -150,7 +155,8 @@ export function SideMenu() {
     closeDrawer();
   }
 
-  const displayName = user?.anonymousAlias ?? 'Maya Chen';
+  const displayName = profileName?.trim() || user?.anonymousAlias || 'Bloom';
+  const avatarUri = profileAvatar || PROFILE_FALLBACK_AVATAR;
 
   return (
     <Animated.View style={[s.host, renderEpsilon]} pointerEvents="box-none">
@@ -176,23 +182,30 @@ export function SideMenu() {
             </TouchableOpacity>
           </View>
 
-          {/* Profile card */}
-          <View style={s.profileRow}>
+          {/* Profile card — taps to Edit Profile */}
+          <Pressable
+            style={s.profileRow}
+            onPress={() => {
+              void Haptics.selectionAsync();
+              closeDrawer();
+              setTimeout(() => router.push('/(main)/edit-profile'), 150);
+            }}
+          >
             <View style={s.avatarWrap}>
               <Image
-                source={{ uri: PROFILE_FALLBACK_AVATAR }}
+                source={{ uri: avatarUri }}
                 style={s.avatar}
                 contentFit="cover"
               />
-              <View style={s.lvlBadge}>
-                <Text style={s.lvlText}>LVL 7</Text>
-              </View>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.profileName} numberOfLines={1}>{displayName}</Text>
-              <Text style={s.profileTier}>Gold Member</Text>
+              <Text style={s.profileTier} numberOfLines={1}>
+                {user?.anonymousAlias ?? 'Anonymous'}
+              </Text>
             </View>
-          </View>
+            <MaterialCommunityIcons name="chevron-right" size={20} color={C.onSurfaceVariant} />
+          </Pressable>
 
           {/* Scrollable nav */}
           <ScrollView
@@ -275,12 +288,20 @@ function NavRow({
 // ─── Styles ──────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   host: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     zIndex: 9999,
     elevation: 9999,
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     backgroundColor: 'rgba(40,24,20,0.32)',
   },
   panel: {

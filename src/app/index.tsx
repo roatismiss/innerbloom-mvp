@@ -12,6 +12,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useAuthStore } from '../store/auth';
+
 // Canonical InnerBloom tokens (per AGENTS.md). Mirrored locally so this
 // screen stays self-contained and matches the HTML reference exactly.
 const C = {
@@ -33,10 +35,27 @@ const C = {
 const REDIRECT_AFTER_MS = 1800;
 
 export default function Splash() {
+  const isLoading = useAuthStore((s) => s.isLoading);
+  const user = useAuthStore((s) => s.user);
+  const isOnboarded = useAuthStore((s) => s.isOnboarded);
+
   useEffect(() => {
-    const t = setTimeout(() => router.replace('/onboarding'), REDIRECT_AFTER_MS);
+    // Wait for AuthBootstrap to finish hydrating before deciding where to
+    // route. If the user is already signed in, they should never have to
+    // tap through the intro slides again.
+    if (isLoading) return;
+
+    const t = setTimeout(() => {
+      if (user && isOnboarded) {
+        router.replace('/(main)/dashboard');
+      } else if (user && !isOnboarded) {
+        router.replace('/onboarding/mood');
+      } else {
+        router.replace('/onboarding');
+      }
+    }, REDIRECT_AFTER_MS);
     return () => clearTimeout(t);
-  }, []);
+  }, [isLoading, user, isOnboarded]);
 
   return (
     <View style={styles.root}>

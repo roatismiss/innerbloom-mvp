@@ -5,6 +5,7 @@ export type {
   InsertTables,
   EmotionCategory,
   ReelCategory,
+  ReelAudioKey,
   MatchStatus,
   InstitutionType,
   HugContextType,

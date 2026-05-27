@@ -1,666 +1,381 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { useEffect } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, {
+  Easing,
+  FadeInDown,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  useKindredGarden,
-  usePendingKindredRequests,
-  useRespondKindredRequest,
-} from '../../lib/queries/kindred';
-import type {
-  EmotionCategory,
-  KindredGardenRow,
-  PendingKindredRequestRow,
-} from '../../types/database';
+import { useUIStore } from '../../store/ui';
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
+// ─── Design tokens (1:1 with the HTML reference) ─────────────────────────────
 const C = {
-  surface:               '#fff8f6',
-  surfaceContainerLowest:'#ffffff',
-  surfaceContainerLow:   '#fff1ed',
-  surfaceContainer:      '#ffe9e4',
-  surfaceContainerHigh:  '#ffe2db',
-  primary:               '#994531',
-  primaryContainer:      '#e8836b',
-  onPrimary:             '#ffffff',
-  onPrimaryContainer:    '#641e0e',
-  secondary:             '#006970',
-  secondaryContainer:    '#90f2fc',
-  onSecondaryContainer:  '#006f77',
-  tertiary:              '#a8315c',
-  outlineVariant:        '#dbc1bb',
-  onSurface:             '#281814',
-  onSurfaceVariant:      '#55433e',
-  outline:               '#88726d',
+  surface:                '#fff8f6',
+  surfaceContainerLow:    '#fff1ed',
+  surfaceContainerLowest: '#ffffff',
+  surfaceContainerHigh:   '#ffe2db',
+  surfaceVariant:         '#fadcd5',
+  primaryFixed:           '#ffdad2',
+  primary:                '#994531',
+  primaryContainer:       '#e8836b',
+  onPrimaryContainer:     '#641e0e',
+  onSurface:              '#281814',
+  onSurfaceVariant:       '#55433e',
+  outlineVariant:         '#dbc1bb',
+  outline:                '#88726d',
 } as const;
 
-const KINDRED_CAP = 5;
-const HEADER_H   = 64;
+const HERO_IMG =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuBsQ9wjjx58wnl3MMuvbjB6Z0nipcuZU6WdkAYCv1MwY2YDSD4Llcn8ytFUPfcOvj8EI9KVmq1fO5oxUGvLhi-Z8yCzqrPWqLMbHteaGV0_jg4DvPVQhyOsqt5sWKwMCmCCpvo8j9NR05vdXV4klrbYb9Qzogeg9mvuZh1XK46mmRXgzwPnBV1ytB8Rii-4rVdNKdaETL9oyN-MskYm5MbAcb2VBBT0IXsBkLLsRltsKMwQKSxMxvd_QxbE60cok4yY0rssEc5le5rD';
+const AVATAR_IMG =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuCFbhQWcboFUaa1WTBk88tOXoQtIuL2nniGilc4MI_p7bEas5LX2qs53Dc1Da95BJ5Ok2AtlIrTElhrlGjrTIetRUujTuMGVWQsnTE7nQCkJpuPzBFNzgoAvjvlyBw6xMz1CScL_quu1hvvpBO9_bemalIpN_ARsBWs-TMvxQ9ztHcWbk0rwQHP6n72eAJiDpDqHDlnt1RlpKhU_rL-nRs0e8ThLSufghSyoLQuF3jOCSjZE6UDzHIq_X1qrBNXPRmRPPf-6PN46nD0';
 
-type Mci = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
-
-// Category → avatar tint
-const CAT_THEME: Record<EmotionCategory, { bg: string; color: string; icon: Mci }> = {
-  happy:   { bg: 'rgba(144,242,252,0.28)', color: C.secondary,    icon: 'emoticon-excited-outline' },
-  hopeful: { bg: 'rgba(255,218,210,0.50)', color: C.primary,      icon: 'emoticon-happy-outline'   },
-  neutral: { bg: C.surfaceContainerHigh,    color: C.onSurfaceVariant, icon: 'emoticon-neutral-outline' },
-  sad:     { bg: 'rgba(255,218,210,0.70)', color: '#641e0e',       icon: 'emoticon-sad-outline'     },
-  stressed:{ bg: 'rgba(250,113,156,0.18)', color: C.tertiary,      icon: 'emoticon-cry-outline'     },
-  anxious: { bg: C.surfaceContainer,        color: C.onSurfaceVariant, icon: 'emoticon-confused-outline' },
-};
-
-function relativeTime(iso: string | null): string {
-  if (!iso) return '';
-  const date = new Date(iso);
-  const now  = new Date();
-  const mins = Math.floor((now.getTime() - date.getTime()) / 60_000);
-  if (mins < 1)   return 'now';
-  if (mins < 60)  return `${mins}m`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24)   return `${hrs}h`;
-  const days = Math.floor(hrs / 24);
-  if (days === 1) return 'Yesterday';
-  if (days < 7)   return date.toLocaleDateString('en-US', { weekday: 'short' });
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-// ─── Screen ──────────────────────────────────────────────────────────────────
-
-export default function BloomCircleScreen() {
+export default function SoulMatchScreen() {
   const insets = useSafeAreaInsets();
-  const router  = useRouter();
-  const garden  = useKindredGarden();
-  const pending = usePendingKindredRequests();
-  const respond = useRespondKindredRequest();
+  const router = useRouter();
+  const openDrawer = useUIStore((s) => s.openDrawer);
 
-  const connections  = garden.data  ?? [];
-  const requests     = pending.data ?? [];
-  const isLoading    = garden.isLoading && pending.isLoading;
-  const atCap        = connections.length >= KINDRED_CAP;
+  // animate-float — 6s ease-in-out infinite, translateY 0 ↔ -10
+  const floatY = useSharedValue(0);
+  useEffect(() => {
+    floatY.value = withRepeat(
+      withSequence(
+        withTiming(-10, { duration: 3000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0,   { duration: 3000, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1,
+    );
+  }, [floatY]);
+  const floatStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: floatY.value }],
+  }));
 
-  function openConversation(id: string) {
-    void Haptics.selectionAsync();
-    router.push(`/match/conversation?id=${id}`);
-  }
-
-  function startMatch() {
+  function handleStart() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/match');
+    router.push('/match/start');
   }
 
-  function handleRespond(requestId: string, accept: boolean) {
+  function handleMenu() {
     void Haptics.selectionAsync();
-    respond.mutate({ requestId, accept });
+    openDrawer();
+  }
+
+  function handleCircle() {
+    void Haptics.selectionAsync();
+    router.push('/(main)/bloom-circle');
   }
 
   return (
     <View style={[s.root, { paddingTop: insets.top }]}>
-      {/* ─── Top bar ─── */}
+      {/* bloom-bg: radial-gradient(circle at center, #fff1ed 0%, #fff8f6 100%) */}
+      <View style={s.bgGlowCenter} pointerEvents="none" />
+      <View style={s.bgGlowBottom}  pointerEvents="none" />
+
+      {/* TopAppBar — fixed top */}
       <Animated.View entering={FadeInUp.springify()} style={s.topBar}>
         <View style={s.topLeft}>
-          <Text style={s.topTitle}>Bloom Circle</Text>
-          <View style={s.capacityPill}>
-            <MaterialCommunityIcons name="flower-outline" size={12} color={C.primary} />
-            <Text style={s.capacityText}>
-              {connections.length} / {KINDRED_CAP}
-            </Text>
-          </View>
-        </View>
-        {!atCap && (
-          <TouchableOpacity style={s.matchBtn} activeOpacity={0.85} onPress={startMatch}>
-            <MaterialCommunityIcons name="yin-yang" size={16} color={C.onPrimaryContainer} />
-            <Text style={s.matchBtnText}>Soul Match</Text>
+          <TouchableOpacity onPress={handleMenu} activeOpacity={0.7} hitSlop={8}>
+            <MaterialCommunityIcons name="arrow-left" size={24} color={C.primary} />
           </TouchableOpacity>
-        )}
+          <Text style={s.topTitle}>Soul Match</Text>
+        </View>
+        <View style={s.topRight}>
+          <TouchableOpacity activeOpacity={0.85} style={s.circlePill} onPress={handleCircle}>
+            <MaterialCommunityIcons name="flower-outline" size={16} color={C.onPrimaryContainer} />
+            <Text style={s.circlePillText}>Bloom Circle</Text>
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.8} style={s.avatarRing} onPress={() => router.push('/(main)/profile')}>
+            <Image source={{ uri: AVATAR_IMG }} style={s.avatarImg} contentFit="cover" />
+          </TouchableOpacity>
+        </View>
       </Animated.View>
 
-      {/* ─── Content ─── */}
-      {isLoading ? (
-        <View style={s.center}>
-          <ActivityIndicator color={C.primary} />
-        </View>
-      ) : connections.length === 0 && requests.length === 0 ? (
-        <EmptyState onMatch={startMatch} />
-      ) : (
-        <ScrollView
-          contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 40 }]}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Pending requests */}
-          {requests.length > 0 && (
-            <Animated.View entering={FadeInDown.delay(40).springify()} style={s.section}>
-              <Text style={s.sectionLabel}>WAITING FOR YOU</Text>
-              {requests.map((req) => (
-                <PendingCard
-                  key={req.request_id}
-                  req={req}
-                  onAccept={() => handleRespond(req.request_id, true)}
-                  onDecline={() => handleRespond(req.request_id, false)}
-                />
-              ))}
-            </Animated.View>
-          )}
+      {/* Main — centered hero + cluster */}
+      <View style={[s.main, { paddingBottom: insets.bottom + 24 }]}>
+        {/* Hero Illustration with float + soft glow */}
+        <Animated.View style={[s.heroWrap, floatStyle]}>
+          <View style={s.heroGlow} pointerEvents="none" />
+          <Image
+            source={{ uri: HERO_IMG }}
+            style={s.heroImg}
+            contentFit="cover"
+            transition={400}
+          />
+        </Animated.View>
 
-          {/* Connections */}
-          {connections.length > 0 && (
-            <Animated.View entering={FadeInDown.delay(80).springify()} style={s.section}>
-              {requests.length > 0 && (
-                <Text style={s.sectionLabel}>YOUR CIRCLE</Text>
-              )}
-              {connections.map((row, i) => (
-                <Animated.View key={row.conversation_id} entering={FadeInDown.delay(80 + i * 40).springify()}>
-                  <ConnectionRow
-                    row={row}
-                    onPress={() => openConversation(row.conversation_id)}
-                  />
-                </Animated.View>
-              ))}
-            </Animated.View>
-          )}
+        {/* Content Cluster */}
+        <View style={s.cluster}>
+          <Animated.View entering={FadeInDown.delay(80).springify()} style={s.titleStack}>
+            <Text style={s.title}>Soul Match</Text>
+            <Text style={s.subtitle}>
+              Discover a sanctuary where hearts find resonance and spirits align.
+            </Text>
+          </Animated.View>
 
-          {/* Bottom CTA when under cap */}
-          {!atCap && connections.length > 0 && (
-            <Animated.View entering={FadeInDown.delay(200).springify()} style={s.bottomCta}>
-              <TouchableOpacity style={s.bottomCtaBtn} activeOpacity={0.85} onPress={startMatch}>
-                <MaterialCommunityIcons name="yin-yang" size={18} color={C.onPrimary} />
-                <Text style={s.bottomCtaBtnText}>Find today's match</Text>
-              </TouchableOpacity>
-              <Text style={s.bottomCtaHint}>
-                {KINDRED_CAP - connections.length} slot{KINDRED_CAP - connections.length !== 1 ? 's' : ''} remaining in your circle
-              </Text>
-            </Animated.View>
-          )}
-
-          {atCap && (
-            <Animated.View entering={FadeInDown.delay(200).springify()} style={s.fullBadge}>
-              <MaterialCommunityIcons name="check-decagram" size={16} color={C.secondary} />
-              <Text style={s.fullBadgeText}>Your Bloom Circle is full · release a connection to make room</Text>
-            </Animated.View>
-          )}
-        </ScrollView>
-      )}
-    </View>
-  );
-}
-
-// ─── Empty state ─────────────────────────────────────────────────────────────
-
-function EmptyState({ onMatch }: { onMatch: () => void }) {
-  return (
-    <Animated.View entering={FadeInDown.delay(60).springify()} style={s.empty}>
-      <View style={s.emptyIconWrap}>
-        <MaterialCommunityIcons name="flower-outline" size={48} color={C.primaryContainer} />
-      </View>
-      <Text style={s.emptyTitle}>Your circle is quiet</Text>
-      <Text style={s.emptySub}>
-        When a Soul Match conversation feels special, you can keep it here — up to {KINDRED_CAP} close blooms.
-      </Text>
-      <TouchableOpacity style={s.emptyBtn} activeOpacity={0.85} onPress={onMatch}>
-        <MaterialCommunityIcons name="yin-yang" size={18} color={C.onPrimaryContainer} />
-        <Text style={s.emptyBtnText}>Begin Soul Match</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-}
-
-// ─── Pending request card ─────────────────────────────────────────────────────
-
-function PendingCard({
-  req,
-  onAccept,
-  onDecline,
-}: {
-  req: PendingKindredRequestRow;
-  onAccept: () => void;
-  onDecline: () => void;
-}) {
-  const theme = CAT_THEME[req.shared_category] ?? CAT_THEME.neutral;
-  return (
-    <View style={s.pendingCard}>
-      <View style={s.pendingTop}>
-        <View style={[s.avatar, { backgroundColor: theme.bg }]}>
-          <MaterialCommunityIcons name={theme.icon} size={20} color={theme.color} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={s.pendingAlias}>{req.from_alias}</Text>
-          <Text style={s.pendingLabel}>wants to bloom with you</Text>
-        </View>
-        <Text style={s.pendingTime}>{relativeTime(req.created_at)}</Text>
-      </View>
-      {req.note ? (
-        <View style={s.pendingNote}>
-          <Text style={s.pendingNoteText}>"{req.note}"</Text>
-        </View>
-      ) : null}
-      <View style={s.pendingActions}>
-        <TouchableOpacity style={s.declineBtn} activeOpacity={0.8} onPress={onDecline}>
-          <Text style={s.declineBtnText}>Not now</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={s.acceptBtn} activeOpacity={0.85} onPress={onAccept}>
-          <MaterialCommunityIcons name="flower-outline" size={15} color={C.onPrimaryContainer} />
-          <Text style={s.acceptBtnText}>Welcome in</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
-// ─── Connection row ───────────────────────────────────────────────────────────
-
-function ConnectionRow({
-  row,
-  onPress,
-}: {
-  row: KindredGardenRow;
-  onPress: () => void;
-}) {
-  const theme = CAT_THEME[row.shared_category] ?? CAT_THEME.neutral;
-  const initial = row.other_alias.charAt(0).toUpperCase();
-  return (
-    <TouchableOpacity style={s.row} activeOpacity={0.82} onPress={onPress}>
-      {/* Avatar */}
-      <View style={[s.avatar, { backgroundColor: theme.bg }]}>
-        <Text style={[s.avatarInitial, { color: theme.color }]}>{initial}</Text>
-      </View>
-
-      {/* Body */}
-      <View style={s.rowBody}>
-        <View style={s.rowTop}>
-          <Text style={s.rowAlias} numberOfLines={1}>{row.other_alias}</Text>
-          <Text style={s.rowTime}>{relativeTime(row.last_message_at)}</Text>
-        </View>
-        <View style={s.rowBottom}>
-          <Text style={s.rowPreview} numberOfLines={1}>
-            {row.last_message_body ?? 'Conversation started'}
-          </Text>
-          {row.unread_count > 0 && (
-            <View style={s.unreadBadge}>
-              <Text style={s.unreadText}>{row.unread_count}</Text>
+          {/* Quote Card */}
+          <Animated.View entering={FadeInDown.delay(160).springify()} style={s.quoteCard}>
+            <Text style={s.quoteText}>
+              "Your soul knows the way. Every connection is a new blooming."
+            </Text>
+            <View style={s.quoteAttrib}>
+              <View style={s.quoteLine} />
+              <Text style={s.quoteAuthor}>WILLOW REED</Text>
+              <View style={s.quoteLine} />
             </View>
-          )}
+          </Animated.View>
+
+          {/* Action CTA */}
+          <Animated.View entering={FadeInDown.delay(240).springify()} style={s.ctaWrap}>
+            <TouchableOpacity style={s.cta} activeOpacity={0.87} onPress={handleStart}>
+              <Text style={s.ctaText}>Start Discovery</Text>
+              <MaterialCommunityIcons name="auto-fix" size={22} color={C.onPrimaryContainer} />
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </View>
-
-      <MaterialCommunityIcons name="chevron-right" size={18} color={C.outlineVariant} />
-    </TouchableOpacity>
+    </View>
   );
 }
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
-
-const softShadow = {
-  shadowColor: '#5C4742',
-  shadowOpacity: 0.07,
-  shadowRadius: 20,
-  shadowOffset: { width: 0, height: 6 },
-  elevation: 3,
-} as const;
-
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.surface },
+  root: {
+    flex: 1,
+    backgroundColor: C.surface,
+    overflow: 'hidden',
+  },
 
-  // Top bar
+  // bloom-bg: soft radial wash + warm bottom glow
+  bgGlowCenter: {
+    position: 'absolute',
+    top: '15%',
+    left: '50%',
+    marginLeft: -260,
+    width: 520,
+    height: 520,
+    borderRadius: 260,
+    backgroundColor: C.surfaceContainerLow,
+    opacity: 0.9,
+  },
+  bgGlowBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: '50%',
+    marginLeft: -240,
+    width: 480,
+    height: 360,
+    borderRadius: 240,
+    backgroundColor: C.primaryFixed,
+    opacity: 0.28,
+  },
+
+  // TopAppBar — px-container-padding(24), py-stack-gap-sm(8)
   topBar: {
-    height: HEADER_H,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: C.surfaceContainer,
-    backgroundColor: C.surface,
   },
-  topLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  topLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,  // stack-gap-md
+  },
   topTitle: {
     fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 20,
-    lineHeight: 28,
-    color: C.onSurface,
-    letterSpacing: -0.2,
-  },
-  capacityPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: C.surfaceContainerLow,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 9999,
-    borderWidth: 1,
-    borderColor: C.outlineVariant,
-  },
-  capacityText: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 11,
-    lineHeight: 14,
+    fontSize: 24,         // headline-md
+    lineHeight: 32,
     color: C.primary,
-    letterSpacing: 0.3,
   },
-  matchBtn: {
+  topRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  circlePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: C.primaryContainer,
-    paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 9999,
-    shadowColor: C.primary,
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
-  },
-  matchBtnText: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 12,
-    lineHeight: 16,
-    color: C.onPrimaryContainer,
-    letterSpacing: 0.3,
-  },
-
-  // Scroll
-  scroll: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    gap: 28,
-  },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-
-  // Sections
-  section: { gap: 12 },
-  sectionLabel: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 10,
-    lineHeight: 13,
-    color: C.outline,
-    letterSpacing: 1.4,
-    marginBottom: 4,
-  },
-
-  // Avatar (shared)
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  avatarInitial: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 18,
-    lineHeight: 24,
-  },
-
-  // Pending card
-  pendingCard: {
-    backgroundColor: C.surfaceContainerLowest,
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: C.surfaceContainerHigh,
-    gap: 12,
-    ...softShadow,
-  },
-  pendingTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  pendingAlias: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 14,
-    lineHeight: 20,
-    color: C.onSurface,
-  },
-  pendingLabel: {
-    fontFamily: 'NunitoSans_400Regular',
-    fontSize: 12,
-    lineHeight: 16,
-    color: C.onSurfaceVariant,
-    marginTop: 1,
-  },
-  pendingTime: {
-    fontFamily: 'NunitoSans_400Regular',
-    fontSize: 11,
-    lineHeight: 14,
-    color: C.outline,
-  },
-  pendingNote: {
-    backgroundColor: C.surfaceContainerLow,
-    borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  pendingNoteText: {
-    fontFamily: 'NunitoSans_400Regular',
-    fontStyle: 'italic',
-    fontSize: 13,
-    lineHeight: 19,
-    color: C.onSurfaceVariant,
-  },
-  pendingActions: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  declineBtn: {
-    flex: 1,
-    height: 40,
-    borderRadius: 9999,
-    borderWidth: 1,
-    borderColor: C.outlineVariant,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  declineBtnText: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 13,
-    lineHeight: 18,
-    color: C.onSurfaceVariant,
-  },
-  acceptBtn: {
-    flex: 2,
-    height: 40,
     borderRadius: 9999,
     backgroundColor: C.primaryContainer,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
     shadowColor: C.primary,
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
-  acceptBtnText: {
+  circlePillText: {
     fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 13,
     lineHeight: 18,
     color: C.onPrimaryContainer,
+    letterSpacing: 0.2,
+  },
+  avatarRing: {
+    width: 40,
+    height: 40,
+    borderRadius: 9999,
+    borderWidth: 2,
+    borderColor: C.surfaceVariant,
+    overflow: 'hidden',
+  },
+  avatarImg: {
+    width: '100%',
+    height: '100%',
   },
 
-  // Connection row
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: C.surfaceContainerLowest,
-    borderRadius: 18,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: C.surfaceContainerHigh,
-    ...softShadow,
-  },
-  rowBody: { flex: 1, gap: 3 },
-  rowTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  rowAlias: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 14,
-    lineHeight: 20,
-    color: C.onSurface,
+  // Main — flex-1 centered
+  main: {
     flex: 1,
-  },
-  rowTime: {
-    fontFamily: 'NunitoSans_400Regular',
-    fontSize: 11,
-    lineHeight: 14,
-    color: C.outline,
-    marginLeft: 8,
-  },
-  rowBottom: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  rowPreview: {
-    fontFamily: 'NunitoSans_400Regular',
-    fontSize: 13,
-    lineHeight: 18,
-    color: C.onSurfaceVariant,
-    flex: 1,
-  },
-  unreadBadge: {
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: C.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 6,
-    marginLeft: 8,
-  },
-  unreadText: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 10,
-    lineHeight: 13,
-    color: '#ffffff',
+    paddingHorizontal: 24,
   },
 
-  // Bottom CTA (when has connections but under cap)
-  bottomCta: {
+  // Hero — max-w-[320px] mb-stack-gap-lg(32), animate-float
+  heroWrap: {
+    width: 320,
+    maxWidth: '100%',
+    aspectRatio: 1,
+    marginBottom: 32,
     alignItems: 'center',
-    gap: 10,
-    paddingTop: 8,
+    justifyContent: 'center',
   },
-  bottomCtaBtn: {
-    flexDirection: 'row',
+  heroGlow: {
+    position: 'absolute',
+    top: -20,
+    left: -20,
+    right: -20,
+    bottom: -20,
+    borderRadius: 9999,
+    backgroundColor: C.primaryFixed,
+    opacity: 0.20,
+  },
+  heroImg: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 32, // rounded-lg = 2rem
+    shadowColor: '#5C4742',
+    shadowOpacity: 0.10,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+  },
+
+  // Content Cluster — text-center max-w-[480px] space-y-stack-gap-md(16)
+  cluster: {
+    width: '100%',
+    maxWidth: 480,
+    alignItems: 'center',
+  },
+
+  // Title + subtitle stack — space-y-stack-gap-sm(8)
+  titleStack: {
     alignItems: 'center',
     gap: 8,
-    backgroundColor: C.primary,
-    paddingHorizontal: 28,
-    paddingVertical: 14,
+  },
+  title: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 32,         // headline-xl-mobile
+    lineHeight: 40,
+    fontWeight: '700',
+    color: C.primary,
+    letterSpacing: -0.6,  // tracking-tight
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontFamily: 'NunitoSans_400Regular',
+    fontSize: 18,         // body-lg
+    lineHeight: 29,       // 1.6
+    color: C.onSurfaceVariant,
+    textAlign: 'center',
+    paddingHorizontal: 16,
+  },
+
+  // Quote Card — bg-surface-container-lowest p-stack-gap-lg rounded-lg border
+  // mt-stack-gap-lg(32) replicated as marginTop
+  quoteCard: {
+    marginTop: 32,
+    backgroundColor: C.surfaceContainerLowest,
+    borderRadius: 32,     // rounded-lg = 2rem
+    padding: 32,          // p-stack-gap-lg
+    borderWidth: 1,
+    borderColor: 'rgba(250,220,213,0.30)',  // surface-variant/30
+    width: '100%',
+    shadowColor: '#5C4742',
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 3,
+  },
+  quoteText: {
+    fontFamily: 'NunitoSans_400Regular',
+    fontStyle: 'italic',
+    fontSize: 16,         // body-md
+    lineHeight: 26,       // 1.6
+    color: C.onSurface,
+    textAlign: 'center',
+    marginBottom: 8,      // mb-stack-gap-sm
+  },
+  quoteAttrib: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  quoteLine: {
+    width: 32,            // w-8
+    height: 1,
+    backgroundColor: C.outlineVariant,
+  },
+  quoteAuthor: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 14,         // label-md
+    lineHeight: 20,
+    color: C.primary,
+    letterSpacing: 2.4,   // tracking-widest
+    textTransform: 'uppercase',
+  },
+
+  // CTA wrapper — pt-stack-gap-lg(32)
+  ctaWrap: {
+    width: '100%',
+    paddingTop: 32,
+  },
+  // CTA — py-4 px-stack-gap-lg, bg-primary-container, rounded-full
+  cta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    width: '100%',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
     borderRadius: 9999,
+    backgroundColor: C.primaryContainer,
     shadowColor: C.primary,
     shadowOpacity: 0.22,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 4,
   },
-  bottomCtaBtnText: {
+  ctaText: {
     fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 15,
-    lineHeight: 20,
-    color: '#ffffff',
-    letterSpacing: 0.3,
-  },
-  bottomCtaHint: {
-    fontFamily: 'NunitoSans_400Regular',
-    fontSize: 12,
-    lineHeight: 16,
-    color: C.outline,
-    textAlign: 'center',
-  },
-
-  // At cap badge
-  fullBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(144,242,252,0.22)',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 9999,
-    borderWidth: 1,
-    borderColor: 'rgba(0,111,119,0.15)',
-  },
-  fullBadgeText: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 12,
-    lineHeight: 16,
-    color: C.secondary,
-    letterSpacing: 0.2,
-  },
-
-  // Empty state
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 40,
-    gap: 16,
-  },
-  emptyIconWrap: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: C.surfaceContainerLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: C.surfaceContainerHigh,
-  },
-  emptyTitle: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 22,
+    fontSize: 20,         // headline-sm
     lineHeight: 28,
-    color: C.onSurface,
-    textAlign: 'center',
-    letterSpacing: -0.2,
-  },
-  emptySub: {
-    fontFamily: 'NunitoSans_400Regular',
-    fontSize: 15,
-    lineHeight: 22,
-    color: C.onSurfaceVariant,
-    textAlign: 'center',
-  },
-  emptyBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: C.primaryContainer,
-    paddingHorizontal: 28,
-    paddingVertical: 16,
-    borderRadius: 9999,
-    marginTop: 8,
-    shadowColor: C.primary,
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
-  },
-  emptyBtnText: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 15,
-    lineHeight: 20,
     color: C.onPrimaryContainer,
-    letterSpacing: 0.3,
+    fontWeight: '600',
   },
 });

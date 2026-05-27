@@ -32,7 +32,7 @@ const TABS: TabDef[] = [
 ];
 
 // Screens that exist as routes but must not appear in the tab bar
-const HIDDEN = ['today', 'checkin', 'bloom-ai', 'breathing', 'journal', 'profile', 'feed', 'bloom', 'reflections', 'intentions', 'resources', 'garden', 'post-composer', 'article'];
+const HIDDEN = ['today', 'checkin', 'bloom-ai', 'breathing', 'journal', 'profile', 'feed', 'bloom', 'bloom-circle', 'reflections', 'intentions', 'resources', 'garden', 'post-composer', 'article', 'notifications', 'edit-profile'];
 
 function TabIcon({
   label, icon, iconFocused, focused, isCenter,

@@ -5,6 +5,7 @@ export * from './match';
 export * from './chat';
 export * from './kindred';
 export * from './profile';
+export * from './notifications-inbox';
 export * from './feed';
 export * from './reels';
 export * from './bloom';

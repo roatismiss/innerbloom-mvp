@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import {
@@ -23,6 +24,7 @@ import {
   useMyPostInteractions,
   useToggleResonance,
 } from '../../lib/queries/feed';
+import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
 import { useUIStore } from '../../store/ui';
 
 // ─── Design tokens (AGENTS.md canonical spec) ────────────────────────────────
@@ -92,6 +94,7 @@ export default function CommunityScreen() {
 
   const feed = useFeed(50);
   const interactions = useMyPostInteractions();
+  const unreadCount = useUnreadNotificationsCount().data;
 
   const posts = feed.data ?? [];
 
@@ -122,8 +125,13 @@ export default function CommunityScreen() {
           <MaterialCommunityIcons name="menu" size={22} color={C.primary} />
         </TouchableOpacity>
         <Text style={s.wordmark}>InnerBloom</Text>
-        <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={s.iconBtn}
+          activeOpacity={0.7}
+          onPress={() => router.push('/(main)/notifications')}
+        >
           <MaterialCommunityIcons name="bell-outline" size={22} color={C.primary} />
+          {(unreadCount ?? 0) > 0 ? <View style={s.bellDot} /> : null}
         </TouchableOpacity>
       </Animated.View>
 
@@ -278,21 +286,29 @@ function PostCard({
 
   return (
     <Animated.View entering={FadeInDown.delay(delay).springify()} style={s.postCard}>
-      {/* Header — always anonymous; alias preserved server-side via author */}
+      {/* Header — display_name wins over alias when the author set one. */}
       <View style={s.postHeader}>
-        <View style={[s.postAvatar, { backgroundColor: post.color_hex }]}>
-          <MaterialCommunityIcons name="flower-tulip" size={20} color="#ffffff" />
-        </View>
+        {post.author_avatar_url ? (
+          <Image source={{ uri: post.author_avatar_url }} style={s.postAvatarImg} contentFit="cover" />
+        ) : (
+          <View style={[s.postAvatar, { backgroundColor: post.color_hex }]}>
+            <MaterialCommunityIcons name="flower-tulip" size={20} color="#ffffff" />
+          </View>
+        )}
         <View style={{ flex: 1 }}>
-          <Text style={s.postAuthor}>{post.author_alias}</Text>
+          <Text style={s.postAuthor}>
+            {post.author_display_name?.trim() || post.author_alias}
+          </Text>
           <Text style={s.postWhen}>
             {when} · {post.anchor_word}
           </Text>
         </View>
-        <View style={s.anonChip}>
-          <MaterialCommunityIcons name="incognito" size={12} color={C.onSurfaceVariant} />
-          <Text style={s.anonChipText}>Anonymous</Text>
-        </View>
+        {!post.author_display_name && !post.author_avatar_url ? (
+          <View style={s.anonChip}>
+            <MaterialCommunityIcons name="incognito" size={12} color={C.onSurfaceVariant} />
+            <Text style={s.anonChipText}>Anonymous</Text>
+          </View>
+        ) : null}
       </View>
 
       {/* Body */}
@@ -379,6 +395,14 @@ const s = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  bellDot: {
+    position: 'absolute',
+    top: 9, right: 9,
+    width: 9, height: 9, borderRadius: 5,
+    backgroundColor: C.primary,
+    borderWidth: 2, borderColor: C.surface,
   },
   wordmark: {
     fontFamily: 'NunitoSans_600SemiBold',
@@ -495,6 +519,10 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  postAvatarImg: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: C.surfaceContainerHigh,
   },
   postAvatar: {
     width: 40,

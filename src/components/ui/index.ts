@@ -25,8 +25,6 @@ export type { QuoteBlockProps } from './quote-block';
 export { Screen } from './screen';
 export type { ScreenProps } from './screen';
 
-export { Skeleton } from './skeleton';
-export type { SkeletonProps } from './skeleton';
 
 export { SoulGradient } from './soul-gradient';
 export type { SoulGradientProps } from './soul-gradient';

@@ -16,7 +16,11 @@ import { useTodayForMe } from './mood';
 
 // ─── Read: feed posts (mood-filtered) ──────────────────────────────────────
 
-export type BloomPostWithAuthor = BloomPostRow & { author_alias: string };
+export type BloomPostWithAuthor = BloomPostRow & {
+  author_alias: string;
+  author_display_name: string | null;
+  author_avatar_url:   string | null;
+};
 
 // Feed posts filtered by today's mood-driven categories.
 // Categories come from today_for_me() — never hardcoded client-side.
@@ -55,19 +59,28 @@ export function useFeed(limit = 30) {
 
       const { data: authors } = await sb()
         .from('public_profiles')
-        .select('id, anonymous_alias')
+        .select('id, anonymous_alias, display_name, avatar_url')
         .in('id', userIds);
 
-      const aliasById = new Map<string, string>(
-        (authors as { id: string; anonymous_alias: string }[] | null)?.map(
-          (a) => [a.id, a.anonymous_alias],
-        ) ?? [],
+      type AuthorRow = {
+        id: string;
+        anonymous_alias: string;
+        display_name: string | null;
+        avatar_url: string | null;
+      };
+      const authorById = new Map<string, AuthorRow>(
+        (authors as AuthorRow[] | null)?.map((a) => [a.id, a]) ?? [],
       );
 
-      return posts.map((p) => ({
-        ...p,
-        author_alias: aliasById.get(p.user_id) ?? 'Anonymous Bloom',
-      }));
+      return posts.map((p) => {
+        const a = authorById.get(p.user_id);
+        return {
+          ...p,
+          author_alias:        a?.anonymous_alias ?? 'Anonymous Bloom',
+          author_display_name: a?.display_name ?? null,
+          author_avatar_url:   a?.avatar_url ?? null,
+        };
+      });
     },
   });
 

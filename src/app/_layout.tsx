@@ -10,6 +10,7 @@ import {
     useFonts,
 } from '@expo-google-fonts/nunito-sans';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { setAudioModeAsync } from 'expo-audio';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -42,6 +43,22 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded]);
+
+  // Reels ambient loops should:
+  //   - respect the iOS silent switch (a calm-app firing sound during a
+  //     meeting is the worst possible first impression)
+  //   - stop when the user backgrounds the app (battery; also they're done
+  //     listening when they leave)
+  //   - mix with other audio (so a user playing their own music keeps it)
+  useEffect(() => {
+    setAudioModeAsync({
+      playsInSilentMode: false,
+      shouldPlayInBackground: false,
+      interruptionMode: 'mixWithOthers',
+    }).catch(() => {
+      // Non-fatal: worst case the reels play with default audio session.
+    });
+  }, []);
 
   if (!fontsLoaded) return null;
 
