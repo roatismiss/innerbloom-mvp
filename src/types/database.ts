@@ -408,7 +408,11 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<Database['public']['Tables']['journal_entries']['Insert'], 'user_id'>>;
+        Update: {
+          body?: string;
+          entry_date?: string;
+          updated_at?: string;
+        };
       };
 
       daily_intentions: {
@@ -432,7 +436,13 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<Database['public']['Tables']['daily_intentions']['Insert'], 'user_id'>>;
+        Update: {
+          intention_date?: string;
+          primary_text?: string;
+          tasks?: IntentionTask[];
+          honored?: boolean | null;
+          updated_at?: string;
+        };
       };
     };
 

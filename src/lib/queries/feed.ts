@@ -250,6 +250,38 @@ export function useToggleResonance() {
 // (from_user_id, context_type, context_id) silently prevents double-hugs;
 // we surface that as a no-op so the UI doesn't error.
 
+// Send a hug attached to a Soul Match conversation (context_type='match').
+// Idempotent thanks to the unique (from_user_id, context_type, context_id)
+// constraint — re-tapping silently re-confirms without erroring.
+export function useHugInConversation() {
+  return useMutation({
+    mutationFn: async ({
+      matchId,
+      toUserId,
+    }: {
+      matchId: string;
+      toUserId: string;
+    }) => {
+      const { data: { user } } = await sb().auth.getUser();
+      if (!user) throw new Error('unauthenticated');
+      if (user.id === toUserId) {
+        throw new Error('cannot hug yourself');
+      }
+
+      const { error } = await sb()
+        .from('hugs')
+        .insert({
+          from_user_id: user.id,
+          to_user_id: toUserId,
+          context_type: 'match',
+          context_id: matchId,
+        });
+      if (error && !/duplicate|unique/i.test(error.message)) throw error;
+      return { matchId };
+    },
+  });
+}
+
 export function useHugPost() {
   const qc = useQueryClient();
   return useMutation({

@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
     return new Response('ok', {
       headers: {
         'access-control-allow-origin':  '*',
-        'access-control-allow-headers': 'authorization, content-type',
+        'access-control-allow-headers': 'authorization, content-type, apikey, x-client-info',
         'access-control-allow-methods': 'POST, OPTIONS',
       },
     });

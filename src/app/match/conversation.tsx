@@ -24,9 +24,11 @@ import {
   useSendMessage,
   useTodayActiveConversation,
 } from '../../lib/queries/chat';
+import { useHugInConversation } from '../../lib/queries/feed';
 import {
   useCancelKindredRequest,
   useKindredStatus,
+  useReleaseKindred,
   useRespondKindredRequest,
   useSendKindredRequest,
 } from '../../lib/queries/kindred';
@@ -80,6 +82,31 @@ export default function ConversationScreen() {
   const me = useAuthStore((s) => s.user?.id ?? null);
   const scrollRef = useRef<ScrollView>(null);
   const [draft, setDraft] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [hugSent, setHugSent] = useState(false);
+  const hugConv = useHugInConversation();
+  const releaseKindred = useReleaseKindred();
+
+  function goBack() {
+    // From a deep link or refresh, the navigation stack may be empty.
+    // Fall back to the dashboard rather than landing the user on a blank
+    // history screen.
+    if (router.canGoBack()) router.back();
+    else router.replace('/(main)/dashboard');
+  }
+
+  function sendHug() {
+    if (!conversation.data || !me) return;
+    if (conversation.data.other_user_id === me) return;
+    const matchId = conversation.data.match_id;
+    if (!matchId) return; // Conversation has no linked match (shouldn't happen for Soul Match convos)
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setHugSent(true);
+    hugConv.mutate(
+      { matchId, toUserId: conversation.data.other_user_id },
+      { onSettled: () => setTimeout(() => setHugSent(false), 1400) },
+    );
+  }
 
   // Auto-scroll on incoming messages
   const lastCount = useRef(0);
@@ -145,7 +172,7 @@ export default function ConversationScreen() {
           <TouchableOpacity
             style={s.iconBtn}
             activeOpacity={0.75}
-            onPress={() => router.back()}
+            onPress={goBack}
           >
             <MaterialCommunityIcons name="arrow-left" size={24} color={C.primary} />
           </TouchableOpacity>
@@ -172,7 +199,14 @@ export default function ConversationScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.75}>
+          <TouchableOpacity
+            style={s.iconBtn}
+            activeOpacity={0.75}
+            onPress={() => {
+              void Haptics.selectionAsync();
+              setMenuOpen(true);
+            }}
+          >
             <MaterialCommunityIcons name="dots-vertical" size={22} color={C.outline} />
           </TouchableOpacity>
         </View>
@@ -223,8 +257,17 @@ export default function ConversationScreen() {
 
         {/* ── Input bar ── */}
         <View style={[s.inputBar, { paddingBottom: bottomPad }]}>
-          <TouchableOpacity style={s.inputSideBtn} activeOpacity={0.75}>
-            <MaterialCommunityIcons name="plus" size={22} color={C.primary} />
+          <TouchableOpacity
+            style={[s.inputSideBtn, hugSent && s.inputSideBtnActive]}
+            activeOpacity={0.7}
+            onPress={sendHug}
+            disabled={hugConv.isPending}
+          >
+            <MaterialCommunityIcons
+              name={hugSent ? 'hand-heart' : 'hand-heart-outline'}
+              size={22}
+              color={hugSent ? C.tertiary : C.primary}
+            />
           </TouchableOpacity>
 
           <View style={s.inputWrap}>
@@ -254,6 +297,30 @@ export default function ConversationScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      <ConversationMenuSheet
+        visible={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        otherAlias={conversation.data?.other_alias ?? 'this person'}
+        isKept={conversation.data?.is_kept ?? false}
+        conversationId={resolvedId}
+        onRelease={() => {
+          if (!resolvedId) return;
+          releaseKindred.mutate(resolvedId, {
+            onSuccess: () => {
+              setMenuOpen(false);
+              goBack();
+            },
+          });
+        }}
+        onReport={() => {
+          // Full report flow lands in Bundle 3 (Crisis + Moderation). For now,
+          // acknowledge the user's signal so the menu doesn't feel dead.
+          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          setMenuOpen(false);
+          // TODO(Bundle 3): open ReportFlow modal with reason + details.
+        }}
+      />
     </View>
   );
 }
@@ -450,6 +517,89 @@ function KindredAskModal({
               )}
             </TouchableOpacity>
           </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+// ─── Conversation menu (3-dots → action sheet) ──────────────────────────────
+
+function ConversationMenuSheet({
+  visible,
+  onClose,
+  otherAlias,
+  isKept,
+  conversationId,
+  onRelease,
+  onReport,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  otherAlias: string;
+  isKept: boolean;
+  conversationId: string | null;
+  onRelease: () => void;
+  onReport: () => void;
+}) {
+  if (!conversationId) return null;
+
+  return (
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+      <Pressable style={s.modalBackdrop} onPress={onClose}>
+        <Pressable style={s.sheetCard} onPress={(e) => e.stopPropagation()}>
+          <View style={s.modalHandleRow}>
+            <View style={s.modalHandle} />
+          </View>
+
+          <Text style={s.sheetEyebrow}>OPTIONS</Text>
+          <Text style={s.sheetTitle}>{otherAlias}</Text>
+
+          <View style={s.sheetGroup}>
+            {isKept ? (
+              <TouchableOpacity
+                style={s.sheetItem}
+                activeOpacity={0.7}
+                onPress={onRelease}
+              >
+                <MaterialCommunityIcons name="flower-poppy" size={22} color={C.onSurfaceVariant} />
+                <View style={{ flex: 1 }}>
+                  <Text style={s.sheetItemLabel}>Release this kindred</Text>
+                  <Text style={s.sheetItemSub}>Closes the connection. They aren&apos;t notified.</Text>
+                </View>
+              </TouchableOpacity>
+            ) : null}
+
+            <TouchableOpacity
+              style={s.sheetItem}
+              activeOpacity={0.7}
+              onPress={onReport}
+            >
+              <MaterialCommunityIcons name="flag-outline" size={22} color={'#ba1a1a'} />
+              <View style={{ flex: 1 }}>
+                <Text style={[s.sheetItemLabel, { color: '#ba1a1a' }]}>
+                  Report this conversation
+                </Text>
+                <Text style={s.sheetItemSub}>
+                  Flags it for review. Full report flow coming soon.
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={s.sheetItem}>
+              <MaterialCommunityIcons name="block-helper" size={22} color={C.outlineVariant} />
+              <View style={{ flex: 1 }}>
+                <Text style={[s.sheetItemLabel, { color: C.outlineVariant }]}>
+                  Block this person
+                </Text>
+                <Text style={s.sheetItemSub}>Coming soon — won&apos;t match again.</Text>
+              </View>
+            </View>
+          </View>
+
+          <TouchableOpacity style={s.sheetCancel} activeOpacity={0.75} onPress={onClose}>
+            <Text style={s.sheetCancelText}>Cancel</Text>
+          </TouchableOpacity>
         </Pressable>
       </Pressable>
     </Modal>
@@ -695,6 +845,10 @@ const s = StyleSheet.create({
     backgroundColor: C.surfaceContainerHighest,
     alignItems: 'center', justifyContent: 'center',
   },
+  inputSideBtnActive: {
+    backgroundColor: C.tertiaryFixed,
+    transform: [{ scale: 1.06 }],
+  },
   inputWrap: {
     flex: 1, height: 48,
     backgroundColor: C.surfaceContainer,
@@ -771,5 +925,59 @@ const s = StyleSheet.create({
     fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 13, color: C.onPrimaryContainer,
     letterSpacing: 0.8, textTransform: 'uppercase',
+  },
+
+  // Action sheet (3-dots menu)
+  sheetCard: {
+    backgroundColor: C.surface,
+    borderTopLeftRadius: 32, borderTopRightRadius: 32,
+    padding: 20, paddingBottom: 32,
+    gap: 8,
+  },
+  sheetEyebrow: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 11, color: C.primary,
+    letterSpacing: 1.6, textTransform: 'uppercase',
+    marginTop: 8,
+  },
+  sheetTitle: {
+    fontFamily: 'Fraunces_600SemiBold',
+    fontSize: 20, lineHeight: 26,
+    color: C.onSurface,
+    marginBottom: 8,
+  },
+  sheetGroup: {
+    backgroundColor: C.surfaceContainerLowest,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: C.surfaceContainerHigh,
+  },
+  sheetItem: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 14,
+    paddingVertical: 16, paddingHorizontal: 18,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(219,193,187,0.40)',
+  },
+  sheetItemLabel: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 15, color: C.onSurface,
+  },
+  sheetItemSub: {
+    fontFamily: 'NunitoSans_400Regular',
+    fontSize: 12, lineHeight: 17,
+    color: C.outline,
+    marginTop: 2,
+  },
+  sheetCancel: {
+    marginTop: 14, paddingVertical: 16,
+    borderRadius: 9999,
+    backgroundColor: C.surfaceContainerLow,
+    alignItems: 'center',
+  },
+  sheetCancelText: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 14, color: C.onSurfaceVariant,
+    letterSpacing: 0.3,
   },
 });

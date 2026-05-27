@@ -26,7 +26,7 @@ interface TabDef {
 const TABS: TabDef[] = [
   { name: 'dashboard',    label: 'Dashboard',  icon: 'home-outline',          iconFocused: 'home'          },
   { name: 'community',    label: 'Community',  icon: 'account-group-outline', iconFocused: 'account-group' },
-  { name: 'soul-match',   label: 'Soul Match', icon: 'yin-yang',              iconFocused: 'yin-yang'      },
+  { name: 'soul-match',   label: 'Bloom',      icon: 'yin-yang',              iconFocused: 'yin-yang'      },
   { name: 'reels',        label: 'Reels',      icon: 'play-circle-outline',   iconFocused: 'play-circle'   },
   { name: 'ai-companion', label: 'AI',         icon: 'head-heart-outline',    iconFocused: 'head-heart'    },
 ];
