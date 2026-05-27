@@ -605,6 +605,12 @@ function ReelVideo({
     }
   }, [player, isPlaying]);
 
+  // `cover` = TikTok behavior: video fills the screen edge-to-edge, scaling
+  // to the longer of the two container dimensions. If the avatar's video is
+  // 9:16 and the device is taller (iPhone 14 Pro Max ≈ 9:19.5), `cover`
+  // scales to fill the height and crops a sliver off the sides — the
+  // avatar's safe-zone margin gets trimmed but the subject stays centered,
+  // matching how every editorial reel fills its container.
   return (
     <VideoView
       player={player}

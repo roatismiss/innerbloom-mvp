@@ -11,6 +11,11 @@ import { DEFAULT_MOOD_INTENSITY, greeting, moodColor } from '../../lib/mood';
 import { useTodayIntention } from '../../lib/queries/intentions';
 import { useMoodHistory, useSubmitMood, useTodayForMe } from '../../lib/queries/mood';
 import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
+import {
+  getRecommendedArticles,
+  RESOURCE_CATEGORIES,
+  type ResourceArticle,
+} from '../../lib/resources-data';
 import { useIntentionsStore } from '../../store/intentions';
 import { useMoodStore } from '../../store/mood';
 import { useUIStore } from '../../store/ui';
@@ -102,21 +107,6 @@ const CIRCLES = [
   { when: 'Sat',   time: '10:30', title: 'Anxiety Breathwork',   meta: 'Weekly Session',         accent: false },
 ];
 
-const RECOMMENDED = [
-  {
-    title: 'Gentle Morning Release',
-    sub:   'Release tension from your sleep.',
-    badge: '10 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuARbUiNgY4rzIBzfPMBckEAuuCAOcZUR4gYLBzCBZf-i3VcHe6L-FVex6ZsRjgYcuAn2mt-dl3jup_p-J9RNuQNAUYyvaHM9Ud7nHMRTqXbmj38xUgINaQ7H1q_D6UxNeDDkYIEsrYru5yuIpcJXdmlaaKHRwYAlQQ998YTu6n7Q_o1RUQAt6K80S_CWv4Nf6d32gibJvdE2yMMZKdWYiLMsXP1GvHhN-5uJ2EXknDtIvdkXcO8N-grDLa2eu9Oztkd6M94PgUW182W',
-  },
-  {
-    title: 'Gratitude Reflections',
-    sub:   'Write down three tiny joys.',
-    badge: 'PROMPT',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA4UvfAnZOOLcCavI22pzP-bnY6Bef_sF6NHxzraqS4O2B1uxp_vnBGHs9UuHivigs-CeD9v2yRhHYntL6jDf_8N2soiyHwZua-PGEwMq4jffGZdx-p18WJ4_TdV9O3PQn5IL1ibg-6OUgj2K9DwhDt7rdJk5v1d2YmdRPoz8lHjcBVczE1rBS-o2KAB9a094zN-6VkmXgsbZF-C2FDjUhpKRlCQC-ZfUnVtF4k5ahQgc_uYuMDQInQ9tFWI838GeCof0YUJt9Sbsvg',
-  },
-];
-
 const PROFILE_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuApSgPTkTEtRCoihcOFOolOJH8DpWq-xWNDquVXQDNU_Ue1pgQrECRouxEatRFVytCZNFSpHYHWs1O6VCd3CE-BMRb8sf568yFdukyR1ckduL8WCBSo9puySCIUTvhgBWouEOsl-NKiQzkhHy2kyRLHs1S6cCUvE3KFfciDl-0hJ9UXcYGclhIF22JyFdJ8QK6Rrmw1jzCAflS5rWLJX48OhSjXc0TCSutYK_T_Y9ChlB8btkRzzwf7by00imVljDM4_a9grOEwB3qV';
 
@@ -135,14 +125,33 @@ export default function DashboardScreen() {
   const moodHistory = useMoodHistory(7);
   const submitMood = useSubmitMood();
   const unreadCount = useUnreadNotificationsCount().data;
+
+  // Mood truth-source: optimistic local cache first, server query as fallback.
+  // Must be declared before any hook below that reads it — JS temporal-dead-zone
+  // means the useMemo closure would throw if this were declared later.
   const todayMood = localMood ?? (todayForMe.data?.mood
     ? {
-        category: todayForMe.data.mood.category,
+        // DB row types `category` as raw `string`; narrow to EmotionCategory
+        // since the DB CHECK constraint guarantees the value is one of the
+        // 6 emotion keys.
+        category: todayForMe.data.mood.category as EmotionCategory,
         intensity: todayForMe.data.mood.intensity,
         anchorWord: todayForMe.data.mood.anchor_word,
         colorHex: todayForMe.data.mood.color_hex,
       }
     : null);
+
+  // 4 mood-targeted article picks for the "Recommended for you today" rail.
+  // Stays stable through the day for the same mood (see getRecommendedArticles).
+  const recommendedArticles = useMemo<ResourceArticle[]>(
+    () => getRecommendedArticles(todayMood?.category, 4),
+    [todayMood?.category],
+  );
+
+  function openArticle(id: string) {
+    void Haptics.selectionAsync();
+    router.push({ pathname: '/(main)/article', params: { id } });
+  }
   const greetingText = greeting();
 
   // Current streak comes from today_for_me().streak (kept fresh by the DB
@@ -560,11 +569,11 @@ export default function DashboardScreen() {
           </View>
         </Animated.View>
 
-        {/* Recommended */}
+        {/* Recommended for you today — mood-targeted article picks */}
         <Animated.View entering={FadeInDown.delay(300).springify()} style={s.section}>
           <View style={s.sectionHeader}>
-            <Text style={s.sectionHeading}>Recommended</Text>
-            <TouchableOpacity activeOpacity={0.7}>
+            <Text style={s.sectionHeading}>Recommended for today</Text>
+            <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/(main)/resources')}>
               <Text style={s.sectionLink}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -573,20 +582,37 @@ export default function DashboardScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={s.recRow}
           >
-            {RECOMMENDED.map((r) => (
-              <TouchableOpacity key={r.title} style={s.recCard} activeOpacity={0.85}>
-                <View style={s.recImageWrap}>
-                  <Image source={{ uri: r.image }} style={s.recImage} contentFit="cover" />
-                  <View style={s.recBadge}>
-                    <Text style={s.recBadgeText}>{r.badge}</Text>
+            {recommendedArticles.map((article) => {
+              const cat = RESOURCE_CATEGORIES.find((c) => c.key === article.category);
+              return (
+                <TouchableOpacity
+                  key={article.id}
+                  style={s.recCard}
+                  activeOpacity={0.85}
+                  onPress={() => openArticle(article.id)}
+                >
+                  <View
+                    style={[
+                      s.recImageWrap,
+                      { backgroundColor: cat?.bgColor ?? C.surfaceContainerHigh, alignItems: 'center', justifyContent: 'center' },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name={(cat?.icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']) ?? 'book-open-variant'}
+                      size={40}
+                      color={cat?.iconColor ?? C.primary}
+                    />
+                    <View style={s.recBadge}>
+                      <Text style={s.recBadgeText}>{article.minutes} MIN</Text>
+                    </View>
                   </View>
-                </View>
-                <View style={s.recBody}>
-                  <Text style={s.recTitle}>{r.title}</Text>
-                  <Text style={s.recSub}>{r.sub}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                  <View style={s.recBody}>
+                    <Text style={s.recTitle} numberOfLines={2}>{article.title}</Text>
+                    <Text style={s.recSub} numberOfLines={2}>{article.excerpt}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         </Animated.View>
       </ScrollView>

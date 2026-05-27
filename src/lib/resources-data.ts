@@ -4,6 +4,8 @@
 // (NYT/Atlantic-meets-gentle-wellness), not listicle and not AI-slop.
 // Bodies are short, single-paragraph teasers — full pieces ship later.
 
+import type { EmotionCategory } from '../types/database';
+
 export type ResourceCategoryKey =
   | 'work-stress'
   | 'anxiety'
@@ -289,3 +291,63 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     excerpt: 'Why letting love land in your body is harder than offering it outward.',
     body: `Many people who are skilled at loving — attentive friends, devoted partners, generous colleagues — find the inverse of that skill almost impossible. Being loved, being thanked, being seen with accuracy and warmth by another person: this is the experience that goes sideways. The compliment is deflected. The care is reframed as unnecessary. The love is held at a slight distance, acknowledged intellectually but not quite allowed to land in the body. You are generous outward. You are armored inward.\n\nThe armor was built for good reasons. Being loved requires vulnerability — the exposure of actually needing and wanting the love, which is the place where, historically, the pain has lived. If you are not fully receiving it, you cannot be fully hurt by its withdrawal. The armor is rational. It is also incredibly lonely, because the love keeps arriving and keeps not quite reaching you.\n\nReceiving as practice means deliberately interrupting the deflection. When someone says something kind to you, try — as an experiment — to let yourself feel it before you respond. Not to perform gratitude, but to allow the warmth to be felt as a physical event. Where does it register in the body? What does it feel like to be seen accurately by someone who means it?\n\nThe practice is uncomfortable at first, because receiving requires acknowledging that you need what is being offered. And that acknowledgment — “I needed that, and I am glad it came, and I am letting it matter” — is one of the most quietly courageous things a person can do. It is the act of deciding that you are worth receiving. Not because you have earned it, not because you performed well enough to deserve it. Because you are alive, and alive things need to be held.` },
 ];
+
+// ─── Mood → category mapping ──────────────────────────────────────────────
+// Maps each EmotionCategory to a primary + secondary article category. The
+// dashboard's "Recommended for you today" card uses this to surface 2 picks
+// that match how the user actually feels right now.
+const MOOD_TO_CATEGORIES: Record<EmotionCategory, ResourceCategoryKey[]> = {
+  anxious:  ['anxiety', 'self-love'],
+  sad:      ['depression', 'self-love'],
+  stressed: ['work-stress', 'anxiety'],
+  neutral:  ['motivation', 'self-love'],
+  happy:    ['self-love', 'motivation'],
+  hopeful:  ['motivation', 'self-love'],
+};
+
+// Deterministic per-day, per-mood pick. Same day + same mood always yields the
+// same pair so the user doesn't see articles "jumping around" between visits.
+function dayBucket(): number {
+  const d = new Date();
+  return d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
+}
+
+export function getRecommendedArticles(
+  mood: EmotionCategory | null | undefined,
+  count = 2,
+): ResourceArticle[] {
+  const cats = MOOD_TO_CATEGORIES[mood ?? 'neutral'];
+  const bucket = dayBucket();
+
+  // Pull from each mood-mapped category in turn so the pair shows variety
+  // (not 2 anxiety articles, but anxiety + self-love).
+  const picks: ResourceArticle[] = [];
+  const seen = new Set<string>();
+  cats.forEach((cat, catIdx) => {
+    const pool = RESOURCE_ARTICLES.filter((a) => a.category === cat);
+    if (pool.length === 0) return;
+    // Rotate the index by day so picks change daily without randomness on
+    // every render.
+    const idx = (bucket + catIdx * 7) % pool.length;
+    const article = pool[idx];
+    if (article && !seen.has(article.id)) {
+      seen.add(article.id);
+      picks.push(article);
+    }
+  });
+
+  // If still short (shouldn't happen with 10/cat), backfill from any category.
+  while (picks.length < count) {
+    const filler = RESOURCE_ARTICLES.find((a) => !seen.has(a.id));
+    if (!filler) break;
+    seen.add(filler.id);
+    picks.push(filler);
+  }
+
+  return picks.slice(0, count);
+}
+
+// Lookup helper for the article detail screen.
+export function findArticleById(id: string): ResourceArticle | undefined {
+  return RESOURCE_ARTICLES.find((a) => a.id === id);
+}

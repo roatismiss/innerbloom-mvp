@@ -21,6 +21,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { tokens } from '../constants/theme';
 import { AuthBootstrap } from '../lib/queries/auth';
 import { usePushNotificationsBootstrap } from '../lib/queries/notifications';
+import { useNotificationsBadgeSubscription } from '../lib/queries/notifications-inbox';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -68,6 +69,7 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AuthBootstrap />
           <NotificationsBootstrap />
+          <NotificationsBadgeBootstrap />
           <StatusBar barStyle="dark-content" backgroundColor={tokens.light.surface} />
           <View style={{ flex: 1, backgroundColor: tokens.light.surface }}>
             <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
@@ -89,5 +91,14 @@ export default function RootLayout() {
 // adding noise to the main RootLayout body.
 function NotificationsBootstrap() {
   usePushNotificationsBootstrap();
+  return null;
+}
+
+// Single global Realtime subscription that keeps the unread-notifications
+// badge fresh. Lives here (not in screen components) because multiple screens
+// render the badge — mounting the subscription in each would collide on the
+// channel name and crash on the second mount.
+function NotificationsBadgeBootstrap() {
+  useNotificationsBadgeSubscription();
   return null;
 }

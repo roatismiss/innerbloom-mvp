@@ -20,28 +20,45 @@ const UNREAD_KEY = ['notifications-unread'] as const;
 // ─── Unread count (bell badge) ────────────────────────────────────────────
 
 export function useUnreadNotificationsCount() {
-  const qc = useQueryClient();
-
-  const query = useQuery<number>({
+  return useQuery<number>({
     queryKey: UNREAD_KEY,
     staleTime: 30_000,
     queryFn: () =>
       callRpc<undefined, number>('my_unread_notifications_count'),
   });
+}
 
-  // Keep the badge live: invalidate on any change to the source tables.
-  // Cheaper than re-fetching the full inbox.
+// Realtime subscription that keeps the badge live by invalidating UNREAD_KEY
+// whenever a relevant row lands. Mount ONCE at the top of the tree (see
+// _layout.tsx → <NotificationsBadgeBootstrap />).
+//
+// Why the existence check inside the effect: React StrictMode + Metro
+// hot-reload both re-run useEffect (sometimes within the same tick). The
+// Supabase client keeps channels in a singleton map keyed by topic, so a
+// second .channel(`notif-badge:<uid>`).on(...) call lands on the already-
+// subscribed channel and throws "cannot add postgres_changes callbacks
+// after subscribe()". Bailing when the topic is already registered makes
+// this effect safely idempotent across remounts and HMR.
+//
+// We intentionally do NOT tear down on cleanup — the subscription is a
+// session-long singleton tied to the signed-in user.
+export function useNotificationsBadgeSubscription() {
+  const qc = useQueryClient();
+
   useEffect(() => {
     let mounted = true;
-    let userId: string | null = null;
 
-    const setup = async () => {
+    void (async () => {
       const { data: { user } } = await sb().auth.getUser();
       if (!user || !mounted) return;
-      userId = user.id;
 
-      const channel = sb()
-        .channel(`notif-badge:${user.id}`)
+      const channelName = `notif-badge:${user.id}`;
+      const topic = `realtime:${channelName}`;
+      const alreadyOpen = sb().getChannels().some((c) => c.topic === topic);
+      if (alreadyOpen) return;
+
+      sb()
+        .channel(channelName)
         .on('postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'hugs', filter: `to_user_id=eq.${user.id}` },
           () => { void qc.invalidateQueries({ queryKey: UNREAD_KEY }); })
@@ -55,20 +72,13 @@ export function useUnreadNotificationsCount() {
           { event: 'INSERT', schema: 'public', table: 'messages' },
           () => { void qc.invalidateQueries({ queryKey: UNREAD_KEY }); })
         .subscribe();
+    })();
 
-      return () => sb().removeChannel(channel);
-    };
-
-    const cleanup = setup();
     return () => {
       mounted = false;
-      void cleanup.then((fn) => fn?.());
-      void userId;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  return query;
 }
 
 // ─── Full inbox (the screen) ──────────────────────────────────────────────

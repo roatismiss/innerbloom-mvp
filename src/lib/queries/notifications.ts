@@ -27,17 +27,20 @@ import { useAuthStore } from '../../store/auth';
 import { sb } from './client';
 
 // Show banner + play sound for foreground pushes. Without this, foreground
-// notifications are silently dropped on iOS.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList:   true,
-    shouldPlaySound:  true,
-    shouldSetBadge:   false,
-    // Legacy aliases for older expo-notifications builds.
-    shouldShowAlert:  true,
-  } as Notifications.NotificationBehavior),
-});
+// notifications are silently dropped on iOS. Skipped on web — the native
+// notification subsystem isn't available there and calling this throws.
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList:   true,
+      shouldPlaySound:  true,
+      shouldSetBadge:   false,
+      // Legacy aliases for older expo-notifications builds.
+      shouldShowAlert:  true,
+    } as Notifications.NotificationBehavior),
+  });
+}
 
 type PushPlatform = 'ios' | 'android' | 'web';
 
@@ -173,8 +176,12 @@ export function usePushNotificationsBootstrap() {
     })();
   }, [userId]);
 
-  // 2. Tap handlers — foreground + background.
+  // 2. Tap handlers — foreground + background. Skipped on web: neither the
+  // listener nor `getLastNotificationResponseAsync` is implemented there,
+  // and calling them throws a "method not available on web" runtime error.
   useEffect(() => {
+    if (Platform.OS === 'web') return;
+
     const responseSub = Notifications.addNotificationResponseReceivedListener(
       (response) => {
         const data = response.notification.request.content.data as PushPayload;
