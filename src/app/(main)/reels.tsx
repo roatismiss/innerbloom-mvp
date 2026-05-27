@@ -5,9 +5,10 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useIsFocused } from 'expo-router';
 import { VideoView, useVideoPlayer, type VideoSource } from 'expo-video';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { createElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
+  Image as RNImage,
   Platform,
   StyleSheet,
   Text,
@@ -234,7 +235,10 @@ const VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 80 };
 export default function ReelsScreen() {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const reelH = height - layout.tabBarHeight;
+  // Full-window reel cards: the floating tab bar (configured per-screen in
+  // (main)/_layout.tsx) sits on top of the video instead of stealing height,
+  // so reels run edge-to-edge like TikTok / Instagram Reels.
+  const reelH = height;
   const [shareTarget, setShareTarget] = useState<SharedReelPayload | null>(null);
 
   // Visible reel index — drives which card's audio is playing. Init to 0
@@ -577,10 +581,24 @@ function ReelCard({
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-// Full-screen video background. Same play/pause discipline as ReelAudio:
-// looping is set once, play/pause flips with visibility, mute flips with the
-// global pref. Voiceover is baked into the mp4 so volume isn't a knob here.
-function ReelVideo({
+// Full-screen video background. Two implementations because the right
+// behaviour differs sharply between native (expo-video does it well) and
+// iOS Safari (expo-video's web build does NOT set `playsinline` on the
+// underlying <video> element, which makes iOS hijack the first tap and
+// open the fullscreen native player). On web we drop down to a raw HTML5
+// <video> with the exact attributes iOS needs.
+function ReelVideo(props: {
+  source: VideoSource;
+  isPlaying: boolean;
+  muted: boolean;
+}) {
+  if (Platform.OS === 'web') {
+    return <WebReelVideo {...props} />;
+  }
+  return <NativeReelVideo {...props} />;
+}
+
+function NativeReelVideo({
   source,
   isPlaying,
   muted,
@@ -598,26 +616,98 @@ function ReelVideo({
   }, [player, muted]);
 
   useEffect(() => {
-    if (isPlaying) {
-      player.play();
-    } else {
-      player.pause();
-    }
+    if (isPlaying) player.play();
+    else player.pause();
   }, [player, isPlaying]);
 
-  // `cover` = TikTok behavior: video fills the screen edge-to-edge, scaling
-  // to the longer of the two container dimensions. If the avatar's video is
-  // 9:16 and the device is taller (iPhone 14 Pro Max ≈ 9:19.5), `cover`
-  // scales to fill the height and crops a sliver off the sides — the
-  // avatar's safe-zone margin gets trimmed but the subject stays centered,
-  // matching how every editorial reel fills its container.
+  // `contain` keeps the 9:16 source intact — on a phone taller than 9:16
+  // (iPhone 14 Pro Max ≈ 9:19.5) you get thin dark bars top/bottom instead
+  // of cropping the avatar. Backdrop is black to match TikTok-style
+  // letterboxing when a clip doesn't exactly fit the device aspect.
   return (
-    <VideoView
-      player={player}
-      style={StyleSheet.absoluteFill}
-      contentFit="cover"
-      nativeControls={false}
-    />
+    <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }]}>
+      <VideoView
+        player={player}
+        style={StyleSheet.absoluteFill}
+        contentFit="contain"
+        nativeControls={false}
+      />
+    </View>
+  );
+}
+
+// Web-only: raw HTML5 <video> with every iOS Safari attribute spelled out.
+// `playsinline` + `webkit-playsinline` together prevent the native fullscreen
+// takeover even on older iOS builds; `autoplay` + `muted` are the magic combo
+// that lets Safari start the video without a user gesture (we honour the
+// user's mute preference reactively below). `object-fit: contain` keeps the
+// 9:16 source intact instead of cropping it to whatever shape the viewport is.
+function WebReelVideo({
+  source,
+  isPlaying,
+  muted,
+}: {
+  source: VideoSource;
+  isPlaying: boolean;
+  muted: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // `source` is the result of require('…mp4'). On web Metro typically returns
+  // either a URL string or an object with `uri`. resolveAssetSource normalises
+  // every shape (number / string / { uri }) to a URL string.
+  const src = useMemo(() => {
+    if (!source) return '';
+    if (typeof source === 'string') return source;
+    if (typeof source === 'object' && 'uri' in source && typeof source.uri === 'string') {
+      return source.uri;
+    }
+    const resolved = RNImage.resolveAssetSource(source as never);
+    return resolved?.uri ?? '';
+  }, [source]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (isPlaying) {
+      const playResult = v.play();
+      if (playResult && typeof playResult.catch === 'function') {
+        // Autoplay can be blocked by the browser — silent fail, the user
+        // can tap the reel and we'll retry on the next isPlaying flip.
+        playResult.catch(() => {});
+      }
+    } else {
+      v.pause();
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.muted = muted;
+  }, [muted]);
+
+  return (
+    <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }]}>
+      {createElement('video', {
+        ref: videoRef,
+        src,
+        loop: true,
+        autoPlay: true,
+        muted,
+        playsInline: true,
+        'webkit-playsinline': 'true',
+        controls: false,
+        disablePictureInPicture: true,
+        controlsList: 'nodownload nofullscreen noremoteplayback',
+        style: {
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+          pointerEvents: 'none',
+          display: 'block',
+          background: '#000',
+        },
+      })}
+    </View>
   );
 }
 
@@ -828,12 +918,13 @@ const s = StyleSheet.create({
 
   // Daily bloom card — anchored bottom-left, clear of the right action column
   // (sidebar lives at right:16 with width ~48, so we keep right:96 of breathing
-  // room) and stacked above the caption block at the bottom.
+  // room) and stacked above the caption block at the bottom. tabBarHeight is
+  // added because the reel now extends edge-to-edge under the floating tab bar.
   dailyCardWrap: {
     position: 'absolute',
     left: 24,
     right: 96,
-    bottom: 140,
+    bottom: 140 + layout.tabBarHeight,
     zIndex: 15,
     maxWidth: 320,
   },
@@ -856,11 +947,12 @@ const s = StyleSheet.create({
     color: C.onSurface,
   },
 
-  // Sidebar
+  // Sidebar — bottom offset includes tabBarHeight because the reel runs under
+  // the floating tab bar (TikTok / Instagram Reels behavior).
   sidebar: {
     position: 'absolute',
     right: 16,
-    bottom: 120,
+    bottom: 120 + layout.tabBarHeight,
     zIndex: 20,
     alignItems: 'center',
     gap: 20,
@@ -898,10 +990,11 @@ const s = StyleSheet.create({
     color: C.onSurface,
   },
 
-  // Caption
+  // Caption — bottom offset includes tabBarHeight so it sits just above the
+  // floating tab bar instead of being hidden behind it.
   caption: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 24 + layout.tabBarHeight,
     left: 0,
     right: 72,
     paddingHorizontal: 24,

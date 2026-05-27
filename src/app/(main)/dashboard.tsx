@@ -118,9 +118,12 @@ const FAB_BOTTOM = 28;
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  // Mood: Zustand is the optimistic cache (set by useSubmitMood.onMutate);
-  // server query is the truth on cold start. Prefer local if present.
+  // Mood: Zustand is the optimistic cache (set by useSubmitMood.onMutate),
+  // persisted to AsyncStorage so the lock survives reloads. Server query is
+  // the source of truth on a fresh device. Prefer local if present.
   const localMood = useMoodStore((s) => s.todayMood);
+  const ensureFreshMood = useMoodStore((s) => s.ensureFresh);
+  useEffect(() => { ensureFreshMood(); }, [ensureFreshMood]);
   const todayForMe = useTodayForMe();
   const moodHistory = useMoodHistory(7);
   const submitMood = useSubmitMood();

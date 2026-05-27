@@ -79,11 +79,17 @@ export default function MainLayout() {
       >
         {TABS.map((tab) => {
           const isCenter = tab.name === 'soul-match';
+          const isReels = tab.name === 'reels';
           return (
             <Tabs.Screen
               key={tab.name}
               name={tab.name}
               options={{
+                // Reels behaves like TikTok / Instagram Reels: the video runs
+                // edge-to-edge under a floating tab bar. We override the bar
+                // style here so the screen container becomes full-height for
+                // this tab only.
+                tabBarStyle: isReels ? [s.tabBar, s.tabBarFloating] : s.tabBar,
                 tabBarIcon: ({ focused }: { focused: boolean }) => (
                   <TabIcon
                     label={tab.label}
@@ -124,6 +130,15 @@ const s = StyleSheet.create({
     shadowRadius: 32,
     shadowOffset: { width: 0, height: -10 },
     elevation: 20,
+  },
+  // Reels tab: bar floats over the video. Slightly translucent so the reel
+  // shows through subtly, matching TikTok / Instagram Reels.
+  tabBarFloating: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.92)',
   },
   activePill: {
     flexDirection: 'column',
