@@ -144,7 +144,7 @@ export default function BloomCheckInScreen() {
           <Text style={s.sectionHeading}>Today's gentle practices</Text>
           {[
             { icon: 'weather-windy'    as Mci, title: 'Box breathing',   sub: '4 minutes to settle the nervous system.', route: '/(main)/breathing' },
-            { icon: 'meditation'       as Mci, title: 'Body scan',        sub: 'Ground yourself from head to toe.',       route: null },
+            { icon: 'meditation'       as Mci, title: 'Body scan',        sub: 'Ground yourself from head to toe.',       route: '/(main)/body-scan' },
             { icon: 'notebook-outline' as Mci, title: 'Three tiny joys',  sub: 'Write a brief gratitude reflection.',     route: '/(main)/journal' },
           ].map((p) => (
             <TouchableOpacity key={p.title} style={s.practiceRow} activeOpacity={0.85} onPress={() => { if (p.route) router.push(p.route as any); }}>

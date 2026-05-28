@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -16,6 +17,7 @@ import {
 import Animated, { FadeIn, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useBloomSend } from '../../lib/queries/bloom';
 import { callRpc } from '../../lib/queries/client';
 import { useKindredGarden } from '../../lib/queries/kindred';
 import type { SendMessageArgs, SendMessageResult } from '../../types/database';
@@ -37,6 +39,8 @@ const C = {
 
 export type SharedReelPayload = {
   id: string;
+  reelId: string;
+  caption: string;
   quote: string;
   author: string;
   dailyBloom?: string;
@@ -54,7 +58,9 @@ export function ShareReelSheet({
   onClose: () => void;
 }) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { data: garden, isLoading } = useKindredGarden();
+  const bloomSend = useBloomSend();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
@@ -81,14 +87,6 @@ export function ShareReelSheet({
     const realConvIds = [...selected].filter((id) => id !== BLOOM_AI_ID);
     const includesAI = selected.has(BLOOM_AI_ID);
 
-    if (includesAI && realConvIds.length === 0) {
-      Alert.alert(
-        'Bloom AI',
-        'Sharing with Bloom AI is coming soon — pick a Kindred Spirit for now.',
-      );
-      return;
-    }
-
     setSending(true);
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
@@ -100,11 +98,21 @@ export function ShareReelSheet({
           callRpc<SendMessageArgs, SendMessageResult>('send_message', {
             p_conversation_id: conversationId,
             p_body: body,
+            p_reel_id: reel.reelId,
           }),
         ),
       );
+
+      if (includesAI) {
+        await bloomSend.mutateAsync({ message: formatBloomAiPrompt(reel, note) });
+      }
+
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       handleClose();
+
+      if (includesAI) {
+        router.push('/(main)/ai-companion');
+      }
     } catch (err) {
       setSending(false);
       const msg = err instanceof Error ? err.message : 'Could not send. Try again.';
@@ -213,7 +221,7 @@ export function ShareReelSheet({
                   <>
                     <MaterialCommunityIcons name="send" size={20} color={C.onPrimary} />
                     <Text style={styles.ctaLabel}>
-                      {selected.size > 1 ? `Send to ${selected.size}` : 'Send to Kindred Spirits'}
+                      {ctaLabel(selected, BLOOM_AI_ID)}
                     </Text>
                   </>
                 )}
@@ -269,10 +277,61 @@ function RecipientAvatar({
 }
 
 function formatShareBody(reel: SharedReelPayload, note: string): string {
-  const lines = ['Shared a Daily Breath', '', `"${reel.quote}"`, `— ${reel.author}`];
+  const caption = reel.caption.trim() || reel.quote.trim();
+  const lines: string[] = [caption.length > 120 ? `${caption.slice(0, 117)}...` : caption];
+  if (reel.quote && reel.caption) lines.push(`— ${reel.author}`);
   const trimmedNote = note.trim();
   if (trimmedNote) lines.push('', trimmedNote);
   return lines.join('\n');
+}
+
+// Composed as a natural-reading user message that still gives the AI everything
+// it needs to lead: the quote, the author, the theme list (parsed from hashtags),
+// and an explicit ask to open the conversation. Reads cleanly in chat history.
+function formatBloomAiPrompt(reel: SharedReelPayload, note: string): string {
+  const quote = reel.quote.trim();
+  const caption = reel.caption.trim();
+  const themes = extractThemes(caption);
+  const text = quote || caption;
+
+  const lines: string[] = [`I just watched this reel — "${text}" — ${reel.author}.`];
+  if (themes.length > 0) {
+    lines.push(`(Themes: ${themes.join(', ')})`);
+  }
+
+  const trimmedNote = note.trim();
+  if (trimmedNote) {
+    lines.push('', trimmedNote);
+    lines.push('', 'Can you reflect on what this is touching and open up a conversation with me about it?');
+  } else {
+    lines.push('', 'Can you reflect on what this is touching and open up a conversation with me about it?');
+  }
+
+  return lines.join('\n');
+}
+
+function ctaLabel(selected: Set<string>, aiId: string): string {
+  if (selected.size === 0) return 'Send';
+  if (selected.size === 1) {
+    return selected.has(aiId) ? 'Open with Bloom AI' : 'Send to Kindred Spirit';
+  }
+  return `Send to ${selected.size}`;
+}
+
+// Pull #Hashtags out of the caption as a readable theme list. Cheap, no NLP.
+function extractThemes(caption: string): string[] {
+  const matches = caption.match(/#\w+/g);
+  if (!matches) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const tag of matches) {
+    const clean = tag.replace(/^#/, '');
+    const key = clean.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(clean);
+  }
+  return out;
 }
 
 const styles = StyleSheet.create({

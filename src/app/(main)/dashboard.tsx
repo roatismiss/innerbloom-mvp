@@ -11,6 +11,7 @@ import { DEFAULT_MOOD_INTENSITY, greeting, moodColor } from '../../lib/mood';
 import { useTodayIntention } from '../../lib/queries/intentions';
 import { useMoodHistory, useSubmitMood, useTodayForMe } from '../../lib/queries/mood';
 import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
+import { useMyProfile } from '../../lib/queries/profile';
 import {
   getRecommendedArticles,
   RESOURCE_CATEGORIES,
@@ -78,7 +79,7 @@ const TREND_PLACEHOLDER: TrendBar[] = Array.from({ length: 7 }, () => ({
 
 const PRACTICES: Array<{ icon: Mci; title: string; sub: string; route: string | null }> = [
   { icon: 'weather-windy',    title: 'Box breathing',  sub: '4 minutes to settle the nervous system.', route: '/(main)/breathing' },
-  { icon: 'meditation',       title: 'Body scan',       sub: 'Ground yourself from head to toe.',       route: null },
+  { icon: 'meditation',       title: 'Body scan',       sub: 'Ground yourself from head to toe.',       route: '/(main)/body-scan' },
   { icon: 'notebook-outline', title: 'Three tiny joys', sub: 'Write a brief gratitude reflection.',     route: '/(main)/journal' },
 ];
 
@@ -107,8 +108,7 @@ const CIRCLES = [
   { when: 'Sat',   time: '10:30', title: 'Anxiety Breathwork',   meta: 'Weekly Session',         accent: false },
 ];
 
-const PROFILE_IMG =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuApSgPTkTEtRCoihcOFOolOJH8DpWq-xWNDquVXQDNU_Ue1pgQrECRouxEatRFVytCZNFSpHYHWs1O6VCd3CE-BMRb8sf568yFdukyR1ckduL8WCBSo9puySCIUTvhgBWouEOsl-NKiQzkhHy2kyRLHs1S6cCUvE3KFfciDl-0hJ9UXcYGclhIF22JyFdJ8QK6Rrmw1jzCAflS5rWLJX48OhSjXc0TCSutYK_T_Y9ChlB8btkRzzwf7by00imVljDM4_a9grOEwB3qV';
+const AVATAR_FALLBACK = null; // no hardcoded image — use profile avatar or initials
 
 const HEADER_H = 80;
 const FAB_BOTTOM = 28;
@@ -118,6 +118,9 @@ const FAB_BOTTOM = 28;
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const profile = useMyProfile();
+  const displayName = profile.data?.display_name || profile.data?.anonymous_alias?.replace(/^Bloom #/, '') || 'there';
+  const avatarUri = profile.data?.avatar_url ?? null;
   // Mood: Zustand is the optimistic cache (set by useSubmitMood.onMutate),
   // persisted to AsyncStorage so the lock survives reloads. Server query is
   // the source of truth on a fresh device. Prefer local if present.
@@ -277,7 +280,15 @@ export default function DashboardScreen() {
               onPress={() => router.push('/(main)/profile')}
             >
               <View style={s.avatarRing}>
-                <Image source={{ uri: PROFILE_IMG }} style={s.avatarImg} contentFit="cover" />
+                {avatarUri ? (
+                  <Image source={{ uri: avatarUri }} style={s.avatarImg} contentFit="cover" />
+                ) : (
+                  <View style={[s.avatarImg, s.avatarInitials]}>
+                    <Text style={s.avatarInitialsText}>
+                      {(profile.data?.display_name || profile.data?.anonymous_alias || '?')[0].toUpperCase()}
+                    </Text>
+                  </View>
+                )}
                 <View style={s.onlineDot} />
               </View>
             </TouchableOpacity>
@@ -309,7 +320,7 @@ export default function DashboardScreen() {
       >
         {/* Greeting */}
         <Animated.View entering={FadeInDown.delay(60).springify()} style={s.section}>
-          <Text style={s.greeting}>{greetingText}, Maya</Text>
+          <Text style={s.greeting}>{greetingText}, {displayName}</Text>
           <View style={s.greetingSubRow}>
             <MaterialCommunityIcons name="white-balance-sunny" size={18} color={C.onSurfaceVariant} />
             <Text style={s.greetingSub}>A clear sky and a calm mind await you today.</Text>
@@ -497,7 +508,15 @@ export default function DashboardScreen() {
                 "You are doing a wonderful job navigating your emotions today. Remember that your growth is not linear, but every small petal counts."
               </Text>
               <View style={s.insightAttrib}>
-                <Image source={{ uri: PROFILE_IMG }} style={s.insightAvatar} contentFit="cover" />
+                {avatarUri ? (
+                  <Image source={{ uri: avatarUri }} style={s.insightAvatar} contentFit="cover" />
+                ) : (
+                  <View style={[s.insightAvatar, s.avatarInitials]}>
+                    <Text style={[s.avatarInitialsText, { fontSize: 10 }]}>
+                      {(profile.data?.display_name || profile.data?.anonymous_alias || '?')[0].toUpperCase()}
+                    </Text>
+                  </View>
+                )}
                 <Text style={s.insightAttribText}>Insight from Bloom AI  →</Text>
               </View>
             </View>
@@ -688,6 +707,17 @@ const s = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 999,
+  },
+  avatarInitials: {
+    backgroundColor: '#e8836b',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitialsText: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 14,
+    color: '#641e0e',
+    lineHeight: 18,
   },
   onlineDot: {
     position: 'absolute',

@@ -2,11 +2,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { greeting } from '../../lib/mood';
+import { useMyProfile } from '../../lib/queries/profile';
 import { useMoodStore } from '../../store/mood';
 import type { EmotionCategory } from '../../types';
 
@@ -120,6 +121,8 @@ export default function FeedHomeScreen() {
   const router = useRouter();
   const { todayMood, setTodayMood } = useMoodStore();
   const greetingText = greeting();
+  const profile = useMyProfile();
+  const displayName = profile.data?.display_name || profile.data?.anonymous_alias?.replace('Bloom #', '') || 'there';
 
   function handleMoodSelect(mood: MoodOption) {
     void Haptics.selectionAsync();
@@ -163,6 +166,7 @@ export default function FeedHomeScreen() {
 
       {/* ─── Scrollable content ─── */}
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[
           s.scroll,
           { paddingTop: insets.top + HEADER_H + 16, paddingBottom: 160 },
@@ -171,7 +175,7 @@ export default function FeedHomeScreen() {
       >
         {/* Greeting */}
         <Animated.View entering={FadeInDown.delay(60).springify()} style={s.section}>
-          <Text style={s.greeting}>{greetingText}, Maya</Text>
+          <Text style={s.greeting}>{greetingText}, {displayName}</Text>
           <View style={s.greetingSubRow}>
             <MaterialCommunityIcons name="white-balance-sunny" size={18} color={C.onSurfaceVariant} />
             <Text style={s.greetingSub}>A clear sky and a calm mind await you today.</Text>
@@ -457,10 +461,10 @@ const s = StyleSheet.create({
 
   // Top app bar
   topBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
+    ...Platform.select({
+      web: { position: 'fixed' as 'absolute', top: 0, left: 0, right: 0 },
+      default: { position: 'absolute', top: 0, left: 0, right: 0 },
+    }),
     zIndex: 50,
     backgroundColor: 'rgba(255,248,246,0.92)',
     borderBottomWidth: 1,

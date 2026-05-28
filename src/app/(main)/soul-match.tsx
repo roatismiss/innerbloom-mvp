@@ -2,21 +2,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, {
-  Easing,
-  FadeInDown,
-  FadeInUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { useUIStore } from '../../store/ui';
 
 // ─── Design tokens (1:1 with the HTML reference) ─────────────────────────────
 const C = {
@@ -37,42 +25,14 @@ const C = {
 
 const HERO_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBsQ9wjjx58wnl3MMuvbjB6Z0nipcuZU6WdkAYCv1MwY2YDSD4Llcn8ytFUPfcOvj8EI9KVmq1fO5oxUGvLhi-Z8yCzqrPWqLMbHteaGV0_jg4DvPVQhyOsqt5sWKwMCmCCpvo8j9NR05vdXV4klrbYb9Qzogeg9mvuZh1XK46mmRXgzwPnBV1ytB8Rii-4rVdNKdaETL9oyN-MskYm5MbAcb2VBBT0IXsBkLLsRltsKMwQKSxMxvd_QxbE60cok4yY0rssEc5le5rD';
-const AVATAR_IMG =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCFbhQWcboFUaa1WTBk88tOXoQtIuL2nniGilc4MI_p7bEas5LX2qs53Dc1Da95BJ5Ok2AtlIrTElhrlGjrTIetRUujTuMGVWQsnTE7nQCkJpuPzBFNzgoAvjvlyBw6xMz1CScL_quu1hvvpBO9_bemalIpN_ARsBWs-TMvxQ9ztHcWbk0rwQHP6n72eAJiDpDqHDlnt1RlpKhU_rL-nRs0e8ThLSufghSyoLQuF3jOCSjZE6UDzHIq_X1qrBNXPRmRPPf-6PN46nD0';
 
 export default function SoulMatchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const openDrawer = useUIStore((s) => s.openDrawer);
-
-  // animate-float — 6s ease-in-out infinite, translateY 0 ↔ -10
-  const floatY = useSharedValue(0);
-  useEffect(() => {
-    floatY.value = withRepeat(
-      withSequence(
-        withTiming(-10, { duration: 3000, easing: Easing.inOut(Easing.sin) }),
-        withTiming(0,   { duration: 3000, easing: Easing.inOut(Easing.sin) }),
-      ),
-      -1,
-    );
-  }, [floatY]);
-  const floatStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatY.value }],
-  }));
 
   function handleStart() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push('/match/start');
-  }
-
-  function handleMenu() {
-    void Haptics.selectionAsync();
-    openDrawer();
-  }
-
-  function handleCircle() {
-    void Haptics.selectionAsync();
-    router.push('/(main)/bloom-circle');
   }
 
   return (
@@ -81,29 +41,10 @@ export default function SoulMatchScreen() {
       <View style={s.bgGlowCenter} pointerEvents="none" />
       <View style={s.bgGlowBottom}  pointerEvents="none" />
 
-      {/* TopAppBar — fixed top */}
-      <Animated.View entering={FadeInUp.springify()} style={s.topBar}>
-        <View style={s.topLeft}>
-          <TouchableOpacity onPress={handleMenu} activeOpacity={0.7} hitSlop={8}>
-            <MaterialCommunityIcons name="arrow-left" size={24} color={C.primary} />
-          </TouchableOpacity>
-          <Text style={s.topTitle}>Soul Match</Text>
-        </View>
-        <View style={s.topRight}>
-          <TouchableOpacity activeOpacity={0.85} style={s.circlePill} onPress={handleCircle}>
-            <MaterialCommunityIcons name="flower-outline" size={16} color={C.onPrimaryContainer} />
-            <Text style={s.circlePillText}>Bloom Circle</Text>
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={s.avatarRing} onPress={() => router.push('/(main)/profile')}>
-            <Image source={{ uri: AVATAR_IMG }} style={s.avatarImg} contentFit="cover" />
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-
       {/* Main — centered hero + cluster */}
       <View style={[s.main, { paddingBottom: insets.bottom + 24 }]}>
-        {/* Hero Illustration with float + soft glow */}
-        <Animated.View style={[s.heroWrap, floatStyle]}>
+        {/* Hero Illustration — static, no float animation */}
+        <View style={s.heroWrap}>
           <View style={s.heroGlow} pointerEvents="none" />
           <Image
             source={{ uri: HERO_IMG }}
@@ -111,7 +52,7 @@ export default function SoulMatchScreen() {
             contentFit="cover"
             transition={400}
           />
-        </Animated.View>
+        </View>
 
         {/* Content Cluster */}
         <View style={s.cluster}>
@@ -177,64 +118,6 @@ const s = StyleSheet.create({
     borderRadius: 240,
     backgroundColor: C.primaryFixed,
     opacity: 0.28,
-  },
-
-  // TopAppBar — px-container-padding(24), py-stack-gap-sm(8)
-  topBar: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  topLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,  // stack-gap-md
-  },
-  topTitle: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 24,         // headline-md
-    lineHeight: 32,
-    color: C.primary,
-  },
-  topRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  circlePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 9999,
-    backgroundColor: C.primaryContainer,
-    shadowColor: C.primary,
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  circlePillText: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 13,
-    lineHeight: 18,
-    color: C.onPrimaryContainer,
-    letterSpacing: 0.2,
-  },
-  avatarRing: {
-    width: 40,
-    height: 40,
-    borderRadius: 9999,
-    borderWidth: 2,
-    borderColor: C.surfaceVariant,
-    overflow: 'hidden',
-  },
-  avatarImg: {
-    width: '100%',
-    height: '100%',
   },
 
   // Main — flex-1 centered

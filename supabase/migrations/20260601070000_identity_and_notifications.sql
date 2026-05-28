@@ -46,7 +46,8 @@ alter table profiles
 -- Expose the new identity columns on the public_profiles view so other
 -- users see them. display_name/avatar_url are opt-in by design — they're
 -- always public when set.
-create or replace view public_profiles as
+drop view if exists public_profiles;
+create view public_profiles as
   select id,
          anonymous_alias,
          display_name,

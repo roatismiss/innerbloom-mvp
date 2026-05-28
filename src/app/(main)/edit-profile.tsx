@@ -19,6 +19,7 @@ import {
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AvatarCropModal } from '../../components/AvatarCropModal';
 import {
   useSetMyIdentity,
   useUploadAvatar,
@@ -59,6 +60,7 @@ export default function EditProfileScreen() {
 
   const [name, setName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [cropUri, setCropUri] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Hydrate from server once data lands. Doesn't fight subsequent user edits.
@@ -96,19 +98,15 @@ export default function EditProfileScreen() {
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.7,
+        allowsEditing: false,
+        quality: 1,
         base64: false,
+        allowsMultipleSelection: false,
       });
       if (result.canceled || result.assets.length === 0) return;
 
-      const asset = result.assets[0];
-      const uploaded = await uploadAvatar.mutateAsync({
-        uri: asset.uri,
-        mime: asset.mimeType,
-      });
-      setAvatarUrl(uploaded.publicUrl);
+      // Show our custom crop UI — upload happens after crop confirmation
+      setCropUri(result.assets[0].uri);
     } catch (err) {
       setErrorMsg(
         err instanceof Error
@@ -137,6 +135,17 @@ export default function EditProfileScreen() {
     }
   }
 
+  async function handleCropConfirm(croppedUri: string) {
+    setCropUri(null);
+    setErrorMsg(null);
+    try {
+      const uploaded = await uploadAvatar.mutateAsync({ uri: croppedUri, mime: 'image/jpeg' });
+      setAvatarUrl(uploaded.publicUrl);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Could not upload the image. Try again.');
+    }
+  }
+
   async function clearAvatar() {
     void Haptics.selectionAsync();
     setAvatarUrl(null);
@@ -144,16 +153,25 @@ export default function EditProfileScreen() {
 
   return (
     <View style={s.root}>
+      {cropUri ? (
+        <AvatarCropModal
+          uri={cropUri}
+          onCrop={handleCropConfirm}
+          onCancel={() => setCropUri(null)}
+        />
+      ) : null}
+
       <View style={[s.blob, s.blobTop]} />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={[
             s.scroll,
-            { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 140 },
+            { paddingTop: insets.top + 16, paddingBottom: 24 },
           ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -276,7 +294,7 @@ export default function EditProfileScreen() {
         <View
           style={[
             s.footer,
-            { paddingBottom: Math.max(insets.bottom, 16) + 12 },
+            { paddingBottom: Math.max(insets.bottom, 16) + 12, position: Platform.OS === 'web' ? 'relative' : 'absolute' },
           ]}
         >
           {errorMsg ? <Text style={s.errorText}>{errorMsg}</Text> : null}
@@ -448,7 +466,7 @@ const s = StyleSheet.create({
 
   // Footer save
   footer: {
-    position: 'absolute', left: 0, right: 0, bottom: 0,
+    left: 0, right: 0, bottom: 0,
     paddingHorizontal: 20, paddingTop: 14,
     backgroundColor: 'rgba(255,248,246,0.95)',
     borderTopWidth: 1,

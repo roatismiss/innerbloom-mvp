@@ -104,7 +104,7 @@ export default function OnboardingFrequencyScreen() {
     if (!selected) return;
     void Haptics.selectionAsync();
     setDraftFrequency(FREQ_TO_DB[selected]);
-    router.replace('/onboarding/blooming');
+    router.replace('/onboarding/name');
   };
 
   const enabled = selected !== null;

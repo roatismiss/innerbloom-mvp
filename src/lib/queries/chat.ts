@@ -171,12 +171,13 @@ export function useSendMessage(conversationId: string) {
   const key = ['messages', conversationId];
 
   return useMutation({
-    mutationFn: (body: string) =>
+    mutationFn: ({ body, reelId }: { body: string; reelId?: string | null }) =>
       callRpc<SendMessageArgs, SendMessageResult>('send_message', {
         p_conversation_id: conversationId,
         p_body: body,
+        p_reel_id: reelId ?? null,
       }),
-    onMutate: async (body) => {
+    onMutate: async ({ body, reelId }) => {
       const {
         data: { user },
       } = await sb().auth.getUser();
@@ -187,6 +188,7 @@ export function useSendMessage(conversationId: string) {
         conversation_id: conversationId,
         sender_id: user.id,
         body,
+        reel_id: reelId ?? null,
         created_at: new Date().toISOString(),
         read_at: null,
       };

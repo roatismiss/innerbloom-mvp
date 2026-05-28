@@ -16,11 +16,13 @@
     "expo-audio": "~56.0.11",
     "expo-blur": "~56.0.3",
     "expo-constants": "~56.0.15",
+    "expo-dev-client": "~56.0.16",
     "expo-device": "~56.0.4",
     "expo-font": "~56.0.5",
     "expo-glass-effect": "~56.0.4",
     "expo-haptics": "~56.0.3",
     "expo-image": "~56.0.9",
+    "expo-image-manipulator": "~56.0.15",
     "expo-image-picker": "~56.0.14",
     "expo-linear-gradient": "~56.0.4",
     "expo-linking": "~56.0.11",
@@ -55,7 +57,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "tts:articles": "node scripts/generate-article-audio.mjs"
   },
   "private": true
 }

@@ -27,6 +27,8 @@ export type ProfileStats = {
 export type ProfileSummary = {
   id:                   string;
   anonymous_alias:      string;
+  display_name:         string | null;
+  avatar_url:           string | null;
   city:                 string | null;
   institution_id:       string | null;
   joined_at:            string;
@@ -55,7 +57,7 @@ export function useMyProfile() {
       // RLS on `profiles` lets the owner read their own row.
       const { data: profile, error } = await client
         .from('profiles')
-        .select('id, anonymous_alias, city, institution_id, created_at')
+        .select('id, anonymous_alias, display_name, avatar_url, city, institution_id, created_at')
         .eq('id', user.id)
         .maybeSingle();
       if (error) throw error;
@@ -75,6 +77,8 @@ export function useMyProfile() {
       return {
         id:               profile.id,
         anonymous_alias:  profile.anonymous_alias,
+        display_name:     (profile as { display_name?: string | null }).display_name ?? null,
+        avatar_url:       (profile as { avatar_url?: string | null }).avatar_url ?? null,
         city:             profile.city,
         institution_id:   profile.institution_id,
         joined_at:        profile.created_at,

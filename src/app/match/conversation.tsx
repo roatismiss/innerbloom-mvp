@@ -19,6 +19,7 @@ import {
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ReelPreviewCard } from '../../components/reels/ReelPreviewCard';
 import {
   useConversationWithOther,
   useMessages,
@@ -124,7 +125,7 @@ export default function ConversationScreen() {
     if (!body || !resolvedId) return;
     setDraft('');
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    sendMessage.mutate(body);
+    sendMessage.mutate({ body });
   }
 
   const bottomPad = insets.bottom + 8;
@@ -348,12 +349,24 @@ export default function ConversationScreen() {
 function MessageBubble({ message, mine }: { message: MessageRow; mine: boolean }) {
   const time = useMemo(() => formatTime(message.created_at), [message.created_at]);
   const optimistic = message.id.startsWith('optimistic-');
+  const router = useRouter();
+  const isReel = !!message.reel_id;
+
+  const openReel = () => {
+    if (!message.reel_id) return;
+    void Haptics.selectionAsync();
+    router.push({ pathname: '/(main)/reels' as never, params: { id: message.reel_id } });
+  };
 
   return (
     <Animated.View entering={FadeInDown.springify().damping(18)} style={mine ? s.msgRight : s.msgLeft}>
-      <View style={mine ? s.bubbleOut : s.bubbleIn}>
-        <Text style={mine ? s.bubbleOutText : s.bubbleInText}>{message.body}</Text>
-      </View>
+      {isReel ? (
+        <ReelPreviewCard reelId={message.reel_id!} onPress={openReel} />
+      ) : (
+        <View style={mine ? s.bubbleOut : s.bubbleIn}>
+          <Text style={mine ? s.bubbleOutText : s.bubbleInText}>{message.body}</Text>
+        </View>
+      )}
       <View style={mine ? s.outMeta : undefined}>
         <Text style={mine ? s.timestampOut : s.timestamp}>{time}</Text>
         {mine ? (

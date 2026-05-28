@@ -489,6 +489,7 @@ export type Database = {
           created_at: string
           id: string
           read_at: string | null
+          reel_id: string | null
           sender_id: string
         }
         Insert: {
@@ -497,6 +498,7 @@ export type Database = {
           created_at?: string
           id?: string
           read_at?: string | null
+          reel_id?: string | null
           sender_id: string
         }
         Update: {
@@ -505,6 +507,7 @@ export type Database = {
           created_at?: string
           id?: string
           read_at?: string | null
+          reel_id?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -1172,7 +1175,7 @@ export type MoodHistoryDay = {
   anchor_word: string | null;
 };
 
-export type SendMessageArgs = { p_conversation_id: string; p_body: string };
+export type SendMessageArgs = { p_conversation_id: string; p_body: string; p_reel_id?: string | null };
 export type SendMessageResult = MessageRow;
 
 // ─── Kindred (Soul Garden) ────────────────────────────────────────────────────

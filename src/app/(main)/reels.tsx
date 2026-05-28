@@ -3,7 +3,7 @@ import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
-import { useIsFocused } from 'expo-router';
+import { useIsFocused, useLocalSearchParams } from 'expo-router';
 import { VideoView, useVideoPlayer, type VideoSource } from 'expo-video';
 import { createElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -14,13 +14,15 @@ import {
   Text,
   TouchableOpacity,
   View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   type ViewToken,
   useWindowDimensions,
 } from 'react-native';
 import Animated, { FadeIn, FadeInUp, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ReelBackground, type ReelSchemeKey, isSchemeDark } from '../../components/reels/ReelBackground';
+import { ReelBackground, isSchemeDark } from '../../components/reels/ReelBackground';
 import { ShareReelSheet, type SharedReelPayload } from '../../components/reels/ShareReelSheet';
 import { layout } from '../../constants/theme';
 import {
@@ -29,9 +31,9 @@ import {
   getReelAudio,
   type ReelAudioTrack,
 } from '../../lib/audio/reel-audio';
-import { getReelVideo, type ReelVideoKey } from '../../lib/video/reel-video';
+import { REELS, getReelIndexById, type ReelItem } from '../../lib/reels-data';
+import { getReelVideo } from '../../lib/video/reel-video';
 import { useAudioPrefs } from '../../store/audio-prefs';
-import type { ReelAudioKey } from '../../types/database';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -45,265 +47,6 @@ const C = {
   surfaceContainerLow:  '#fff1ed',
 } as const;
 
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-interface ReelTheme {
-  bg: string;
-  blob1: string;
-  blob2: string;
-  avatarBg: string;
-}
-
-interface ReelItem {
-  id: string;
-  quote: string;
-  author: string;
-  handle: string;
-  caption: string;
-  music: string;
-  // Drives the ambient loop that plays while the reel is on-screen. The
-  // `music` field above is the *display label* for the bottom pill (curated
-  // copy, can diverge from the actual loop); `audioKey` is the actual sound.
-  audioKey: ReelAudioKey | null;
-  // When set, renders a full-screen bundled mp4 as the reel background. The
-  // video carries its own voiceover so the ambient audio loop is muted for
-  // this reel; the centered quote text is also hidden (the avatar speaks it).
-  // Other UI (sidebar, caption, daily bloom) keeps rendering on top.
-  videoKey?: ReelVideoKey;
-  hugs: number;
-  dailyBloom?: string;
-  bgImage?: string;
-  darkBg?: boolean;
-  // When set, renders a gradient + SVG art layer background. Overrides
-  // `bgImage` and the legacy blob theme. Preferred path for all editorial reels.
-  scheme?: ReelSchemeKey;
-  theme: ReelTheme;
-}
-
-// Editorial library — 10 curated quotes, real authors, paired with a unique
-// gradient + SVG art scheme. Order is an emotional arc: opens on resilience,
-// moves through depression / anxiety / loneliness / addiction / burnout,
-// closes on growth.
-const REELS: ReelItem[] = [
-  {
-    id: 'bloom-voices-depression',
-    quote: '', // Avatar speaks the message — quote text is hidden for video reels.
-    author: 'Bloom Voices · Liezel',
-    handle: '@innerbloom_voices',
-    caption: 'Depression isn’t laziness — it’s your body in shutdown. The way out starts by telling your body it’s safe. #Depression #Reframe',
-    music: 'Bloom Voices · Liezel',
-    audioKey: null, // video has voiceover; no ambient under it
-    videoKey: 'depression-isnt-laziness',
-    hugs: 12480,
-    theme: { bg: '#1f1410', blob1: '#3d2820', blob2: '#5c3d2e', avatarBg: '#5c3d2e' },
-  },
-  {
-    id: 'horne-load',
-    quote: '“It’s not the load that breaks you down, it’s the way you carry it.”',
-    author: 'Lena Horne',
-    handle: '@innerbloom_voices',
-    caption: 'A reminder for heavy days. The weight is real — but so is your way of holding it. #Resilience #Stress',
-    music: 'Tidewater & Strings',
-    audioKey: 'relaxing_water',
-    hugs: 5219,
-    dailyBloom: 'Pause and notice where you are holding tension right now. Soften that one place — just for a breath.',
-    scheme: 'ripples-aqua',
-    theme: { bg: '#dceef5', blob1: '#a8d5e2', blob2: '#b5d5e0', avatarBg: '#6b9ec2' },
-  },
-  {
-    id: 'solomon-noonday',
-    quote: '“If you are chronically down, it is a lifelong fight to keep from sinking.”',
-    author: 'Andrew Solomon, The Noonday Demon',
-    handle: '@innerbloom_voices',
-    caption: 'For anyone in the long fight. You are not lazy. You are not broken. You are tired in a way that needs witnessing. #Depression #Honesty',
-    music: 'Cello in Slow Tide',
-    audioKey: 'ambient',
-    hugs: 8742,
-    dailyBloom: 'If today feels heavy, do not negotiate with the heaviness. Just put one foot down, then the next.',
-    scheme: 'ripples-graphite',
-    theme: { bg: '#2a1d1a', blob1: '#5c4742', blob2: '#7a5e58', avatarBg: '#7a5e58' },
-  },
-  {
-    id: 'wurtzel-prozac',
-    quote: '“A human being can survive almost anything, as long as she sees the end in sight. But depression compounds daily — it is impossible to ever see the end.”',
-    author: 'Elizabeth Wurtzel, Prozac Nation',
-    handle: '@innerbloom_voices',
-    caption: 'Naming it is not the cure. But it is the first place where company becomes possible. #Depression #Wurtzel',
-    music: 'Rain on Window',
-    audioKey: 'rainforest',
-    hugs: 6128,
-    dailyBloom: 'You don’t have to see the end. You only have to see the next ten minutes.',
-    scheme: 'rain-indigo',
-    theme: { bg: '#1a1a3e', blob1: '#3d2a6b', blob2: '#5c4778', avatarBg: '#5c4778' },
-  },
-  {
-    id: 'nin-anxiety',
-    quote: '“Anxiety is love’s greatest killer. It makes others feel as you might when a drowning man holds on to you.”',
-    author: 'Anaïs Nin',
-    handle: '@innerbloom_voices',
-    caption: 'Anxiety doesn’t just hurt you — it changes how love can reach you. Naming that pattern is the start of softening it. #Anxiety #Nin',
-    music: 'Breath & Cello',
-    audioKey: 'asmr_anxiety',
-    hugs: 4307,
-    scheme: 'waves-coral',
-    theme: { bg: '#ffd5c5', blob1: '#ffb3a0', blob2: '#ff8c75', avatarBg: '#c46e5a' },
-  },
-  {
-    id: 'tolle-worry',
-    quote: '“Worry pretends to be necessary but serves no useful purpose.”',
-    author: 'Eckhart Tolle',
-    handle: '@innerbloom_voices',
-    caption: 'A short sentence to interrupt the spiral. Not advice — a pattern interrupt. #Anxiety #Mindfulness',
-    music: 'Soft Bells',
-    audioKey: 'ambient',
-    hugs: 3621,
-    dailyBloom: 'Name one worry you are carrying that has no action attached. Set it down for the next breath.',
-    scheme: 'enso-mint',
-    theme: { bg: '#eef6ee', blob1: '#a8cbb8', blob2: '#d4ebe0', avatarBg: '#7a9e88' },
-  },
-  {
-    id: 'williams-alone',
-    quote: '“The worst thing in life is not ending up alone. It’s ending up with people who make you feel alone.”',
-    author: 'Robin Williams',
-    handle: '@innerbloom_voices',
-    caption: 'For anyone counting the people in the room and still feeling missing. You are allowed to want more than presence. #Loneliness #Williams',
-    music: 'Distant Piano',
-    audioKey: 'ambient',
-    hugs: 9482,
-    scheme: 'mountain-dusk',
-    theme: { bg: '#1e2540', blob1: '#3a3260', blob2: '#5c4778', avatarBg: '#4a3f6b' },
-  },
-  {
-    id: 'bloom-voices-addiction',
-    quote: '', // Avatar speaks the message — quote text is hidden for video reels.
-    author: 'Bloom Voices · Liezel',
-    handle: '@innerbloom_voices',
-    caption: 'Addiction isn’t the moral failure. It’s the answer the body gave when no one asked about the pain underneath. #Addiction #Maté',
-    music: 'Bloom Voices · Liezel',
-    audioKey: null, // video has voiceover; no ambient under it
-    videoKey: 'addiction',
-    hugs: 9120,
-    theme: { bg: '#1f1410', blob1: '#3d2820', blob2: '#5c3d2e', avatarBg: '#5c3d2e' },
-  },
-  {
-    id: 'hari-connection',
-    quote: '“The opposite of addiction is not sobriety. The opposite of addiction is connection.”',
-    author: 'Johann Hari, Chasing the Scream',
-    handle: '@innerbloom_voices',
-    caption: 'Sobriety is a milestone. Connection is the soil. One reaches you. The other holds you. #Addiction #Hari',
-    music: 'Hearth & Warm Strings',
-    audioKey: 'fireplace',
-    hugs: 7240,
-    dailyBloom: 'Reach toward one person today — not to be helped, just to be a little less alone in the room.',
-    scheme: 'network-amber',
-    theme: { bg: '#fff1d4', blob1: '#ffd99b', blob2: '#e8a861', avatarBg: '#c48845' },
-  },
-  {
-    id: 'gungor-burnout',
-    quote: '“Burnout is what happens when you try to avoid being human for too long.”',
-    author: 'Michael Gungor',
-    handle: '@innerbloom_voices',
-    caption: 'Not a weakness. A signal. The body asking for the things you postponed. #Burnout #Recovery',
-    music: 'Pale Synth at Dusk',
-    audioKey: 'ambient',
-    hugs: 5816,
-    dailyBloom: 'Pick one human thing you’ve been postponing — a meal, a call, a walk — and do it before noon.',
-    scheme: 'sun-rose',
-    theme: { bg: '#3d1f2e', blob1: '#7a3a4f', blob2: '#c46e7a', avatarBg: '#a85770' },
-  },
-  {
-    id: 'bloom-voices-saying-no',
-    quote: '', // Avatar speaks the message — quote text is hidden for video reels.
-    author: 'Bloom Voices · Calvin',
-    handle: '@innerbloom_voices',
-    caption: 'Every yes you give without thinking is a no to something that matters. "No" is a complete sentence. Practice it. #Boundaries #SayNo',
-    music: 'Bloom Voices · Calvin',
-    audioKey: null, // video has voiceover; no ambient under it
-    videoKey: 'art-of-saying-no',
-    hugs: 6850,
-    theme: { bg: '#1a1f2e', blob1: '#2d3548', blob2: '#4a556b', avatarBg: '#4a556b' },
-  },
-  {
-    id: 'drucker-productive',
-    quote: '“Nothing is less productive than to make more efficient what should not be done at all.”',
-    author: 'Peter Drucker',
-    handle: '@innerbloom_voices',
-    caption: 'Motivation isn’t about going faster. It’s about going at the right thing. Audit before you accelerate. #Motivation #Work',
-    music: 'Quiet Workshop',
-    audioKey: 'fireplace',
-    hugs: 2987,
-    scheme: 'grid-clay',
-    theme: { bg: '#f5d4b8', blob1: '#cf8f6a', blob2: '#8a4a30', avatarBg: '#a8623c' },
-  },
-  {
-    id: 'salk-work',
-    quote: '“The reward for work well done is the opportunity to do more.”',
-    author: 'Jonas Salk',
-    handle: '@innerbloom_voices',
-    caption: 'Mastery isn’t a finish line. It’s a permission slip — to be trusted with the next, harder thing. #Work #Growth',
-    music: 'Garden at Dawn',
-    audioKey: 'rainforest',
-    hugs: 4012,
-    dailyBloom: 'Look at one thing you finished this week. Let it count — for thirty seconds — before you ask what’s next.',
-    scheme: 'sprout-sage',
-    theme: { bg: '#eef0d4', blob1: '#c5d6a3', blob2: '#7d9e58', avatarBg: '#7d9e58' },
-  },
-
-  // ── InnerBloom Remotion — Short quotes (15s) ─────────────────────────────
-  { id: 'ib-reel01', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You don't have to bloom on schedule. #Growth #SelfCompassion", music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'Reel01-Bloom',    hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#90f2fc', avatarBg: '#e8836b' } },
-  { id: 'ib-reel02', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Soft is not the opposite of strong. #Strength #Mindset',                  music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'Reel02-Contrast',  hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#90f2fc', avatarBg: '#e8836b' } },
-  { id: 'ib-reel03', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Your nervous system is not a project. #Burnout #Rest',                     music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'Reel03-Heartbeat', hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-reel04', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Feel it the size it actually is. #Emotions #Awareness',                   music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'Reel04-WordSize',  hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#90f2fc', avatarBg: '#e8836b' } },
-  { id: 'ib-reel05', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Rest is not a reward. It is a season. #Rest #Burnout',                     music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'Reel05-Seasons',   hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-reel06', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'You can be tender and still have limits. #Boundaries #SelfCare',           music: 'Hearth', audioKey: 'fireplace', videoKey: 'Reel06-Orbit',    hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-reel07', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Healing is not linear. Neither is light. #Healing #Depression',            music: 'Tidal Pad', audioKey: 'ambient', videoKey: 'Reel07-Wave',     hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffe2db', avatarBg: '#55433e' } },
-  { id: 'ib-reel08', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Notice what you reach for when no one is watching. #SelfAwareness',        music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'Reel08-Spotlight', hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#90f2fc', avatarBg: '#e8836b' } },
-  { id: 'ib-reel09', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Slow is a kind of intelligence. #Mindfulness #Pace',                       music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'Reel09-Slow',     hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-reel10', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "The version of you that's tired still counts. #SelfCompassion",            music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'Reel10-Breath',   hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-
-  // ── InnerBloom Remotion — Adicție (20s) ──────────────────────────────────
-  { id: 'ib-lf01', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'If you keep going back, you are not weak. #Addiction #Recovery',                                        music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF01-Addiction-NotWeak',       hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-lf02', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Stop calling it self-care when it's pain management. #Addiction #Honesty",                              music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF02-Addiction-StopCallingIt', hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-lf03', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Your addiction is not your enemy — it's a strategy that kept you here. #Recovery",                     music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF03-Addiction-NotEnemy',      hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-lf04', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "The first 90 days are about meeting yourself sober for the first time. #Sobriety",                     music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF04-Addiction-First90',       hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-lf05', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Sobriety feels like grief — and that's the actual work. #Recovery #Grief",                             music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF05-Addiction-Grief',         hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-
-  // ── InnerBloom Remotion — Depresie (20s) ─────────────────────────────────
-  { id: 'ib-lf06', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You're not lazy. You're carrying something nobody can see. #Depression #MentalHealth",                 music: 'Tidal Pad', audioKey: 'ambient', videoKey: 'LF06-Depression-NotLazy',     hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffe2db', avatarBg: '#55433e' } },
-  { id: 'ib-lf07', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Depression is the absence of access to yourself — not sadness. #Depression',                           music: 'Tidal Pad', audioKey: 'ambient', videoKey: 'LF07-Depression-NotSadness',   hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffe2db', avatarBg: '#55433e' } },
-  { id: 'ib-lf08', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You don't have to feel grateful to be healing. #Healing #Depression",                                  music: 'Tidal Pad', audioKey: 'ambient', videoKey: 'LF08-Depression-NotGrateful',  hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffe2db', avatarBg: '#55433e' } },
-  { id: 'ib-lf09', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Showering when you have no energy is an act of war against what tells you nothing matters. #Depression', music: 'Tidal Pad', audioKey: 'ambient', videoKey: 'LF09-Depression-Shower',      hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffe2db', avatarBg: '#55433e' } },
-  { id: 'ib-lf10', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Some people loved you tired. Get better anyway. #Depression #Healing',                                 music: 'Tidal Pad', audioKey: 'ambient', videoKey: 'LF10-Depression-LovedTired',   hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffe2db', avatarBg: '#55433e' } },
-
-  // ── InnerBloom Remotion — Stres (20s) ────────────────────────────────────
-  { id: 'ib-lf11', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Burnout isn't from working too hard — it's from working on the wrong things. #Burnout",               music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'LF11-Stress-Burnout',          hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-lf12', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You're not behind. You're on someone else's timeline. Get off it. #Stress #Comparison",               music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'LF12-Stress-Timeline',         hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-lf13', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'If rest feels like guilt, you were trained to earn your right to exist softly. #Rest #Stress',         music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'LF13-Stress-Trained',          hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-lf14', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You don't need a better morning routine. You need fewer obligations. #Stress #Productivity",           music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'LF14-Stress-FewerObligations', hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-lf15', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You can't relax because your body hasn't heard that it's safe to stop. #Burnout #NervousSystem",      music: 'Still Guitar', audioKey: 'relaxing_guitar', videoKey: 'LF15-Stress-NotSafe',          hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-
-  // ── InnerBloom Remotion — Boundaries (20s) ───────────────────────────────
-  { id: 'ib-lf16', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Saying no will feel violent at first. That's not guilt — it's the unfamiliar feeling of choosing yourself. #Boundaries", music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF16-Boundaries-FeelViolent',    hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-lf17', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'If saying no cost you the relationship, the relationship was the price of your silence. #Boundaries',              music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF17-Boundaries-PriceOfSilence', hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-lf18', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'You will lose people when you start choosing yourself. That is the data, not the tragedy. #Boundaries',            music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF18-Boundaries-LoseSome',       hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-lf19', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Stop explaining yourself to people committed to misunderstanding you. #Boundaries #SelfRespect',                   music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF19-Boundaries-StopExplaining', hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-  { id: 'ib-lf20', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Guilt is not always a sign you did something wrong. Sometimes it means a rule is breaking. #Boundaries',           music: 'Hearth', audioKey: 'fireplace', videoKey: 'LF20-Boundaries-Guilt',          hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#a8315c' } },
-
-  // ── InnerBloom Remotion — Anxietate (20s) ────────────────────────────────
-  { id: 'ib-lf21', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Your anxiety is not irrational — it's answering a question nobody is asking out loud. #Anxiety",               music: 'ASMR Still', audioKey: 'asmr_anxiety', videoKey: 'LF21-Anxiety-NotIrrational',  hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffdad2', avatarBg: '#994531' } },
-  { id: 'ib-lf22', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'If you feel anxious around someone, your body knows something your brain is ignoring. Trust it. #Anxiety',       music: 'ASMR Still', audioKey: 'asmr_anxiety', videoKey: 'LF22-Anxiety-AroundSomeone',  hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffdad2', avatarBg: '#994531' } },
-  { id: 'ib-lf23', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Stop trying to calm down. Start asking what you're not safe to feel. #Anxiety #NervousSystem",                  music: 'ASMR Still', audioKey: 'asmr_anxiety', videoKey: 'LF23-Anxiety-StopCalmDown',   hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffdad2', avatarBg: '#994531' } },
-  { id: 'ib-lf24', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You don't have anxiety. You have a nervous system that learned love came with conditions. #Anxiety #Healing",    music: 'ASMR Still', audioKey: 'asmr_anxiety', videoKey: 'LF24-Anxiety-LoveCost',       hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffdad2', avatarBg: '#994531' } },
-  { id: 'ib-lf25', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Overthinking is a survival skill from a time when getting it wrong was dangerous. You're safe now. #Anxiety",   music: 'ASMR Still', audioKey: 'asmr_anxiety', videoKey: 'LF25-Anxiety-Overthinking',   hugs: 0, theme: { bg: '#fff8f6', blob1: '#90f2fc', blob2: '#ffdad2', avatarBg: '#994531' } },
-
-  // ── InnerBloom Remotion — Motivație (20s) ────────────────────────────────
-  { id: 'ib-lf26', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "Stop waiting to feel ready. Ready is a decision, not a feeling. #Motivation #StartNow",              music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'LF26-Motivation-StopWaiting', hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-lf27', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'Discipline is self-love in advance. Every no to comfort is a yes to who you are becoming. #Discipline', music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'LF27-Motivation-Discipline',  hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-lf28', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You will never be more ready than now. Start ugly. Refine later. #Motivation #Action",                 music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'LF28-Motivation-NeverReady',  hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-lf29', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: 'The version of you in 5 years is begging you to start today. Not Monday. Today. #Motivation',          music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'LF29-Motivation-FiveYears',   hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-  { id: 'ib-lf30', quote: '', author: 'InnerBloom', handle: '@innerbloom', caption: "You don't lack motivation. You lack stakes. Count what hesitation is costing you. #Motivation",        music: 'Gentle Flow', audioKey: 'relaxing_water', videoKey: 'LF30-Motivation-Stakes',      hugs: 0, theme: { bg: '#fff8f6', blob1: '#ffdad2', blob2: '#ffe2db', avatarBg: '#e8836b' } },
-];
-
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
 // Viewability config + handler need to be stable refs — FlatList throws if
@@ -314,12 +57,34 @@ export default function ReelsScreen() {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const reelH = height;
+  const params = useLocalSearchParams<{ id?: string }>();
+  const deepLinkedId = typeof params.id === 'string' ? params.id : undefined;
+  const initialIndex = deepLinkedId ? Math.max(0, getReelIndexById(deepLinkedId)) : 0;
+
   const [shareTarget, setShareTarget] = useState<SharedReelPayload | null>(null);
-  const [visibleIndex, setVisibleIndex] = useState(0);
+  const [visibleIndex, setVisibleIndex] = useState(initialIndex);
+  // audioIndex lags visibleIndex during a swipe — it only catches up once the
+  // scroll has snapped to its final reel. Drives audio (ambient loop +
+  // voiceover unmute) so sound never starts mid-gesture.
+  const [audioIndex, setAudioIndex] = useState(initialIndex);
   const [showSaved, setShowSaved] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const listRef = useRef<any>(null);
   const isFocused = useIsFocused();
+
+  // When a deep link arrives (from a shared reel in chat), jump to that reel
+  // once the list has mounted. Re-runs only if the linked id actually changes.
+  useEffect(() => {
+    if (!deepLinkedId) return;
+    const idx = getReelIndexById(deepLinkedId);
+    if (idx < 0) return;
+    setShowSaved(false);
+    setVisibleIndex(idx);
+    setAudioIndex(idx);
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToIndex?.({ index: idx, animated: false });
+    });
+  }, [deepLinkedId]);
 
   const reelsMuted = useAudioPrefs((s) => s.reelsMuted);
   const toggleMuted = useAudioPrefs((s) => s.toggleReelsMuted);
@@ -332,6 +97,19 @@ export default function ReelsScreen() {
       }
     },
   ).current;
+
+  // Audio only "arms" once the scroll has fully snapped to a reel — this is
+  // what stops the next reel's voiceover / ambient loop from bleeding in
+  // mid-swipe (TikTok / Instagram Reels behavior). Compute the index from the
+  // settled offset rather than relying on viewability (which fires at 80%).
+  const handleMomentumScrollEnd = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (reelH <= 0) return;
+      const idx = Math.round(e.nativeEvent.contentOffset.y / reelH);
+      setAudioIndex(idx);
+    },
+    [reelH],
+  );
 
   const handleMutePress = useCallback(() => {
     Haptics.selectionAsync();
@@ -352,6 +130,7 @@ export default function ReelsScreen() {
     Haptics.selectionAsync();
     setShowSaved((prev) => !prev);
     setVisibleIndex(0);
+    setAudioIndex(0);
     listRef.current?.scrollToOffset?.({ offset: 0, animated: false });
   }, []);
 
@@ -377,12 +156,15 @@ export default function ReelsScreen() {
               width={width}
               height={reelH}
               isPlaying={index === visibleIndex && isFocused}
+              audioActive={index === audioIndex && isFocused}
               muted={reelsMuted}
               isSaved={savedIds.has(item.id)}
               onToggleSave={() => handleToggleSave(item.id)}
               onShare={() =>
                 setShareTarget({
                   id: item.id,
+                  reelId: item.id,
+                  caption: item.caption,
                   quote: item.quote,
                   author: item.author,
                   dailyBloom: item.dailyBloom,
@@ -401,6 +183,7 @@ export default function ReelsScreen() {
           })}
           viewabilityConfig={VIEWABILITY_CONFIG}
           onViewableItemsChanged={onViewableItemsChanged}
+          onMomentumScrollEnd={handleMomentumScrollEnd}
           // Keep current ± 2 reels mounted so expo-video pre-initialises
           // the next player before the user swipes to it (Instagram pattern).
           windowSize={5}
@@ -418,14 +201,16 @@ export default function ReelsScreen() {
         style={[s.topBar, { top: insets.top }]}
         pointerEvents="box-none"
       >
-        <TouchableOpacity style={s.topBarBtn} activeOpacity={0.7} onPress={handleToggleSavedView}>
+        <TouchableOpacity style={s.topBarSavedBtn} activeOpacity={0.7} onPress={handleToggleSavedView}>
           <MaterialCommunityIcons
             name={showSaved ? 'bookmark' : 'bookmark-outline'}
-            size={24}
-            color={showSaved ? C.primaryContainer : C.primary}
+            size={20}
+            color={showSaved ? C.onPrimaryContainer : C.primary}
           />
+          <Text style={[s.topBarSavedLabel, showSaved && s.topBarSavedLabelActive]}>
+            Saved
+          </Text>
         </TouchableOpacity>
-        <Text style={s.topBarWordmark}>InnerBloom</Text>
         <View style={s.topBarRight}>
           {HAS_REEL_AUDIO && (
             <TouchableOpacity
@@ -442,9 +227,6 @@ export default function ReelsScreen() {
               />
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={s.topBarBtn} activeOpacity={0.7}>
-            <MaterialCommunityIcons name="bell-outline" size={24} color={C.primary} />
-          </TouchableOpacity>
         </View>
       </Animated.View>
 
@@ -464,6 +246,7 @@ function ReelCard({
   width,
   height,
   isPlaying,
+  audioActive,
   muted,
   isSaved,
   onToggleSave,
@@ -473,6 +256,9 @@ function ReelCard({
   width: number;
   height: number;
   isPlaying: boolean;
+  // True only after the scroll has snapped to this reel. Drives audio so
+  // sound never leaks in mid-swipe (the visible reel can still play silently).
+  audioActive: boolean;
   muted: boolean;
   isSaved: boolean;
   onToggleSave: () => void;
@@ -483,17 +269,26 @@ function ReelCard({
   const [showHeart, setShowHeart] = useState(false);
   const [paused, setPaused] = useState(false);
   const lastTap = useRef(0);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioTrack = getReelAudio(reel.audioKey);
   const effectivePlaying = isPlaying && !paused;
+  // Mute the video while it isn't the snapped reel — keeps the visual rolling
+  // during the swipe but silences any baked-in voiceover until the gesture lands.
+  const effectiveMuted = muted || !audioActive;
+  const audioPlaying = audioActive && !paused;
   const videoTrack = getReelVideo(reel.videoKey);
   const isVideoReel = !!videoTrack;
   // When a video has voiceover baked in, play ambient at 15% so it adds
   // warmth without competing with the voice. Full volume otherwise.
   const ambientVolumeMult = videoTrack?.hasVoiceover ? 0.15 : 1;
 
-  function handleDoubleTap() {
+  function handleTap() {
     const now = Date.now();
-    if (now - lastTap.current < 400) {
+    if (now - lastTap.current < 350) {
+      // Double tap — hug
+      if (tapTimer.current) clearTimeout(tapTimer.current);
+      tapTimer.current = null;
+      lastTap.current = 0;
       if (!hugged) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         setHugged(true);
@@ -501,8 +296,15 @@ function ReelCard({
         setShowHeart(true);
         setTimeout(() => setShowHeart(false), 900);
       }
+    } else {
+      // Potential single tap — wait to confirm it's not a double tap
+      lastTap.current = now;
+      tapTimer.current = setTimeout(() => {
+        tapTimer.current = null;
+        Haptics.selectionAsync();
+        setPaused((p) => !p);
+      }, 200);
     }
-    lastTap.current = now;
   }
 
   function handleHugPress() {
@@ -521,26 +323,30 @@ function ReelCard({
     <TouchableOpacity
       activeOpacity={1}
       style={[s.reel, { width, height }]}
-      onPress={handleDoubleTap}
+      onPress={handleTap}
     >
       {/* Ambient audio loop — plays at full volume for non-voice reels,
-          at 15% under voiceover reels to add warmth without competing. */}
+          at 15% under voiceover reels to add warmth without competing.
+          Tied to audioPlaying (not effectivePlaying) so the loop only starts
+          once the scroll has snapped, never mid-swipe. */}
       {reel.audioKey && audioTrack?.source != null && (
         <ReelAudio
           source={audioTrack.source}
           volume={REEL_AUDIO_VOLUME[reel.audioKey] * ambientVolumeMult}
-          isPlaying={effectivePlaying}
+          isPlaying={audioPlaying}
           muted={muted}
         />
       )}
 
       {/* Background — video (mp4 + voiceover) > scheme (gradient + SVG art) >
-          bgImage > legacy color blobs. Video covers everything below it. */}
+          bgImage > legacy color blobs. Video covers everything below it.
+          Video keeps playing visually during the swipe but is muted until
+          audioActive flips, so the voiceover doesn't bleed across the snap. */}
       {videoTrack ? (
         <ReelVideo
           source={videoTrack.source}
           isPlaying={effectivePlaying}
-          muted={muted}
+          muted={effectiveMuted}
         />
       ) : reel.scheme ? (
         <ReelBackground scheme={reel.scheme} />
@@ -627,11 +433,6 @@ function ReelCard({
         </View>
 
         <SidebarBtn
-          icon={paused ? 'play-circle-outline' : 'pause-circle-outline'}
-          iconColor={C.primary}
-          onPress={() => { Haptics.selectionAsync(); setPaused((p) => !p); }}
-        />
-        <SidebarBtn
           icon={hugged ? 'heart' : 'heart-outline'}
           label={formatCount(hugCount)}
           iconColor={hugged ? '#e8836b' : C.primary}
@@ -639,10 +440,10 @@ function ReelCard({
         />
         <SidebarBtn
           icon={isSaved ? 'bookmark' : 'bookmark-outline'}
+          label="Save"
           iconColor={isSaved ? C.primaryContainer : C.primary}
           onPress={onToggleSave}
         />
-        <SidebarBtn icon="book-open-outline" label="Journal" onPress={() => {}} />
         <SidebarBtn
           icon="share-variant-outline"
           onPress={() => {
@@ -656,8 +457,8 @@ function ReelCard({
           in the music pill (with a microphone icon) instead of the loop
           label, since there's no ambient pad playing. */}
       <View style={s.caption}>
-        <Text style={[s.captionHandle, (darkBg || isVideoReel) && s.captionHandleOnDark]}>{reel.handle}</Text>
-        <Text style={[s.captionText, (darkBg || isVideoReel) && s.captionTextOnDark]} numberOfLines={2}>{reel.caption}</Text>
+        <Text style={[s.captionHandle, darkBg && s.captionHandleOnDark]}>{reel.handle}</Text>
+        <Text style={[s.captionText, darkBg && s.captionTextOnDark]} numberOfLines={2}>{reel.caption}</Text>
         <View style={s.musicTagWrap}>
           <View style={s.musicTagBlurWrap}>
             {Platform.OS !== 'web' ? (
@@ -971,12 +772,22 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  topBarWordmark: {
+  topBarSavedBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 9999,
+    backgroundColor: 'rgba(232,131,107,0.12)',
+  },
+  topBarSavedLabel: {
     fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 20,
-    lineHeight: 26,
+    fontSize: 14,
     color: C.primary,
-    letterSpacing: -0.1,
+  },
+  topBarSavedLabelActive: {
+    color: C.onPrimaryContainer,
   },
 
   // Reel
@@ -1155,13 +966,13 @@ const s = StyleSheet.create({
     fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 16,
     lineHeight: 22,
-    color: C.primary,
+    color: C.onPrimaryContainer,
   },
   captionText: {
     fontFamily: 'NunitoSans_400Regular',
-    fontSize: 13,
-    lineHeight: 19,
-    color: C.primaryContainer,
+    fontSize: 14,
+    lineHeight: 20,
+    color: C.onPrimaryContainer,
   },
   musicTagWrap: {},
   musicTagBlurWrap: { borderRadius: 9999, overflow: 'hidden', alignSelf: 'flex-start', marginTop: 4 },

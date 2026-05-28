@@ -1,8 +1,10 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAudioPlayer, useAudioPlayerStatus, type AudioSource } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  LayoutChangeEvent,
   Platform,
   Pressable,
   ScrollView,
@@ -16,6 +18,7 @@ import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated'
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { getArticleAudio } from '../../lib/audio/article-audio';
 import {
   RESOURCE_ARTICLES,
   RESOURCE_CATEGORIES,
@@ -89,6 +92,112 @@ function HeroBlock({ category }: { category: ResourceCategory }) {
       </Svg>
     </View>
   );
+}
+
+// ─── Article audio player ────────────────────────────────────────────────────
+// Inline pill with play/pause, a tap-to-seek progress bar, and a time readout.
+// Renders nothing if no voiceover has been generated for this article yet.
+function ArticlePlayer({ articleId }: { articleId: string }) {
+  const source = getArticleAudio(articleId);
+  if (!source) return null;
+  return <ArticlePlayerInner source={source} />;
+}
+
+function ArticlePlayerInner({ source }: { source: AudioSource }) {
+  const player = useAudioPlayer(source);
+  const status = useAudioPlayerStatus(player);
+  const [barWidth, setBarWidth] = useState(0);
+  const wasPlaying = useRef(false);
+
+  // Pause on unmount so navigating away stops the voice cleanly.
+  useEffect(() => {
+    return () => {
+      try {
+        player.pause();
+      } catch {
+        // player may already be released
+      }
+    };
+  }, [player]);
+
+  // When the track finishes, reset the play icon and seek back to 0 so the
+  // user can replay without a manual seek.
+  useEffect(() => {
+    if (status.didJustFinish) {
+      player.seekTo(0);
+      player.pause();
+      wasPlaying.current = false;
+    }
+  }, [status.didJustFinish, player]);
+
+  const onTogglePlay = useCallback(() => {
+    void Haptics.selectionAsync();
+    if (status.playing) {
+      player.pause();
+      wasPlaying.current = false;
+    } else {
+      player.play();
+      wasPlaying.current = true;
+    }
+  }, [player, status.playing]);
+
+  const onBarLayout = useCallback((e: LayoutChangeEvent) => {
+    setBarWidth(e.nativeEvent.layout.width);
+  }, []);
+
+  const onSeek = useCallback(
+    (e: { nativeEvent: { locationX: number } }) => {
+      if (!barWidth || !status.duration) return;
+      const ratio = Math.max(0, Math.min(1, e.nativeEvent.locationX / barWidth));
+      player.seekTo(ratio * status.duration);
+    },
+    [barWidth, player, status.duration],
+  );
+
+  const duration = status.duration ?? 0;
+  const current = status.currentTime ?? 0;
+  const progress = duration > 0 ? Math.min(1, current / duration) : 0;
+
+  return (
+    <View style={s.playerWrap}>
+      <Pressable
+        onPress={onTogglePlay}
+        style={({ pressed }) => [s.playerBtn, pressed && { opacity: 0.85 }]}
+        hitSlop={6}
+        accessibilityRole="button"
+        accessibilityLabel={status.playing ? 'Pause article' : 'Play article'}
+      >
+        <MaterialCommunityIcons
+          name={status.playing ? 'pause' : 'play'}
+          size={20}
+          color={C.onPrimaryContainer}
+        />
+      </Pressable>
+
+      <View style={s.playerBody}>
+        <Text style={s.playerLabel} numberOfLines={1}>
+          {status.playing ? 'Listening' : duration > 0 ? 'Listen to this article' : 'Listen — tap play'}
+        </Text>
+        <Pressable onPress={onSeek} onLayout={onBarLayout} style={s.playerBar} hitSlop={10}>
+          <View style={s.playerBarTrack} />
+          <View style={[s.playerBarFill, { width: `${progress * 100}%` }]} />
+          <View style={[s.playerBarKnob, { left: `${progress * 100}%` }]} />
+        </Pressable>
+      </View>
+
+      <Text style={s.playerTime}>
+        {duration > 0 ? `${fmtTime(current)} / ${fmtTime(duration)}` : '--:--'}
+      </Text>
+    </View>
+  );
+}
+
+function fmtTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+  const total = Math.floor(seconds);
+  const m = Math.floor(total / 60);
+  const sec = total % 60;
+  return `${m}:${sec.toString().padStart(2, '0')}`;
 }
 
 // ─── Suggested card (Continue Reading row) ───────────────────────────────────
@@ -217,6 +326,9 @@ export default function ArticleScreen() {
               <Text style={s.metaSub}>{category.label} · {article.minutes} min read</Text>
             </View>
           </View>
+
+          {/* Audio player (only renders if a voiceover exists for this article) */}
+          <ArticlePlayer articleId={article.id} />
 
           {/* Title */}
           <Text style={s.title}>{article.title}</Text>
@@ -389,6 +501,80 @@ const s = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     color: C.onSurfaceVariant,
+  },
+
+  // Audio player
+  playerWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: C.surfaceContainerLow,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 20,
+  },
+  playerBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: C.primaryContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: C.primary,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  playerBody: {
+    flex: 1,
+    gap: 6,
+    minWidth: 0,
+  },
+  playerLabel: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 12,
+    lineHeight: 16,
+    color: C.onPrimaryContainer,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  playerBar: {
+    height: 18,
+    justifyContent: 'center',
+  },
+  playerBarTrack: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: C.surfaceContainerHigh,
+  },
+  playerBarFill: {
+    position: 'absolute',
+    left: 0,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: C.primary,
+  },
+  playerBarKnob: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    marginLeft: -6,
+    borderRadius: 6,
+    backgroundColor: C.primary,
+    top: 3,
+  },
+  playerTime: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 11,
+    lineHeight: 14,
+    color: C.onSurfaceVariant,
+    minWidth: 64,
+    textAlign: 'right',
   },
 
   // Title
