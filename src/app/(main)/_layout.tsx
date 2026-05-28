@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { SideMenu } from '../../components/SideMenu';
 
@@ -67,6 +68,22 @@ function TabIcon({
 }
 
 export default function MainLayout() {
+  // `tabBarHideOnKeyboard: true` is unreliable on iOS, so we mirror the behavior
+  // manually: hide the bar on `keyboardWillShow`, restore on `keyboardWillHide`.
+  // This lets chat screens (AI, Bloom) glue the input directly to the keyboard,
+  // matching the ChatGPT/iMessage pattern.
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  useEffect(() => {
+    const showEv = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEv = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEv, () => setKeyboardOpen(true));
+    const hideSub = Keyboard.addListener(hideEv, () => setKeyboardOpen(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <Tabs
@@ -74,12 +91,15 @@ export default function MainLayout() {
           headerShown: false,
           tabBarStyle: s.tabBar,
           tabBarShowLabel: false,
+          // Native fallback (works on Android out of the box); the manual
+          // `keyboardOpen` state below covers iOS where this prop is unreliable.
           tabBarHideOnKeyboard: true,
         }}
       >
         {TABS.map((tab) => {
           const isCenter = tab.name === 'soul-match';
           const isReels = tab.name === 'reels';
+          const baseStyle = isReels ? [s.tabBar, s.tabBarFloating] : s.tabBar;
           return (
             <Tabs.Screen
               key={tab.name}
@@ -89,7 +109,9 @@ export default function MainLayout() {
                 // edge-to-edge under a floating tab bar. We override the bar
                 // style here so the screen container becomes full-height for
                 // this tab only.
-                tabBarStyle: isReels ? [s.tabBar, s.tabBarFloating] : s.tabBar,
+                tabBarStyle: keyboardOpen
+                  ? [baseStyle, { display: 'none' as const }]
+                  : baseStyle,
                 tabBarIcon: ({ focused }: { focused: boolean }) => (
                   <TabIcon
                     label={tab.label}

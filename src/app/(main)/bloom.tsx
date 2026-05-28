@@ -1,8 +1,8 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -98,6 +98,18 @@ export default function BloomChatScreen() {
   const [feeling, setFeeling] = useState<Feeling>('Anxious');
   const [draft, setDraft] = useState('');
   const scrollRef = useRef<ScrollView>(null);
+  const inputRef = useRef<TextInput>(null);
+
+  // Open the keyboard automatically every time the screen comes into focus.
+  useFocusEffect(
+    useCallback(() => {
+      const t = setTimeout(() => inputRef.current?.focus(), 220);
+      return () => {
+        clearTimeout(t);
+        inputRef.current?.blur();
+      };
+    }, []),
+  );
 
   function selectFeeling(f: Feeling) {
     void Haptics.selectionAsync();
@@ -150,8 +162,8 @@ export default function BloomChatScreen() {
       {/* ─── Chat canvas ─── */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={insets.bottom}
+        behavior={Platform.select({ ios: 'padding', android: 'height' })}
+        keyboardVerticalOffset={0}
       >
         <ScrollView
           ref={scrollRef}
@@ -246,6 +258,7 @@ export default function BloomChatScreen() {
           </TouchableOpacity>
           <View style={s.inputWrap}>
             <TextInput
+              ref={inputRef}
               value={draft}
               onChangeText={setDraft}
               placeholder="Share your thoughts…"

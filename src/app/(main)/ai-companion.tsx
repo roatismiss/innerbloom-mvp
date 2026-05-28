@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -250,6 +250,7 @@ export default function AICompanionScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
+  const inputRef = useRef<TextInput>(null);
   const qc = useQueryClient();
 
   const [draft, setDraft] = useState('');
@@ -404,6 +405,19 @@ export default function AICompanionScreen() {
     const t = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
     return () => clearTimeout(t);
   }, [messages.length, send.isPending]);
+
+  // Open the keyboard automatically every time the screen comes into focus,
+  // so Bloom AI behaves like ChatGPT / iMessage — the composer is ready and
+  // the tab bar slides out, leaving the header pinned at the top.
+  useFocusEffect(
+    useCallback(() => {
+      const t = setTimeout(() => inputRef.current?.focus(), 220);
+      return () => {
+        clearTimeout(t);
+        inputRef.current?.blur();
+      };
+    }, []),
+  );
 
   // Tab bar handles its own safe area — don't double-count insets.bottom here,
   // otherwise we get a big visible gap between the input bar and the tab bar.
@@ -599,6 +613,7 @@ export default function AICompanionScreen() {
           </TouchableOpacity>
           <View style={s.inputWrap}>
             <TextInput
+              ref={inputRef}
               value={draft}
               onChangeText={setDraft}
               placeholder="Share your thoughts…"

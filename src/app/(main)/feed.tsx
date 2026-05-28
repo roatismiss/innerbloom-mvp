@@ -5,9 +5,12 @@ import { useRouter } from 'expo-router';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import { greeting } from '../../lib/mood';
-import { useMyProfile } from '../../lib/queries/profile';
+import { useTodayIntention } from '../../lib/queries/intentions';
+import { useMyProfile, useProfileStats } from '../../lib/queries/profile';
+import { useIntentionsStore } from '../../store/intentions';
 import { useMoodStore } from '../../store/mood';
 import type { EmotionCategory } from '../../types';
 
@@ -114,6 +117,83 @@ const PROFILE_IMG =
 const HEADER_H = 80;
 const FAB_BOTTOM = 28;
 
+// ─── Journey glyphs (inline SVG so we never render emoji in UI) ──────────────
+
+function SproutGlyph({ size = 48 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 56 56" fill="none">
+      <Path d="M11 47 Q 28 35 45 47 Z" fill="#7A3225" />
+      <Path
+        d="M14 45.5 Q 28 39 42 45.5"
+        stroke="#3d1107"
+        strokeWidth={0.6}
+        opacity={0.25}
+        fill="none"
+      />
+      <Path
+        d="M28 39 C 27.5 32, 28.5 24, 28 18"
+        stroke="#6E9C5F"
+        strokeWidth={2.4}
+        strokeLinecap="round"
+        fill="none"
+      />
+      <Path
+        d="M28 32 C 22 33, 14 30, 10 23 C 14 19, 23 22, 28 30 Z"
+        fill="#9BC58A"
+      />
+      <Path
+        d="M27 31 L 14 24"
+        stroke="#5F8C50"
+        strokeWidth={0.8}
+        strokeLinecap="round"
+        opacity={0.55}
+        fill="none"
+      />
+      <Path
+        d="M28 26 C 33 28, 42 22, 46 12 C 42 8, 32 13, 28 24 Z"
+        fill="#B4D9A2"
+      />
+      <Path
+        d="M28 26 L 44 14"
+        stroke="#5F8C50"
+        strokeWidth={0.8}
+        strokeLinecap="round"
+        opacity={0.55}
+        fill="none"
+      />
+    </Svg>
+  );
+}
+
+function QuestGlyph({ size = 44 }: { size?: number }) {
+  const outerAngles = [0, 60, 120, 180, 240, 300];
+  const innerAngles = [30, 90, 150, 210, 270, 330];
+  return (
+    <Svg width={size} height={size} viewBox="0 0 56 56" fill="none">
+      <Circle cx={28} cy={28} r={22} fill="#fa719c" opacity={0.10} />
+      {outerAngles.map((a) => (
+        <Path
+          key={`o-${a}`}
+          d="M28 28 C 31 22, 31 12, 28 4 C 25 12, 25 22, 28 28 Z"
+          fill="#f47ca4"
+          opacity={0.9}
+          transform={`rotate(${a} 28 28)`}
+        />
+      ))}
+      {innerAngles.map((a) => (
+        <Path
+          key={`i-${a}`}
+          d="M28 28 C 29.8 24, 29.8 16, 28 10 C 26.2 16, 26.2 24, 28 28 Z"
+          fill="#a8315c"
+          transform={`rotate(${a} 28 28)`}
+        />
+      ))}
+      <Circle cx={28} cy={28} r={4.5} fill="#700034" />
+      <Circle cx={28} cy={28} r={1.8} fill="#ffd4e1" />
+    </Svg>
+  );
+}
+
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
 export default function FeedHomeScreen() {
@@ -123,6 +203,23 @@ export default function FeedHomeScreen() {
   const greetingText = greeting();
   const profile = useMyProfile();
   const displayName = profile.data?.display_name || profile.data?.anonymous_alias?.replace('Bloom #', '') || 'there';
+
+  // ─── Your Journey: live data ─────────────────────────────────────────────
+  // Streak comes from `mood_streaks` (server-truth, updated by trigger on each
+  // mood check-in). Falls back to 0 while loading.
+  const stats = useProfileStats();
+  const streakDays = stats.data?.currentStreak ?? 0;
+  const streakLabel = `${streakDays} ${streakDays === 1 ? 'Day' : 'Days'}`;
+
+  // Quest progress: today's intentions — prefer server snapshot, fall back to
+  // the local store so the count shows even before the user opens the screen.
+  const intentionQ = useTodayIntention();
+  const localTasks = useIntentionsStore((s) => s.today.tasks);
+  const tasks = intentionQ.data?.tasks?.length ? intentionQ.data.tasks : localTasks;
+  const taskDone = tasks.filter((t) => t.done).length;
+  const taskTotal = tasks.length;
+  const questValue = taskTotal > 0 ? `${taskDone} / ${taskTotal}` : 'Begin';
+  const questLabel = taskTotal > 0 ? "TODAY'S QUESTS" : 'SET YOUR INTENTION';
 
   function handleMoodSelect(mood: MoodOption) {
     void Haptics.selectionAsync();
@@ -332,21 +429,34 @@ export default function FeedHomeScreen() {
         <Animated.View entering={FadeInDown.delay(220).springify()} style={s.section}>
           <Text style={s.sectionHeading}>Your Journey</Text>
           <View style={s.journeyGrid}>
-            <View style={s.journeyCard}>
-              <Text style={s.journeyEmoji}>🌱</Text>
-              <Text style={[s.journeyValue, { color: C.primary }]}>7 Days</Text>
+            <TouchableOpacity
+              style={s.journeyCard}
+              activeOpacity={0.85}
+              onPress={() => {
+                void Haptics.selectionAsync();
+                router.push('/(main)/profile');
+              }}
+            >
+              <View style={s.journeyGlyph}>
+                <SproutGlyph size={48} />
+              </View>
+              <Text style={[s.journeyValue, { color: C.primary }]}>{streakLabel}</Text>
               <Text style={s.journeyLabel}>CURRENT STREAK</Text>
-            </View>
-            <View style={s.journeyCard}>
-              <MaterialCommunityIcons
-                name="check-decagram"
-                size={36}
-                color={C.tertiary}
-                style={{ marginBottom: 6 }}
-              />
-              <Text style={s.journeyValue}>Quest</Text>
-              <Text style={s.journeyLabel}>MINDFULNESS WEEK</Text>
-            </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.journeyCard}
+              activeOpacity={0.85}
+              onPress={() => {
+                void Haptics.selectionAsync();
+                router.push('/(main)/intentions');
+              }}
+            >
+              <View style={s.journeyGlyph}>
+                <QuestGlyph size={44} />
+              </View>
+              <Text style={[s.journeyValue, { color: C.tertiary }]}>{questValue}</Text>
+              <Text style={s.journeyLabel}>{questLabel}</Text>
+            </TouchableOpacity>
           </View>
         </Animated.View>
 
@@ -431,17 +541,6 @@ export default function FeedHomeScreen() {
         </Animated.View>
       </ScrollView>
 
-      {/* ─── FAB ─── */}
-      <TouchableOpacity
-        style={[s.fab, { bottom: insets.bottom + FAB_BOTTOM + 80 }]}
-        activeOpacity={0.88}
-        onPress={() => {
-          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          router.push('/(main)/bloom');
-        }}
-      >
-        <MaterialCommunityIcons name="message-outline" size={26} color={C.onPrimary} />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -839,10 +938,11 @@ const s = StyleSheet.create({
     borderColor: C.surfaceContainerHigh,
     ...softShadow,
   },
-  journeyEmoji: {
-    fontSize: 36,
-    lineHeight: 44,
-    marginBottom: 4,
+  journeyGlyph: {
+    marginBottom: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 48,
   },
   journeyValue: {
     fontFamily: 'NunitoSans_600SemiBold',

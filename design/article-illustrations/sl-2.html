@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>InnerBloom · Article Illustration · sl-2</title>
+<style>
+  :root {
+    --surface:               #fff8f6;
+    --surface-low:           #fff1ed;
+    --surface-cont:          #ffe9e4;
+    --surface-high:          #ffe2db;
+    --surface-highest:       #fadcd5;
+    --primary:               #994531;
+    --primary-container:     #e8836b;
+    --primary-fixed:         #ffdad2;
+    --primary-fixed-dim:     #ffb4a3;
+    --on-primary-container:  #641e0e;
+    --on-surface:            #281814;
+    --on-surface-variant:    #55433e;
+    --outline-variant:       #dbc1bb;
+    --tertiary:              #a8315c;
+    --secondary-fixed:       #90f2fc;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--surface);
+    color: var(--on-surface);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+  .stage { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 32px; }
+  .label-row {
+    display: flex; align-items: center; gap: 12px;
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    color: var(--on-surface-variant);
+    font-size: 13px;
+    letter-spacing: 0.4px;
+  }
+  .label-row .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--tertiary); }
+  .hero {
+    aspect-ratio: 3/2;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -20px rgba(92,71,66,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    background: var(--surface-low);
+  }
+  .hero svg { width: 100%; height: 100%; display: block; }
+
+  .meta { display: flex; flex-direction: column; gap: 8px; padding: 0 4px; }
+  .eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 1.6px;
+    text-transform: uppercase; color: var(--tertiary);
+  }
+  .title {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600; font-size: 28px; line-height: 1.18;
+    letter-spacing: -0.4px; color: var(--on-surface); margin: 0;
+  }
+  .excerpt {
+    font-size: 15px; line-height: 1.55;
+    color: var(--on-surface-variant); max-width: 56ch; margin: 0;
+  }
+
+  .preview { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+  .preview-label {
+    font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--on-surface-variant); font-weight: 600;
+  }
+  .card {
+    width: 280px; background: #ffffff;
+    border: 1px solid var(--surface-high); border-radius: 20px;
+    overflow: hidden; box-shadow: 0 12px 32px -16px rgba(92,71,66,0.18);
+  }
+  .card .art { aspect-ratio: 3/2; position: relative; }
+  .card .art svg { width: 100%; height: 100%; display: block; }
+  .card .badge {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(255,255,255,0.92); padding: 4px 10px;
+    border-radius: 9999px; font-size: 10px; letter-spacing: 1px;
+    font-weight: 700; color: var(--on-surface);
+  }
+  .card .body { padding: 16px; }
+  .card h3 { margin: 0 0 6px 0; font-size: 14px; line-height: 1.35; font-weight: 700; color: var(--on-surface); letter-spacing: 0.2px; }
+  .card p { margin: 0; font-size: 12px; line-height: 1.45; color: var(--on-surface-variant); }
+</style>
+</head>
+<body>
+  <div class="stage">
+
+    <div class="label-row">
+      <span class="dot"></span>
+      <span>InnerBloom · Resource Library · Article illustration</span>
+    </div>
+
+    <!-- ─── HERO ILLUSTRATION ─────────────────────────────────────────────── -->
+    <div class="hero">
+      <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" role="img"
+           aria-label="A small figure and a larger armored figure kneel facing each other, hands meeting gently over a tiny flower — the protector lowering their shield.">
+        <defs>
+          <radialGradient id="bg-sl2" cx="50%" cy="48%" r="78%">
+            <stop offset="0"   stop-color="#fff1ed" />
+            <stop offset="1"   stop-color="#fadcd5" />
+          </radialGradient>
+          <linearGradient id="ground-sl2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0"   stop-color="#ffdad2" stop-opacity="0" />
+            <stop offset="1"   stop-color="#ffb4a3" stop-opacity="0.30" />
+          </linearGradient>
+          <!-- Soft inner light between the two figures -->
+          <radialGradient id="glow-sl2" cx="50%" cy="50%" r="50%">
+            <stop offset="0"   stop-color="#ffdad2" stop-opacity="0.9" />
+            <stop offset="0.6" stop-color="#ffdad2" stop-opacity="0.2" />
+            <stop offset="1"   stop-color="#ffdad2" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+
+        <!-- Background -->
+        <rect width="480" height="320" fill="url(#bg-sl2)" />
+
+        <!-- Soft background blobs -->
+        <ellipse cx="80"  cy="70"  rx="110" ry="80" fill="#90f2fc" opacity="0.18"/>
+        <ellipse cx="410" cy="50"  rx="90"  ry="60" fill="#ffdad2" opacity="0.6"/>
+        <ellipse cx="430" cy="270" rx="120" ry="80" fill="#fadcd5" opacity="0.7"/>
+
+        <!-- ─── Glow between the two figures ─── -->
+        <circle cx="240" cy="200" r="70" fill="url(#glow-sl2)"/>
+
+        <!-- Ground horizon -->
+        <path d="M0 252 Q120 250 240 254 T480 250 L480 320 L0 320 Z"
+              fill="url(#ground-sl2)"/>
+        <path d="M0 252 Q120 250 240 254 T480 250"
+              stroke="#ffb4a3" stroke-width="1.4" fill="none" opacity="0.5"/>
+
+        <!-- ─── SMALL FIGURE (left) — the present self ────────────────────── -->
+        <!-- Kneeling, soft posture, peach palette (warmer/lighter than the protector) -->
+        <g>
+          <!-- Head -->
+          <ellipse cx="158" cy="172" rx="12" ry="13" fill="#641e0e"/>
+          <!-- Soft hair -->
+          <path d="M148 168
+                   Q146 158 158 156
+                   Q170 158 170 168
+                   Q168 162 158 162
+                   Q150 162 148 168 Z"
+                fill="#281814"/>
+
+          <!-- Body — a soft tunic shape leaning slightly forward (toward the protector) -->
+          <path d="M138 196
+                   Q138 188 148 187
+                   L168 187
+                   Q178 188 178 196
+                   L182 248
+                   Q178 254 168 254
+                   L148 254
+                   Q138 254 134 248
+                   Z"
+                fill="#e8836b"/>
+          <!-- Tunic seam -->
+          <path d="M158 192 L158 250" stroke="#641e0e" stroke-width="1.2" opacity="0.5" fill="none"/>
+
+          <!-- Front kneeling leg — folded under -->
+          <path d="M138 248
+                   Q130 258 134 268
+                   Q150 270 168 268
+                   L180 268
+                   Q186 258 178 248 Z"
+                fill="#641e0e"/>
+          <!-- Back foot peeking out -->
+          <path d="M148 268 L150 274 L162 274 L160 268 Z" fill="#281814"/>
+
+          <!-- Arm reaching forward (right side, toward protector) -->
+          <path d="M178 208
+                   Q200 222 222 238"
+                stroke="#e8836b" stroke-width="9"
+                stroke-linecap="round" fill="none"/>
+          <!-- Small hand at the end -->
+          <circle cx="222" cy="238" r="4.5" fill="#ffdad2"/>
+
+          <!-- Other arm tucked at side -->
+          <path d="M138 210 Q128 232 134 250"
+                stroke="#e8836b" stroke-width="8.5"
+                stroke-linecap="round" fill="none"/>
+        </g>
+
+        <!-- ─── LARGER PROTECTOR FIGURE (right) — the inner critic, softening ─ -->
+        <g>
+          <!-- Shield, set DOWN on the ground beside them — the gesture of disarming -->
+          <g transform="translate(360 240)">
+            <!-- Shield body — circular/curved, half-buried in the soft earth -->
+            <path d="M-26 0
+                     Q-30 -18 -14 -26
+                     Q0 -32 14 -26
+                     Q30 -18 26 0
+                     Q24 14 0 18
+                     Q-24 14 -26 0 Z"
+                  fill="#994531"/>
+            <!-- Inner emblem — a single flower bloom growing from the shield -->
+            <circle cx="0" cy="-6" r="4" fill="#e8836b"/>
+            <circle cx="-5" cy="-2" r="3" fill="#ffdad2"/>
+            <circle cx="5" cy="-2" r="3" fill="#ffdad2"/>
+            <circle cx="0" cy="2" r="3" fill="#ffdad2"/>
+            <circle cx="0" cy="-4" r="1.6" fill="#641e0e"/>
+            <!-- Stem reaching up out of the shield -->
+            <path d="M0 -10 L0 -22"
+                  stroke="#a8315c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            <path d="M0 -16 Q-4 -18 -6 -16"
+                  stroke="#a8315c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          </g>
+
+          <!-- Helmet (visor up — guard lowered) -->
+          <!-- Head/helmet shape -->
+          <path d="M280 130
+                   Q280 110 300 108
+                   Q322 106 322 130
+                   L322 154
+                   Q322 162 314 164
+                   L290 164
+                   Q280 162 280 154 Z"
+                fill="#641e0e"/>
+          <!-- Visor opening (raised position — eye gap) -->
+          <rect x="285" y="138" width="34" height="6" rx="2" fill="#ffdad2" opacity="0.95"/>
+          <!-- Helmet crest -->
+          <path d="M298 108 L301 100 L304 108"
+                stroke="#a8315c" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <!-- A small soft plume to the side -->
+          <path d="M304 102 Q314 100 318 92"
+                stroke="#e8836b" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+          <!-- Neck -->
+          <rect x="294" y="164" width="14" height="6" fill="#641e0e"/>
+
+          <!-- Body — armored torso. Soft burgundy with a peach center plate. -->
+          <path d="M262 174
+                   Q262 168 274 167
+                   L326 167
+                   Q340 168 340 174
+                   L344 240
+                   Q340 250 332 252
+                   L268 252
+                   Q260 250 256 240
+                   Z"
+                fill="#641e0e"/>
+
+          <!-- Center chest plate — softer, with a tiny heart -->
+          <path d="M286 178
+                   Q286 174 300 173
+                   L302 173
+                   Q316 174 316 178
+                   L316 220
+                   Q316 226 308 228
+                   L294 228
+                   Q286 226 286 220 Z"
+                fill="#e8836b"/>
+          <!-- Tiny heart on chest plate — the protector loves -->
+          <path d="M301 196
+                   Q297 192 294 195
+                   Q294 200 301 206
+                   Q308 200 308 195
+                   Q305 192 301 196 Z"
+                fill="#ffdad2"/>
+
+          <!-- Shoulder pauldrons -->
+          <ellipse cx="262" cy="176" rx="10" ry="6" fill="#a8315c"/>
+          <ellipse cx="340" cy="176" rx="10" ry="6" fill="#a8315c"/>
+
+          <!-- Right arm (their right — our left) reaching across, palm up toward small figure -->
+          <path d="M260 188
+                   Q244 210 232 230"
+                stroke="#641e0e" stroke-width="11"
+                stroke-linecap="round" fill="none"/>
+          <!-- Gauntlet/hand at the end — open, palm-up -->
+          <ellipse cx="232" cy="232" rx="9" ry="6" fill="#ffdad2"/>
+          <!-- A tiny stitch of armor on the gauntlet -->
+          <path d="M227 230 L237 230"
+                stroke="#a8315c" stroke-width="1.2" stroke-linecap="round"/>
+
+          <!-- Left arm (their left — our right) at their side, by the shield -->
+          <path d="M342 200
+                   Q352 220 356 238"
+                stroke="#641e0e" stroke-width="10"
+                stroke-linecap="round" fill="none"/>
+
+          <!-- Kneeling leg — front knee forward -->
+          <path d="M268 252
+                   Q258 270 268 286
+                   L300 286
+                   L302 252 Z"
+                fill="#281814"/>
+          <!-- Back leg folded -->
+          <path d="M304 252
+                   Q320 264 332 268
+                   L344 268
+                   Q346 258 340 252 Z"
+                fill="#281814"/>
+          <!-- Boot tip -->
+          <ellipse cx="278" cy="290" rx="14" ry="4" fill="#281814"/>
+        </g>
+
+        <!-- ─── Where the hands meet — a single tiny flower between them ───── -->
+        <!-- A small mound of light + a flower stem rising -->
+        <ellipse cx="227" cy="240" rx="16" ry="3" fill="#ffdad2" opacity="0.7"/>
+
+        <!-- Floating petals between them (acknowledgment, blooming) -->
+        <g>
+          <path d="M236 218
+                   Q232 212 236 206
+                   Q240 212 236 218 Z"
+                fill="#e8836b" opacity="0.85"
+                transform="rotate(-18 236 212)"/>
+          <path d="M252 196
+                   Q249 192 252 188
+                   Q255 192 252 196 Z"
+                fill="#a8315c" opacity="0.55"
+                transform="rotate(28 252 192)"/>
+          <path d="M218 210
+                   Q215 206 218 202
+                   Q221 206 218 210 Z"
+                fill="#ffb4a3" opacity="0.9"
+                transform="rotate(12 218 206)"/>
+        </g>
+
+        <!-- Soft long shadow under both figures -->
+        <ellipse cx="158" cy="280" rx="40" ry="3.5" fill="#641e0e" opacity="0.15"/>
+        <ellipse cx="304" cy="294" rx="62" ry="5" fill="#641e0e" opacity="0.18"/>
+      </svg>
+    </div>
+
+    <!-- ─── ARTICLE META ─────────────────────────────────────────────────── -->
+    <div class="meta">
+      <span class="eyebrow">Self-Love · 7 min read</span>
+      <h1 class="title">The Inner Critic Was Once a Protector</h1>
+      <p class="excerpt">A conversation with the part of you that learned to be harsh so you would survive.</p>
+    </div>
+
+    <!-- ─── IN-CARD PREVIEW ──────────────────────────────────────────────── -->
+    <div class="preview">
+      <span class="preview-label">How it looks in the resource card</span>
+      <div class="card">
+        <div class="art">
+          <span class="badge">7 MIN</span>
+          <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="bg-sl2-card" cx="50%" cy="48%" r="78%">
+                <stop offset="0" stop-color="#fff1ed" />
+                <stop offset="1" stop-color="#fadcd5" />
+              </radialGradient>
+              <radialGradient id="glow-sl2-card" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#ffdad2" stop-opacity="0.9" />
+                <stop offset="0.6" stop-color="#ffdad2" stop-opacity="0.2" />
+                <stop offset="1" stop-color="#ffdad2" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="480" height="320" fill="url(#bg-sl2-card)" />
+            <ellipse cx="80"  cy="70"  rx="110" ry="80" fill="#90f2fc" opacity="0.18"/>
+            <ellipse cx="410" cy="50"  rx="90"  ry="60" fill="#ffdad2" opacity="0.6"/>
+            <ellipse cx="430" cy="270" rx="120" ry="80" fill="#fadcd5" opacity="0.7"/>
+            <circle cx="240" cy="200" r="70" fill="url(#glow-sl2-card)"/>
+            <path d="M0 252 Q120 250 240 254 T480 250 L480 320 L0 320 Z" fill="#ffb4a3" opacity="0.22"/>
+            <path d="M0 252 Q120 250 240 254 T480 250" stroke="#ffb4a3" stroke-width="1.4" fill="none" opacity="0.5"/>
+            <g>
+              <ellipse cx="158" cy="172" rx="12" ry="13" fill="#641e0e"/>
+              <path d="M148 168 Q146 158 158 156 Q170 158 170 168 Q168 162 158 162 Q150 162 148 168 Z" fill="#281814"/>
+              <path d="M138 196 Q138 188 148 187 L168 187 Q178 188 178 196 L182 248 Q178 254 168 254 L148 254 Q138 254 134 248 Z" fill="#e8836b"/>
+              <path d="M158 192 L158 250" stroke="#641e0e" stroke-width="1.2" opacity="0.5" fill="none"/>
+              <path d="M138 248 Q130 258 134 268 Q150 270 168 268 L180 268 Q186 258 178 248 Z" fill="#641e0e"/>
+              <path d="M148 268 L150 274 L162 274 L160 268 Z" fill="#281814"/>
+              <path d="M178 208 Q200 222 222 238" stroke="#e8836b" stroke-width="9" stroke-linecap="round" fill="none"/>
+              <circle cx="222" cy="238" r="4.5" fill="#ffdad2"/>
+              <path d="M138 210 Q128 232 134 250" stroke="#e8836b" stroke-width="8.5" stroke-linecap="round" fill="none"/>
+            </g>
+            <g>
+              <g transform="translate(360 240)">
+                <path d="M-26 0 Q-30 -18 -14 -26 Q0 -32 14 -26 Q30 -18 26 0 Q24 14 0 18 Q-24 14 -26 0 Z" fill="#994531"/>
+                <circle cx="0" cy="-6" r="4" fill="#e8836b"/>
+                <circle cx="-5" cy="-2" r="3" fill="#ffdad2"/>
+                <circle cx="5" cy="-2" r="3" fill="#ffdad2"/>
+                <circle cx="0" cy="2" r="3" fill="#ffdad2"/>
+                <circle cx="0" cy="-4" r="1.6" fill="#641e0e"/>
+                <path d="M0 -10 L0 -22" stroke="#a8315c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+                <path d="M0 -16 Q-4 -18 -6 -16" stroke="#a8315c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+              </g>
+              <path d="M280 130 Q280 110 300 108 Q322 106 322 130 L322 154 Q322 162 314 164 L290 164 Q280 162 280 154 Z" fill="#641e0e"/>
+              <rect x="285" y="138" width="34" height="6" rx="2" fill="#ffdad2" opacity="0.95"/>
+              <path d="M298 108 L301 100 L304 108" stroke="#a8315c" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <path d="M304 102 Q314 100 318 92" stroke="#e8836b" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <rect x="294" y="164" width="14" height="6" fill="#641e0e"/>
+              <path d="M262 174 Q262 168 274 167 L326 167 Q340 168 340 174 L344 240 Q340 250 332 252 L268 252 Q260 250 256 240 Z" fill="#641e0e"/>
+              <path d="M286 178 Q286 174 300 173 L302 173 Q316 174 316 178 L316 220 Q316 226 308 228 L294 228 Q286 226 286 220 Z" fill="#e8836b"/>
+              <path d="M301 196 Q297 192 294 195 Q294 200 301 206 Q308 200 308 195 Q305 192 301 196 Z" fill="#ffdad2"/>
+              <ellipse cx="262" cy="176" rx="10" ry="6" fill="#a8315c"/>
+              <ellipse cx="340" cy="176" rx="10" ry="6" fill="#a8315c"/>
+              <path d="M260 188 Q244 210 232 230" stroke="#641e0e" stroke-width="11" stroke-linecap="round" fill="none"/>
+              <ellipse cx="232" cy="232" rx="9" ry="6" fill="#ffdad2"/>
+              <path d="M227 230 L237 230" stroke="#a8315c" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M342 200 Q352 220 356 238" stroke="#641e0e" stroke-width="10" stroke-linecap="round" fill="none"/>
+              <path d="M268 252 Q258 270 268 286 L300 286 L302 252 Z" fill="#281814"/>
+              <path d="M304 252 Q320 264 332 268 L344 268 Q346 258 340 252 Z" fill="#281814"/>
+              <ellipse cx="278" cy="290" rx="14" ry="4" fill="#281814"/>
+            </g>
+            <ellipse cx="227" cy="240" rx="16" ry="3" fill="#ffdad2" opacity="0.7"/>
+            <ellipse cx="158" cy="280" rx="40" ry="3.5" fill="#641e0e" opacity="0.15"/>
+            <ellipse cx="304" cy="294" rx="62" ry="5" fill="#641e0e" opacity="0.18"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>The Inner Critic Was Once a Protector</h3>
+          <p>A conversation with the part of you that learned to be harsh so you would survive.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

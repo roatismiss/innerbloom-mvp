@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>InnerBloom · Article Illustration · mo-5</title>
+<style>
+  :root {
+    --surface:               #fff8f6;
+    --surface-low:           #fff1ed;
+    --surface-cont:          #ffe9e4;
+    --surface-high:          #ffe2db;
+    --surface-highest:       #fadcd5;
+    --primary:               #994531;
+    --primary-container:     #e8836b;
+    --primary-fixed:         #ffdad2;
+    --primary-fixed-dim:     #ffb4a3;
+    --on-primary-container:  #641e0e;
+    --on-surface:            #281814;
+    --on-surface-variant:    #55433e;
+    --outline-variant:       #dbc1bb;
+    --tertiary:              #a8315c;
+    --secondary-fixed:       #90f2fc;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--surface);
+    color: var(--on-surface);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+  .stage {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .label-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    color: var(--on-surface-variant);
+    font-size: 13px;
+    letter-spacing: 0.4px;
+  }
+  .label-row .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary);
+  }
+  .hero {
+    aspect-ratio: 3/2;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -20px rgba(92,71,66,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    background: var(--surface-low);
+  }
+  .hero svg { width: 100%; height: 100%; display: block; }
+
+  /* Meta */
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 4px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+  .title {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: 28px;
+    line-height: 1.18;
+    letter-spacing: -0.4px;
+    color: var(--on-surface);
+    margin: 0;
+  }
+  .excerpt {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--on-surface-variant);
+    max-width: 56ch;
+    margin: 0;
+  }
+
+  /* In-card preview */
+  .preview {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .preview-label {
+    font-size: 11px;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    font-weight: 600;
+  }
+  .card {
+    width: 280px;
+    background: #ffffff;
+    border: 1px solid var(--surface-high);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px -16px rgba(92,71,66,0.18);
+  }
+  .card .art { aspect-ratio: 3/2; position: relative; }
+  .card .art svg { width: 100%; height: 100%; display: block; }
+  .card .badge {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(255,255,255,0.92);
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: var(--on-surface);
+  }
+  .card .body { padding: 16px; }
+  .card h3 {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: var(--on-surface);
+    letter-spacing: 0.2px;
+  }
+  .card p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--on-surface-variant);
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+
+    <div class="label-row">
+      <span class="dot"></span>
+      <span>InnerBloom · Resource Library · Article illustration</span>
+    </div>
+
+    <!-- ─── HERO ILLUSTRATION ─────────────────────────────────────────────── -->
+    <div class="hero">
+      <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A small figure walks forward, away from a large faded trophy in the soft distance.">
+        <defs>
+          <!-- Soft cream background gradient -->
+          <radialGradient id="bg-mo5" cx="40%" cy="55%" r="80%">
+            <stop offset="0"   stop-color="#fff1ed" />
+            <stop offset="1"   stop-color="#fadcd5" />
+          </radialGradient>
+
+          <!-- Ground stroke pattern for grain hint -->
+          <linearGradient id="ground-mo5" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0"   stop-color="#ffdad2" stop-opacity="0" />
+            <stop offset="1"   stop-color="#ffb4a3" stop-opacity="0.35" />
+          </linearGradient>
+        </defs>
+
+        <!-- Background -->
+        <rect width="480" height="320" fill="url(#bg-mo5)" />
+
+        <!-- Soft organic background blobs -->
+        <ellipse cx="90"  cy="60"  rx="120" ry="80"  fill="#ffdad2" opacity="0.55"/>
+        <ellipse cx="430" cy="280" rx="140" ry="90"  fill="#90f2fc" opacity="0.18"/>
+        <ellipse cx="380" cy="80"  rx="60"  ry="40"  fill="#fadcd5" opacity="0.7"/>
+
+        <!-- ─── FADED TROPHY in the background (the outgrown ambition) ─── -->
+        <!-- All in light peach outline — past tense, ghost of an ambition -->
+        <g opacity="0.55" stroke="#ffb4a3" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Trophy bowl -->
+          <path d="M295 110
+                   Q295 175 340 178
+                   Q385 175 385 110
+                   Z" />
+          <!-- Bowl rim -->
+          <path d="M290 110 L390 110" />
+          <!-- Handles -->
+          <path d="M295 120
+                   Q270 125 270 145
+                   Q270 160 290 162" />
+          <path d="M385 120
+                   Q410 125 410 145
+                   Q410 160 390 162" />
+          <!-- Stem -->
+          <path d="M340 178 L340 210" />
+          <!-- Base trapezoid -->
+          <path d="M315 210 L365 210 L372 222 L308 222 Z" />
+          <!-- Plaque -->
+          <path d="M312 222 L368 222 L368 234 L312 234 Z" />
+        </g>
+        <!-- Star inside trophy bowl -->
+        <path d="M340 130 L344 142 L357 142 L347 150 L351 162 L340 154 L329 162 L333 150 L323 142 L336 142 Z"
+              fill="#ffb4a3" opacity="0.5"/>
+
+        <!-- Faded laurel petals around base -->
+        <g stroke="#ffb4a3" stroke-width="1.5" fill="none" opacity="0.45" stroke-linecap="round">
+          <path d="M298 232 Q286 240 282 252" />
+          <path d="M382 232 Q394 240 398 252" />
+          <path d="M310 240 Q302 248 300 256" />
+          <path d="M370 240 Q378 248 380 256" />
+        </g>
+
+        <!-- ─── GROUND LINE — soft horizon ─── -->
+        <path d="M0 258 Q120 254 240 258 T480 256 L480 320 L0 320 Z"
+              fill="url(#ground-mo5)" />
+        <path d="M0 258 Q120 254 240 258 T480 256"
+              stroke="#ffb4a3" stroke-width="1.5" fill="none" opacity="0.55" stroke-linecap="round"/>
+
+        <!-- Small wildflowers growing along the path — symbolizes that life is moving on -->
+        <g stroke="#994531" stroke-width="1.6" fill="none" stroke-linecap="round">
+          <path d="M70 258 L70 268"/>
+          <circle cx="70" cy="254" r="3" fill="#a8315c" stroke="none"/>
+          <path d="M58 268 L58 275"/>
+          <circle cx="58" cy="265" r="2.4" fill="#e8836b" stroke="none"/>
+          <path d="M195 257 L195 266"/>
+          <circle cx="195" cy="253" r="2.6" fill="#a8315c" stroke="none"/>
+          <path d="M448 256 L448 264"/>
+          <circle cx="448" cy="252" r="2.6" fill="#e8836b" stroke="none"/>
+        </g>
+
+        <!-- ─── FIGURE walking forward, foreground ─── -->
+        <!-- Body in solid burgundy silhouette, very simplified -->
+        <g>
+          <!-- Hair / head (soft bun shape) -->
+          <ellipse cx="148" cy="172" rx="13" ry="14" fill="#281814"/>
+          <!-- Small bun on top -->
+          <circle cx="148" cy="159" r="5" fill="#281814"/>
+
+          <!-- Neck -->
+          <rect x="144" y="183" width="8" height="6" fill="#641e0e"/>
+
+          <!-- Coat (long, soft fall, peach color so they're warm in the foreground) -->
+          <path d="M120 192
+                   Q120 188 128 187
+                   L168 187
+                   Q176 188 176 192
+                   L182 260
+                   Q176 264 168 264
+                   L128 264
+                   Q120 264 114 260
+                   Z"
+                fill="#e8836b"/>
+
+          <!-- Coat seam down the middle -->
+          <path d="M148 192 L148 258"
+                stroke="#641e0e" stroke-width="1.4" fill="none" opacity="0.65"/>
+
+          <!-- Inner collar v -->
+          <path d="M141 189 L148 198 L155 189"
+                stroke="#641e0e" stroke-width="1.3" fill="none" opacity="0.7"/>
+
+          <!-- Walking legs — left forward, right back -->
+          <path d="M134 264 L132 296"
+                stroke="#281814" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+          <path d="M162 264 L168 296"
+                stroke="#281814" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+
+          <!-- Shoes -->
+          <ellipse cx="130" cy="298" rx="7" ry="3" fill="#281814"/>
+          <ellipse cx="170" cy="298" rx="7" ry="3" fill="#281814"/>
+
+          <!-- Subtle arm gesture: one arm at side, one slightly forward/relaxed -->
+          <path d="M120 210 Q108 232 112 252"
+                stroke="#e8836b" stroke-width="9" stroke-linecap="round" fill="none"/>
+          <path d="M176 210 Q188 230 184 250"
+                stroke="#e8836b" stroke-width="9" stroke-linecap="round" fill="none"/>
+
+          <!-- Hand peeking — peach skin -->
+          <circle cx="113" cy="254" r="4" fill="#ffdad2"/>
+          <circle cx="184" cy="252" r="4" fill="#ffdad2"/>
+        </g>
+
+        <!-- A subtle long shadow forward — they're walking into morning -->
+        <ellipse cx="150" cy="302" rx="38" ry="4" fill="#641e0e" opacity="0.18"/>
+
+        <!-- ─── A single small petal mid-air between figure & trophy ─── -->
+        <!-- Says: something is being shed / released -->
+        <path d="M232 168
+                 Q228 162 232 156
+                 Q236 162 232 168 Z"
+              fill="#e8836b" opacity="0.85"
+              transform="rotate(-22 232 162)"/>
+        <path d="M254 188
+                 Q251 184 254 180
+                 Q257 184 254 188 Z"
+              fill="#a8315c" opacity="0.6"
+              transform="rotate(18 254 184)"/>
+      </svg>
+    </div>
+
+    <!-- ─── ARTICLE META ─────────────────────────────────────────────────── -->
+    <div class="meta">
+      <span class="eyebrow">Motivation · 5 min read</span>
+      <h1 class="title">When Goals Become Punishments</h1>
+      <p class="excerpt">The quiet signs you have outgrown an ambition and are still dragging it along.</p>
+    </div>
+
+    <!-- ─── IN-CARD PREVIEW ──────────────────────────────────────────────── -->
+    <div class="preview">
+      <span class="preview-label">How it looks in the resource card</span>
+      <div class="card">
+        <div class="art">
+          <span class="badge">5 MIN</span>
+          <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="bg-mo5-card" cx="40%" cy="55%" r="80%">
+                <stop offset="0" stop-color="#fff1ed" />
+                <stop offset="1" stop-color="#fadcd5" />
+              </radialGradient>
+            </defs>
+            <rect width="480" height="320" fill="url(#bg-mo5-card)" />
+            <ellipse cx="90"  cy="60"  rx="120" ry="80"  fill="#ffdad2" opacity="0.55"/>
+            <ellipse cx="430" cy="280" rx="140" ry="90"  fill="#90f2fc" opacity="0.18"/>
+            <ellipse cx="380" cy="80"  rx="60"  ry="40"  fill="#fadcd5" opacity="0.7"/>
+            <g opacity="0.55" stroke="#ffb4a3" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M295 110 Q295 175 340 178 Q385 175 385 110 Z"/>
+              <path d="M290 110 L390 110"/>
+              <path d="M295 120 Q270 125 270 145 Q270 160 290 162"/>
+              <path d="M385 120 Q410 125 410 145 Q410 160 390 162"/>
+              <path d="M340 178 L340 210"/>
+              <path d="M315 210 L365 210 L372 222 L308 222 Z"/>
+              <path d="M312 222 L368 222 L368 234 L312 234 Z"/>
+            </g>
+            <path d="M340 130 L344 142 L357 142 L347 150 L351 162 L340 154 L329 162 L333 150 L323 142 L336 142 Z" fill="#ffb4a3" opacity="0.5"/>
+            <path d="M0 258 Q120 254 240 258 T480 256 L480 320 L0 320 Z" fill="#ffb4a3" opacity="0.25"/>
+            <path d="M0 258 Q120 254 240 258 T480 256" stroke="#ffb4a3" stroke-width="1.5" fill="none" opacity="0.55"/>
+            <g>
+              <ellipse cx="148" cy="172" rx="13" ry="14" fill="#281814"/>
+              <circle cx="148" cy="159" r="5" fill="#281814"/>
+              <rect x="144" y="183" width="8" height="6" fill="#641e0e"/>
+              <path d="M120 192 Q120 188 128 187 L168 187 Q176 188 176 192 L182 260 Q176 264 168 264 L128 264 Q120 264 114 260 Z" fill="#e8836b"/>
+              <path d="M148 192 L148 258" stroke="#641e0e" stroke-width="1.4" fill="none" opacity="0.65"/>
+              <path d="M141 189 L148 198 L155 189" stroke="#641e0e" stroke-width="1.3" fill="none" opacity="0.7"/>
+              <path d="M134 264 L132 296" stroke="#281814" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+              <path d="M162 264 L168 296" stroke="#281814" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+              <ellipse cx="130" cy="298" rx="7" ry="3" fill="#281814"/>
+              <ellipse cx="170" cy="298" rx="7" ry="3" fill="#281814"/>
+              <path d="M120 210 Q108 232 112 252" stroke="#e8836b" stroke-width="9" stroke-linecap="round" fill="none"/>
+              <path d="M176 210 Q188 230 184 250" stroke="#e8836b" stroke-width="9" stroke-linecap="round" fill="none"/>
+              <circle cx="113" cy="254" r="4" fill="#ffdad2"/>
+              <circle cx="184" cy="252" r="4" fill="#ffdad2"/>
+            </g>
+            <ellipse cx="150" cy="302" rx="38" ry="4" fill="#641e0e" opacity="0.18"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>When Goals Become Punishments</h3>
+          <p>The quiet signs you have outgrown an ambition and are still dragging it along.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
