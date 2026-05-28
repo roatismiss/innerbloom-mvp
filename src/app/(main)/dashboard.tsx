@@ -122,6 +122,7 @@ export default function DashboardScreen() {
   // persisted to AsyncStorage so the lock survives reloads. Server query is
   // the source of truth on a fresh device. Prefer local if present.
   const localMood = useMoodStore((s) => s.todayMood);
+  const moodHydrated = useMoodStore((s) => s.hasHydrated);
   const ensureFreshMood = useMoodStore((s) => s.ensureFresh);
   useEffect(() => { ensureFreshMood(); }, [ensureFreshMood]);
   const todayForMe = useTodayForMe();
@@ -241,7 +242,12 @@ export default function DashboardScreen() {
     router.push('/(main)/intentions');
   }
 
-  const locked = todayMood !== null;
+  // Treat the picker as locked while we still don't know if today's mood is
+  // set: AsyncStorage hydration or the today_for_me() query may still be in
+  // flight. Without this gate, the relogged-in user sees an interactive picker
+  // for ~500ms after login and may tap a mood that's already saved.
+  const moodResolving = !moodHydrated || todayForMe.isPending;
+  const locked = moodResolving || todayMood !== null;
 
   function handleMoodSelect(mood: MoodOption) {
     if (locked) return;

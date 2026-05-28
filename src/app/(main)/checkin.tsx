@@ -50,6 +50,7 @@ export default function BloomCheckInScreen() {
   // synchronously on tap. The server query is the source of truth when it
   // resolves; if both are set, prefer the more recent (Zustand) value.
   const localMood = useMoodStore((s) => s.todayMood);
+  const moodHydrated = useMoodStore((s) => s.hasHydrated);
   const serverData = useTodayForMe();
   const todayMood = localMood ?? (serverData.data?.mood
     ? {
@@ -61,7 +62,11 @@ export default function BloomCheckInScreen() {
     : null);
   const submitMood = useSubmitMood();
 
-  const locked = todayMood !== null;
+  // While AsyncStorage hydration or the server query are still in flight we
+  // can't know if today's mood is set — treat as locked to prevent a stale
+  // "unlocked" picker right after login/relog.
+  const moodResolving = !moodHydrated || serverData.isPending;
+  const locked = moodResolving || todayMood !== null;
 
   function handleMoodSelect(mood: MoodOption) {
     if (locked) return;

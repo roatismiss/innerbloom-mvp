@@ -16,9 +16,18 @@ function todayKey(): string {
 type MoodState = {
   todayMood: EmotionalState | null;
   lastCheckinDate: string | null;
+  // Flips to true once AsyncStorage has been read. Screens use this to avoid
+  // showing the mood picker as "interactive" during the hydration window —
+  // otherwise a relogged-in user briefly sees an unlocked picker before the
+  // persisted value is restored, and may tap a mood that's already set.
+  hasHydrated: boolean;
   setTodayMood: (mood: EmotionalState) => void;
   // Clears todayMood if lastCheckinDate is no longer today (called on mount).
   ensureFresh: () => void;
+  // Hard-clear on sign out. Prevents cross-user leakage on shared devices —
+  // without this, the next user logged into this device would see the
+  // previous user's mood as locked-in for today.
+  reset: () => void;
 };
 
 export const useMoodStore = create<MoodState>()(
@@ -26,6 +35,7 @@ export const useMoodStore = create<MoodState>()(
     (set, get) => ({
       todayMood: null,
       lastCheckinDate: null,
+      hasHydrated: false,
       setTodayMood: (mood) =>
         set({ todayMood: mood, lastCheckinDate: todayKey() }),
       ensureFresh: () => {
@@ -34,14 +44,24 @@ export const useMoodStore = create<MoodState>()(
           set({ todayMood: null, lastCheckinDate: null });
         }
       },
+      reset: () => set({ todayMood: null, lastCheckinDate: null }),
     }),
     {
       name: 'innerbloom.mood.v1',
       storage: createJSONStorage(() => AsyncStorage),
+      // Only persist the actual mood + date — hasHydrated is a runtime flag
+      // and must always start as `false` on each app launch.
+      partialize: (state) => ({
+        todayMood: state.todayMood,
+        lastCheckinDate: state.lastCheckinDate,
+      }),
       onRehydrateStorage: () => (state) => {
-        if (state && state.lastCheckinDate && state.lastCheckinDate !== todayKey()) {
-          state.todayMood = null;
-          state.lastCheckinDate = null;
+        if (state) {
+          if (state.lastCheckinDate && state.lastCheckinDate !== todayKey()) {
+            state.todayMood = null;
+            state.lastCheckinDate = null;
+          }
+          state.hasHydrated = true;
         }
       },
     },

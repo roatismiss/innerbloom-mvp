@@ -24,6 +24,7 @@ import { usePendingKindredRequests } from '../lib/queries/kindred';
 import { unregisterPushTokenForCurrentDevice } from '../lib/queries/notifications';
 import { useMyProfile } from '../lib/queries/profile';
 import { useAuthStore } from '../store/auth';
+import { useMoodStore } from '../store/mood';
 import { useUIStore } from '../store/ui';
 
 // ─── Design tokens (1:1 with the side-nav HTML reference) ────────────────────
@@ -148,6 +149,9 @@ export function SideMenu() {
       try { await supabase.auth.signOut(); } catch { /* ignore */ }
     }
     signOut();
+    // Clear the persisted mood cache too — otherwise the next account logged
+    // in on this device sees the previous user's mood locked as today's.
+    useMoodStore.getState().reset();
     setTimeout(() => router.replace('/(auth)/login'), 150);
   }
 

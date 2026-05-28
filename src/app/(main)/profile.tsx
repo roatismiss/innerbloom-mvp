@@ -24,6 +24,7 @@ import {
 } from '../../lib/queries/profile';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/auth';
+import { useMoodStore } from '../../store/mood';
 import { useUIStore } from '../../store/ui';
 
 // ─── Design tokens (design/profile-screen.html is source of truth) ──────────
@@ -179,6 +180,9 @@ export default function ProfileScreen() {
     try { await unregisterPushTokenForCurrentDevice(); } catch { /* ignore */ }
     if (supabase) await supabase.auth.signOut();
     signOut();
+    // Drop the persisted mood so a second account on this device doesn't
+    // inherit the previous user's "already checked in" lock.
+    useMoodStore.getState().reset();
     router.replace('/(auth)/login');
   }
 
