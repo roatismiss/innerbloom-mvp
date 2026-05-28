@@ -25,8 +25,10 @@ export interface ReelVideoTrack {
   hasVoiceover: boolean;
 }
 
+const CDN = 'https://ruccrssggpnawsyitphc.supabase.co/storage/v1/object/public/reels';
+
 export const REEL_VIDEO_TRACKS = {
-  // ── Original Bloom Voices (voiceover) ─────────────────────────────────────
+  // ── Original Bloom Voices (voiceover) — bundled locally ───────────────────
   'depression-isnt-laziness': {
     source: require('../../../assets/video/depression-isnt-laziness.mp4'),
     label: 'Bloom Voices · Liezel',
@@ -43,59 +45,59 @@ export const REEL_VIDEO_TRACKS = {
     hasVoiceover: true,
   },
 
-  // ── InnerBloom Remotion — Short quotes (15s) ──────────────────────────────
-  'Reel01-Bloom':    { source: require('../../../assets/video/Reel01-Bloom.mp4'),    label: 'InnerBloom', hasVoiceover: false },
-  'Reel02-Contrast': { source: require('../../../assets/video/Reel02-Contrast.mp4'), label: 'InnerBloom', hasVoiceover: false },
-  'Reel03-Heartbeat':{ source: require('../../../assets/video/Reel03-Heartbeat.mp4'),label: 'InnerBloom', hasVoiceover: false },
-  'Reel04-WordSize': { source: require('../../../assets/video/Reel04-WordSize.mp4'), label: 'InnerBloom', hasVoiceover: false },
-  'Reel05-Seasons':  { source: require('../../../assets/video/Reel05-Seasons.mp4'),  label: 'InnerBloom', hasVoiceover: false },
-  'Reel06-Orbit':    { source: require('../../../assets/video/Reel06-Orbit.mp4'),    label: 'InnerBloom', hasVoiceover: false },
-  'Reel07-Wave':     { source: require('../../../assets/video/Reel07-Wave.mp4'),     label: 'InnerBloom', hasVoiceover: false },
-  'Reel08-Spotlight':{ source: require('../../../assets/video/Reel08-Spotlight.mp4'),label: 'InnerBloom', hasVoiceover: false },
-  'Reel09-Slow':     { source: require('../../../assets/video/Reel09-Slow.mp4'),     label: 'InnerBloom', hasVoiceover: false },
-  'Reel10-Breath':   { source: require('../../../assets/video/Reel10-Breath.mp4'),   label: 'InnerBloom', hasVoiceover: false },
+  // ── InnerBloom Remotion — Short quotes (15s) — Supabase Storage ───────────
+  'Reel01-Bloom':    { source: { uri: `${CDN}/Reel01-Bloom.mp4` },    label: 'InnerBloom', hasVoiceover: true },
+  'Reel02-Contrast': { source: { uri: `${CDN}/Reel02-Contrast.mp4` }, label: 'InnerBloom', hasVoiceover: true },
+  'Reel03-Heartbeat':{ source: { uri: `${CDN}/Reel03-Heartbeat.mp4` },label: 'InnerBloom', hasVoiceover: true },
+  'Reel04-WordSize': { source: { uri: `${CDN}/Reel04-WordSize.mp4` }, label: 'InnerBloom', hasVoiceover: true },
+  'Reel05-Seasons':  { source: { uri: `${CDN}/Reel05-Seasons.mp4` },  label: 'InnerBloom', hasVoiceover: true },
+  'Reel06-Orbit':    { source: { uri: `${CDN}/Reel06-Orbit.mp4` },    label: 'InnerBloom', hasVoiceover: true },
+  'Reel07-Wave':     { source: { uri: `${CDN}/Reel07-Wave.mp4` },     label: 'InnerBloom', hasVoiceover: true },
+  'Reel08-Spotlight':{ source: { uri: `${CDN}/Reel08-Spotlight.mp4` },label: 'InnerBloom', hasVoiceover: true },
+  'Reel09-Slow':     { source: { uri: `${CDN}/Reel09-Slow.mp4` },     label: 'InnerBloom', hasVoiceover: true },
+  'Reel10-Breath':   { source: { uri: `${CDN}/Reel10-Breath.mp4` },   label: 'InnerBloom', hasVoiceover: true },
 
   // ── InnerBloom Remotion — Adicție (20s) ───────────────────────────────────
-  'LF01-Addiction-NotWeak':       { source: require('../../../assets/video/LF01-Addiction-NotWeak.mp4'),       label: 'InnerBloom', hasVoiceover: false },
-  'LF02-Addiction-StopCallingIt': { source: require('../../../assets/video/LF02-Addiction-StopCallingIt.mp4'), label: 'InnerBloom', hasVoiceover: false },
-  'LF03-Addiction-NotEnemy':      { source: require('../../../assets/video/LF03-Addiction-NotEnemy.mp4'),      label: 'InnerBloom', hasVoiceover: false },
-  'LF04-Addiction-First90':       { source: require('../../../assets/video/LF04-Addiction-First90.mp4'),       label: 'InnerBloom', hasVoiceover: false },
-  'LF05-Addiction-Grief':         { source: require('../../../assets/video/LF05-Addiction-Grief.mp4'),         label: 'InnerBloom', hasVoiceover: false },
+  'LF01-Addiction-NotWeak':       { source: { uri: `${CDN}/LF01-Addiction-NotWeak.mp4` },       label: 'InnerBloom', hasVoiceover: true },
+  'LF02-Addiction-StopCallingIt': { source: { uri: `${CDN}/LF02-Addiction-StopCallingIt.mp4` }, label: 'InnerBloom', hasVoiceover: true },
+  'LF03-Addiction-NotEnemy':      { source: { uri: `${CDN}/LF03-Addiction-NotEnemy.mp4` },      label: 'InnerBloom', hasVoiceover: true },
+  'LF04-Addiction-First90':       { source: { uri: `${CDN}/LF04-Addiction-First90.mp4` },       label: 'InnerBloom', hasVoiceover: true },
+  'LF05-Addiction-Grief':         { source: { uri: `${CDN}/LF05-Addiction-Grief.mp4` },         label: 'InnerBloom', hasVoiceover: true },
 
   // ── InnerBloom Remotion — Depresie (20s) ──────────────────────────────────
-  'LF06-Depression-NotLazy':    { source: require('../../../assets/video/LF06-Depression-NotLazy.mp4'),    label: 'InnerBloom', hasVoiceover: false },
-  'LF07-Depression-NotSadness': { source: require('../../../assets/video/LF07-Depression-NotSadness.mp4'), label: 'InnerBloom', hasVoiceover: false },
-  'LF08-Depression-NotGrateful':{ source: require('../../../assets/video/LF08-Depression-NotGrateful.mp4'),label: 'InnerBloom', hasVoiceover: false },
-  'LF09-Depression-Shower':     { source: require('../../../assets/video/LF09-Depression-Shower.mp4'),     label: 'InnerBloom', hasVoiceover: false },
-  'LF10-Depression-LovedTired': { source: require('../../../assets/video/LF10-Depression-LovedTired.mp4'), label: 'InnerBloom', hasVoiceover: false },
+  'LF06-Depression-NotLazy':    { source: { uri: `${CDN}/LF06-Depression-NotLazy.mp4` },    label: 'InnerBloom', hasVoiceover: true },
+  'LF07-Depression-NotSadness': { source: { uri: `${CDN}/LF07-Depression-NotSadness.mp4` }, label: 'InnerBloom', hasVoiceover: true },
+  'LF08-Depression-NotGrateful':{ source: { uri: `${CDN}/LF08-Depression-NotGrateful.mp4` },label: 'InnerBloom', hasVoiceover: true },
+  'LF09-Depression-Shower':     { source: { uri: `${CDN}/LF09-Depression-Shower.mp4` },     label: 'InnerBloom', hasVoiceover: true },
+  'LF10-Depression-LovedTired': { source: { uri: `${CDN}/LF10-Depression-LovedTired.mp4` }, label: 'InnerBloom', hasVoiceover: true },
 
   // ── InnerBloom Remotion — Stres (20s) ─────────────────────────────────────
-  'LF11-Stress-Burnout':          { source: require('../../../assets/video/LF11-Stress-Burnout.mp4'),          label: 'InnerBloom', hasVoiceover: false },
-  'LF12-Stress-Timeline':         { source: require('../../../assets/video/LF12-Stress-Timeline.mp4'),         label: 'InnerBloom', hasVoiceover: false },
-  'LF13-Stress-Trained':          { source: require('../../../assets/video/LF13-Stress-Trained.mp4'),          label: 'InnerBloom', hasVoiceover: false },
-  'LF14-Stress-FewerObligations': { source: require('../../../assets/video/LF14-Stress-FewerObligations.mp4'), label: 'InnerBloom', hasVoiceover: false },
-  'LF15-Stress-NotSafe':          { source: require('../../../assets/video/LF15-Stress-NotSafe.mp4'),          label: 'InnerBloom', hasVoiceover: false },
+  'LF11-Stress-Burnout':          { source: { uri: `${CDN}/LF11-Stress-Burnout.mp4` },          label: 'InnerBloom', hasVoiceover: true },
+  'LF12-Stress-Timeline':         { source: { uri: `${CDN}/LF12-Stress-Timeline.mp4` },         label: 'InnerBloom', hasVoiceover: true },
+  'LF13-Stress-Trained':          { source: { uri: `${CDN}/LF13-Stress-Trained.mp4` },          label: 'InnerBloom', hasVoiceover: true },
+  'LF14-Stress-FewerObligations': { source: { uri: `${CDN}/LF14-Stress-FewerObligations.mp4` }, label: 'InnerBloom', hasVoiceover: true },
+  'LF15-Stress-NotSafe':          { source: { uri: `${CDN}/LF15-Stress-NotSafe.mp4` },          label: 'InnerBloom', hasVoiceover: true },
 
   // ── InnerBloom Remotion — A spune nu (20s) ────────────────────────────────
-  'LF16-Boundaries-FeelViolent':    { source: require('../../../assets/video/LF16-Boundaries-FeelViolent.mp4'),    label: 'InnerBloom', hasVoiceover: false },
-  'LF17-Boundaries-PriceOfSilence': { source: require('../../../assets/video/LF17-Boundaries-PriceOfSilence.mp4'), label: 'InnerBloom', hasVoiceover: false },
-  'LF18-Boundaries-LoseSome':       { source: require('../../../assets/video/LF18-Boundaries-LoseSome.mp4'),       label: 'InnerBloom', hasVoiceover: false },
-  'LF19-Boundaries-StopExplaining': { source: require('../../../assets/video/LF19-Boundaries-StopExplaining.mp4'), label: 'InnerBloom', hasVoiceover: false },
-  'LF20-Boundaries-Guilt':          { source: require('../../../assets/video/LF20-Boundaries-Guilt.mp4'),          label: 'InnerBloom', hasVoiceover: false },
+  'LF16-Boundaries-FeelViolent':    { source: { uri: `${CDN}/LF16-Boundaries-FeelViolent.mp4` },    label: 'InnerBloom', hasVoiceover: true },
+  'LF17-Boundaries-PriceOfSilence': { source: { uri: `${CDN}/LF17-Boundaries-PriceOfSilence.mp4` }, label: 'InnerBloom', hasVoiceover: true },
+  'LF18-Boundaries-LoseSome':       { source: { uri: `${CDN}/LF18-Boundaries-LoseSome.mp4` },       label: 'InnerBloom', hasVoiceover: true },
+  'LF19-Boundaries-StopExplaining': { source: { uri: `${CDN}/LF19-Boundaries-StopExplaining.mp4` }, label: 'InnerBloom', hasVoiceover: true },
+  'LF20-Boundaries-Guilt':          { source: { uri: `${CDN}/LF20-Boundaries-Guilt.mp4` },          label: 'InnerBloom', hasVoiceover: true },
 
   // ── InnerBloom Remotion — Anxietate (20s) ────────────────────────────────
-  'LF21-Anxiety-NotIrrational':  { source: require('../../../assets/video/LF21-Anxiety-NotIrrational.mp4'),  label: 'InnerBloom', hasVoiceover: false },
-  'LF22-Anxiety-AroundSomeone':  { source: require('../../../assets/video/LF22-Anxiety-AroundSomeone.mp4'),  label: 'InnerBloom', hasVoiceover: false },
-  'LF23-Anxiety-StopCalmDown':   { source: require('../../../assets/video/LF23-Anxiety-StopCalmDown.mp4'),   label: 'InnerBloom', hasVoiceover: false },
-  'LF24-Anxiety-LoveCost':       { source: require('../../../assets/video/LF24-Anxiety-LoveCost.mp4'),       label: 'InnerBloom', hasVoiceover: false },
-  'LF25-Anxiety-Overthinking':   { source: require('../../../assets/video/LF25-Anxiety-Overthinking.mp4'),   label: 'InnerBloom', hasVoiceover: false },
+  'LF21-Anxiety-NotIrrational':  { source: { uri: `${CDN}/LF21-Anxiety-NotIrrational.mp4` },  label: 'InnerBloom', hasVoiceover: true },
+  'LF22-Anxiety-AroundSomeone':  { source: { uri: `${CDN}/LF22-Anxiety-AroundSomeone.mp4` },  label: 'InnerBloom', hasVoiceover: true },
+  'LF23-Anxiety-StopCalmDown':   { source: { uri: `${CDN}/LF23-Anxiety-StopCalmDown.mp4` },   label: 'InnerBloom', hasVoiceover: true },
+  'LF24-Anxiety-LoveCost':       { source: { uri: `${CDN}/LF24-Anxiety-LoveCost.mp4` },       label: 'InnerBloom', hasVoiceover: true },
+  'LF25-Anxiety-Overthinking':   { source: { uri: `${CDN}/LF25-Anxiety-Overthinking.mp4` },   label: 'InnerBloom', hasVoiceover: true },
 
   // ── InnerBloom Remotion — Motivație (20s) ────────────────────────────────
-  'LF26-Motivation-StopWaiting': { source: require('../../../assets/video/LF26-Motivation-StopWaiting.mp4'), label: 'InnerBloom', hasVoiceover: false },
-  'LF27-Motivation-Discipline':  { source: require('../../../assets/video/LF27-Motivation-Discipline.mp4'),  label: 'InnerBloom', hasVoiceover: false },
-  'LF28-Motivation-NeverReady':  { source: require('../../../assets/video/LF28-Motivation-NeverReady.mp4'),  label: 'InnerBloom', hasVoiceover: false },
-  'LF29-Motivation-FiveYears':   { source: require('../../../assets/video/LF29-Motivation-FiveYears.mp4'),   label: 'InnerBloom', hasVoiceover: false },
-  'LF30-Motivation-Stakes':      { source: require('../../../assets/video/LF30-Motivation-Stakes.mp4'),      label: 'InnerBloom', hasVoiceover: false },
+  'LF26-Motivation-StopWaiting': { source: { uri: `${CDN}/LF26-Motivation-StopWaiting.mp4` }, label: 'InnerBloom', hasVoiceover: true },
+  'LF27-Motivation-Discipline':  { source: { uri: `${CDN}/LF27-Motivation-Discipline.mp4` },  label: 'InnerBloom', hasVoiceover: true },
+  'LF28-Motivation-NeverReady':  { source: { uri: `${CDN}/LF28-Motivation-NeverReady.mp4` },  label: 'InnerBloom', hasVoiceover: true },
+  'LF29-Motivation-FiveYears':   { source: { uri: `${CDN}/LF29-Motivation-FiveYears.mp4` },   label: 'InnerBloom', hasVoiceover: true },
+  'LF30-Motivation-Stakes':      { source: { uri: `${CDN}/LF30-Motivation-Stakes.mp4` },      label: 'InnerBloom', hasVoiceover: true },
 } satisfies Record<string, ReelVideoTrack>;
 
 export type ReelVideoKey = keyof typeof REEL_VIDEO_TRACKS;

@@ -2,18 +2,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, {
-  Easing,
-  FadeInDown,
-  FadeInUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const C = {
@@ -39,61 +29,26 @@ export default function SoulMatchStartScreen() {
   const insets = useSafeAreaInsets();
   const router  = useRouter();
 
-  // Continuous float for the hero illustration
-  const floatY = useSharedValue(0);
-  useEffect(() => {
-    floatY.value = withRepeat(
-      withSequence(
-        withTiming(-10, { duration: 3000, easing: Easing.inOut(Easing.sin) }),
-        withTiming(0,   { duration: 3000, easing: Easing.inOut(Easing.sin) }),
-      ),
-      -1,
-    );
-  }, [floatY]);
-  const floatStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatY.value }],
-  }));
-
   function handleStart() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push('/match');
   }
 
-  function handleBack() {
-    void Haptics.selectionAsync();
-    if (router.canGoBack()) router.back();
-    else router.replace('/(main)/soul-match' as any);
-  }
-
   return (
     <View style={[s.root, { paddingTop: insets.top }]}>
-
-      {/* Radial background glow — simulates bloom-bg */}
-      <View style={s.bgGlowCenter} pointerEvents="none" />
-      <View style={s.bgGlowBottom}  pointerEvents="none" />
-
-      {/* ─── Top bar ─── */}
-      <Animated.View entering={FadeInUp.springify()} style={s.topBar}>
-        <TouchableOpacity style={s.backBtn} activeOpacity={0.7} onPress={handleBack}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color={C.primary} />
-        </TouchableOpacity>
-        <Text style={s.topTitle}>Soul Match</Text>
-        <View style={s.topRight} />
-      </Animated.View>
 
       {/* ─── Main content ─── */}
       <View style={[s.content, { paddingBottom: insets.bottom + 32 }]}>
 
-        {/* Floating hero illustration */}
-        <Animated.View style={[s.heroWrap, floatStyle]}>
-          <View style={s.heroGlow} pointerEvents="none" />
+        {/* Static hero illustration */}
+        <View style={s.heroWrap}>
           <Image
             source={{ uri: HERO_IMG }}
             style={s.heroImg}
             contentFit="cover"
             transition={400}
           />
-        </Animated.View>
+        </View>
 
         {/* Text cluster */}
         <Animated.View entering={FadeInDown.delay(80).springify()} style={s.textCluster}>
@@ -136,54 +91,6 @@ const s = StyleSheet.create({
     backgroundColor: C.surface,
   },
 
-  // Background radial glow layers
-  bgGlowCenter: {
-    position: 'absolute',
-    top: '20%',
-    left: '50%',
-    marginLeft: -200,
-    width: 400,
-    height: 400,
-    borderRadius: 200,
-    backgroundColor: C.surfaceContainerLow,
-    opacity: 0.85,
-  },
-  bgGlowBottom: {
-    position: 'absolute',
-    bottom: -80,
-    left: '50%',
-    marginLeft: -240,
-    width: 480,
-    height: 320,
-    borderRadius: 240,
-    backgroundColor: C.primaryFixed,
-    opacity: 0.30,
-  },
-
-  // Top bar
-  topBar: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  topTitle: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 20,
-    lineHeight: 28,
-    color: C.primary,
-    letterSpacing: -0.1,
-  },
-  topRight: { width: 40 },
-
   // Main content — vertically centered
   content: {
     flex: 1,
@@ -200,15 +107,6 @@ const s = StyleSheet.create({
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  heroGlow: {
-    position: 'absolute',
-    inset: -20,
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: C.primaryFixed,
-    opacity: 0.22,
   },
   heroImg: {
     width: 280,

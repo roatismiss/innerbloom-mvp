@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAudioPlayer } from 'expo-audio';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
@@ -313,19 +313,12 @@ const VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 80 };
 export default function ReelsScreen() {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  // Full-window reel cards: the floating tab bar (configured per-screen in
-  // (main)/_layout.tsx) sits on top of the video instead of stealing height,
-  // so reels run edge-to-edge like TikTok / Instagram Reels.
   const reelH = height;
   const [shareTarget, setShareTarget] = useState<SharedReelPayload | null>(null);
-
-  // Visible reel index — drives which card's audio is playing. Init to 0
-  // because the first card is on screen before any scroll event fires.
   const [visibleIndex, setVisibleIndex] = useState(0);
-
-  // Pause everything when the user switches to another tab. The FlatList
-  // stays mounted in the background, so without this guard the audio would
-  // keep playing under the Dashboard / AI screens.
+  const [showSaved, setShowSaved] = useState(false);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const listRef = useRef<any>(null);
   const isFocused = useIsFocused();
 
   const reelsMuted = useAudioPrefs((s) => s.reelsMuted);
@@ -345,41 +338,79 @@ export default function ReelsScreen() {
     toggleMuted();
   }, [toggleMuted]);
 
+  const handleToggleSave = useCallback((id: string) => {
+    Haptics.selectionAsync();
+    setSavedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleToggleSavedView = useCallback(() => {
+    Haptics.selectionAsync();
+    setShowSaved((prev) => !prev);
+    setVisibleIndex(0);
+    listRef.current?.scrollToOffset?.({ offset: 0, animated: false });
+  }, []);
+
+  const feedData = showSaved ? REELS.filter((r) => savedIds.has(r.id)) : REELS;
+
   return (
     <View style={s.root}>
       {/* Full-screen snap feed */}
-      <FlatList
-        data={REELS}
-        keyExtractor={(r) => r.id}
-        renderItem={({ item, index }) => (
-          <ReelCard
-            reel={item}
-            width={width}
-            height={reelH}
-            isPlaying={index === visibleIndex && isFocused}
-            muted={reelsMuted}
-            onShare={() =>
-              setShareTarget({
-                id: item.id,
-                quote: item.quote,
-                author: item.author,
-                dailyBloom: item.dailyBloom,
-              })
-            }
-          />
-        )}
-        pagingEnabled
-        snapToInterval={reelH}
-        decelerationRate="fast"
-        showsVerticalScrollIndicator={false}
-        getItemLayout={(_, index) => ({
-          length: reelH,
-          offset: reelH * index,
-          index,
-        })}
-        viewabilityConfig={VIEWABILITY_CONFIG}
-        onViewableItemsChanged={onViewableItemsChanged}
-      />
+      {feedData.length === 0 && showSaved ? (
+        <View style={s.emptyState}>
+          <MaterialCommunityIcons name="bookmark-outline" size={48} color={C.primaryContainer} />
+          <Text style={s.emptyTitle}>No saved reels yet</Text>
+          <Text style={s.emptySubtitle}>Tap the bookmark on any reel to save it here.</Text>
+        </View>
+      ) : (
+        <FlatList
+          ref={listRef}
+          data={feedData}
+          keyExtractor={(r) => r.id}
+          renderItem={({ item, index }) => (
+            <ReelCard
+              reel={item}
+              width={width}
+              height={reelH}
+              isPlaying={index === visibleIndex && isFocused}
+              muted={reelsMuted}
+              isSaved={savedIds.has(item.id)}
+              onToggleSave={() => handleToggleSave(item.id)}
+              onShare={() =>
+                setShareTarget({
+                  id: item.id,
+                  quote: item.quote,
+                  author: item.author,
+                  dailyBloom: item.dailyBloom,
+                })
+              }
+            />
+          )}
+          pagingEnabled
+          snapToInterval={reelH}
+          decelerationRate="fast"
+          showsVerticalScrollIndicator={false}
+          getItemLayout={(_, index) => ({
+            length: reelH,
+            offset: reelH * index,
+            index,
+          })}
+          viewabilityConfig={VIEWABILITY_CONFIG}
+          onViewableItemsChanged={onViewableItemsChanged}
+          // Keep current ± 2 reels mounted so expo-video pre-initialises
+          // the next player before the user swipes to it (Instagram pattern).
+          windowSize={5}
+          initialNumToRender={2}
+          maxToRenderPerBatch={2}
+          // Don't unmount off-screen players — avoids audio/video restart
+          // when the user swipes back to a previously-viewed reel.
+          removeClippedSubviews={false}
+        />
+      )}
 
       {/* Floating top bar — absolute, sits above all reels */}
       <Animated.View
@@ -387,8 +418,12 @@ export default function ReelsScreen() {
         style={[s.topBar, { top: insets.top }]}
         pointerEvents="box-none"
       >
-        <TouchableOpacity style={s.topBarBtn} activeOpacity={0.7}>
-          <MaterialCommunityIcons name="menu" size={24} color={C.primary} />
+        <TouchableOpacity style={s.topBarBtn} activeOpacity={0.7} onPress={handleToggleSavedView}>
+          <MaterialCommunityIcons
+            name={showSaved ? 'bookmark' : 'bookmark-outline'}
+            size={24}
+            color={showSaved ? C.primaryContainer : C.primary}
+          />
         </TouchableOpacity>
         <Text style={s.topBarWordmark}>InnerBloom</Text>
         <View style={s.topBarRight}>
@@ -430,6 +465,8 @@ function ReelCard({
   height,
   isPlaying,
   muted,
+  isSaved,
+  onToggleSave,
   onShare,
 }: {
   reel: ReelItem;
@@ -437,21 +474,22 @@ function ReelCard({
   height: number;
   isPlaying: boolean;
   muted: boolean;
+  isSaved: boolean;
+  onToggleSave: () => void;
   onShare: () => void;
 }) {
   const [hugged, setHugged] = useState(false);
   const [hugCount, setHugCount] = useState(reel.hugs);
   const [showHeart, setShowHeart] = useState(false);
+  const [paused, setPaused] = useState(false);
   const lastTap = useRef(0);
   const audioTrack = getReelAudio(reel.audioKey);
+  const effectivePlaying = isPlaying && !paused;
   const videoTrack = getReelVideo(reel.videoKey);
-  // Video reels carry their own voiceover; the ambient pad would just fight
-  // with it. We also hide the centered quote (the avatar speaks the message)
-  // and the Daily Bloom card (too much overlap with a talking head).
   const isVideoReel = !!videoTrack;
-  const playAmbient =
-    !isVideoReel ||
-    (videoTrack !== null && !videoTrack.hasVoiceover);
+  // When a video has voiceover baked in, play ambient at 15% so it adds
+  // warmth without competing with the voice. Full volume otherwise.
+  const ambientVolumeMult = videoTrack?.hasVoiceover ? 0.15 : 1;
 
   function handleDoubleTap() {
     const now = Date.now();
@@ -485,14 +523,13 @@ function ReelCard({
       style={[s.reel, { width, height }]}
       onPress={handleDoubleTap}
     >
-      {/* Ambient audio loop — silently mounted; only present when the track
-          actually has a bundled source AND this reel isn't a video reel with
-          baked-in voiceover (see lib/audio/reel-audio.ts). */}
-      {playAmbient && reel.audioKey && audioTrack?.source != null && (
+      {/* Ambient audio loop — plays at full volume for non-voice reels,
+          at 15% under voiceover reels to add warmth without competing. */}
+      {reel.audioKey && audioTrack?.source != null && (
         <ReelAudio
           source={audioTrack.source}
-          volume={REEL_AUDIO_VOLUME[reel.audioKey]}
-          isPlaying={isPlaying}
+          volume={REEL_AUDIO_VOLUME[reel.audioKey] * ambientVolumeMult}
+          isPlaying={effectivePlaying}
           muted={muted}
         />
       )}
@@ -502,7 +539,7 @@ function ReelCard({
       {videoTrack ? (
         <ReelVideo
           source={videoTrack.source}
-          isPlaying={isPlaying}
+          isPlaying={effectivePlaying}
           muted={muted}
         />
       ) : reel.scheme ? (
@@ -534,10 +571,6 @@ function ReelCard({
         </View>
       )}
 
-      {/* Gradient-style overlay at top for header readability */}
-      <View style={s.gradientTop} />
-      {/* Gradient-style overlay at bottom for caption readability — stronger when over an illustrated bg */}
-      <View style={[s.gradientBottom, hasArtBg && s.gradientBottomOnImage]} />
       {/* Soft center scrim — light tint to lift dark text on light schemes,
           dark tint to anchor light text on dark schemes. */}
       {hasArtBg && (
@@ -589,18 +622,25 @@ function ReelCard({
         {/* Avatar */}
         <View style={s.sidebarAvatarWrap}>
           <View style={[s.sidebarAvatar, { backgroundColor: avatarBg }]}>
-            <MaterialCommunityIcons name="account" size={22} color="rgba(255,255,255,0.9)" />
-          </View>
-          <View style={s.followBadge}>
-            <MaterialCommunityIcons name="plus" size={10} color="#ffffff" />
+            <MaterialCommunityIcons name="head-heart-outline" size={22} color="rgba(255,255,255,0.95)" />
           </View>
         </View>
 
+        <SidebarBtn
+          icon={paused ? 'play-circle-outline' : 'pause-circle-outline'}
+          iconColor={C.primary}
+          onPress={() => { Haptics.selectionAsync(); setPaused((p) => !p); }}
+        />
         <SidebarBtn
           icon={hugged ? 'heart' : 'heart-outline'}
           label={formatCount(hugCount)}
           iconColor={hugged ? '#e8836b' : C.primary}
           onPress={handleHugPress}
+        />
+        <SidebarBtn
+          icon={isSaved ? 'bookmark' : 'bookmark-outline'}
+          iconColor={isSaved ? C.primaryContainer : C.primary}
+          onPress={onToggleSave}
         />
         <SidebarBtn icon="book-open-outline" label="Journal" onPress={() => {}} />
         <SidebarBtn
@@ -804,6 +844,7 @@ function ReelAudio({
   muted: boolean;
 }) {
   const player = useAudioPlayer(source);
+  const status = useAudioPlayerStatus(player);
 
   useEffect(() => {
     player.loop = true;
@@ -816,11 +857,20 @@ function ReelAudio({
 
   useEffect(() => {
     if (isPlaying) {
+      player.loop = true;
       player.play();
     } else {
       player.pause();
     }
   }, [player, isPlaying]);
+
+  // Belt-and-suspenders: if the native loop flag didn't trigger, restart manually.
+  useEffect(() => {
+    if (status.didJustFinish && isPlaying) {
+      player.seekTo(0);
+      player.play();
+    }
+  }, [status.didJustFinish]);
 
   return null;
 }
@@ -853,11 +903,11 @@ function SidebarBtn({
       <View style={s.sidebarBtnBlurWrap}>
         {Platform.OS !== 'web' ? (
           <BlurView intensity={30} tint="light" style={s.sidebarBtnInner}>
-            <MaterialCommunityIcons name={icon} size={22} color={iconColor} />
+            <MaterialCommunityIcons name={icon} size={18} color={iconColor} />
           </BlurView>
         ) : (
           <View style={[s.sidebarBtnInner, { backgroundColor: 'rgba(255,226,219,0.65)' }]}>
-            <MaterialCommunityIcons name={icon} size={22} color={iconColor} />
+            <MaterialCommunityIcons name={icon} size={18} color={iconColor} />
           </View>
         )}
       </View>
@@ -875,6 +925,28 @@ function formatCount(n: number): string {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#fadcd5' },
+
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    paddingHorizontal: 40,
+    backgroundColor: '#fff8f6',
+  },
+  emptyTitle: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 20,
+    color: '#994531',
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontFamily: 'NunitoSans_400Regular',
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#55433e',
+    textAlign: 'center',
+  },
 
   // Top bar
   topBar: {
@@ -1033,13 +1105,13 @@ const s = StyleSheet.create({
     bottom: 120 + layout.tabBarHeight,
     zIndex: 20,
     alignItems: 'center',
-    gap: 20,
+    gap: 12,
   },
   sidebarAvatarWrap: { position: 'relative', marginBottom: 4 },
   sidebarAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -1054,10 +1126,10 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  sidebarItem: { alignItems: 'center', gap: 4 },
-  sidebarBtnBlurWrap: { borderRadius: 24, overflow: 'hidden' },
+  sidebarItem: { alignItems: 'center', gap: 3 },
+  sidebarBtnBlurWrap: { borderRadius: 20, overflow: 'hidden' },
   sidebarBtnInner: {
-    width: 48, height: 48,
+    width: 38, height: 38,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1083,13 +1155,13 @@ const s = StyleSheet.create({
     fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 16,
     lineHeight: 22,
-    color: C.onSurface,
+    color: C.primary,
   },
   captionText: {
     fontFamily: 'NunitoSans_400Regular',
     fontSize: 13,
     lineHeight: 19,
-    color: C.onSurfaceVariant,
+    color: C.primaryContainer,
   },
   musicTagWrap: {},
   musicTagBlurWrap: { borderRadius: 9999, overflow: 'hidden', alignSelf: 'flex-start', marginTop: 4 },
