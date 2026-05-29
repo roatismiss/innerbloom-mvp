@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
+    ActivityIndicator,
     Linking,
     Platform,
     ScrollView,
@@ -15,6 +16,7 @@ import {
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useCircleFeed } from '../../lib/queries/feed';
 import { useScrollTopOnFocus } from '../../lib/use-scroll-top-on-focus';
 
 // ─── Design tokens (AGENTS.md canonical spec) ────────────────────────────────
@@ -109,43 +111,6 @@ const FILTERS: { id: Filter; label: string; dot?: string }[] = [
   { id: 'resources',  label: 'Resources' },
 ];
 
-type PostKind =
-  | { kind: 'post'; id: string; tagLabel: string; tagColor: string; tagBg: string; when: string; body: string; bodyEmphasis?: boolean; reactions: { icon: Mci; label: string; count: number; filled?: boolean; subtle?: boolean }[] }
-  | { kind: 'cw'; id: string; label: string }
-  | { kind: 'event'; id: string; title: string; eyebrow: string; cta: string };
-
-const POSTS: PostKind[] = [
-  {
-    kind: 'post',
-    id: 'p1',
-    tagLabel: 'Need support',
-    tagColor: C.error,
-    tagBg: C.errorContainer,
-    when: '5m ago',
-    body: 'heart racing again... anyone awake?',
-    bodyEmphasis: true,
-    reactions: [
-      { icon: 'heart-outline',   label: 'Felt this',  count: 12 },
-      { icon: 'emoticon-outline', label: 'Send a hug', count: 8 },
-    ],
-  },
-  { kind: 'cw', id: 'cw1', label: 'content warning: panic attack details' },
-  {
-    kind: 'post',
-    id: 'p2',
-    tagLabel: 'hopeful',
-    tagColor: C.secondary,
-    tagBg: C.secondaryContainer,
-    when: '2h ago',
-    body: 'Three weeks since my last panic attack... thank you 🌱',
-    reactions: [
-      { icon: 'heart',             label: '', count: 42, filled: true,  subtle: true },
-      { icon: 'message-outline',   label: '', count: 6,                 subtle: true },
-    ],
-  },
-  { kind: 'event', id: 'e1', title: 'Calm Hour with Sarah', eyebrow: 'Starting in 15 mins', cta: 'Join queue' },
-];
-
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
 export default function CircleScreen() {
@@ -153,6 +118,9 @@ export default function CircleScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const meta = CIRCLES[id ?? 'anxiety'] ?? CIRCLES.anxiety;
+
+  // Load real posts from the circle
+  const { data: posts = [], isLoading: postsLoading } = useCircleFeed(meta.id);
 
   const [activeFilter, setActiveFilter] = useState<Filter>('all');
   const [cwExpanded, setCwExpanded] = useState(false);
@@ -370,90 +338,54 @@ export default function CircleScreen() {
 
         {/* ── Posts ── */}
         <View style={s.postsList}>
-          {POSTS.map((p, i) => {
-            if (p.kind === 'cw') {
-              return (
-                <Animated.View key={p.id} entering={FadeInDown.delay(280 + i * 60).springify()}>
-                  <TouchableOpacity
-                    activeOpacity={0.85}
-                    onPress={() => {
-                      void Haptics.selectionAsync();
-                      setCwExpanded((x) => !x);
-                    }}
-                    style={s.cwCard}
-                  >
-                    <View style={s.cwLeft}>
-                      <MaterialCommunityIcons name="alert-outline" size={20} color={C.onSurfaceVariant} />
-                      <Text style={s.cwLabel}>{p.label}</Text>
-                    </View>
-                    <MaterialCommunityIcons
-                      name={cwExpanded ? 'chevron-up' : 'chevron-down'}
-                      size={22}
-                      color={C.onSurfaceVariant}
-                    />
-                  </TouchableOpacity>
-                </Animated.View>
-              );
-            }
-
-            if (p.kind === 'event') {
-              return (
-                <Animated.View key={p.id} entering={FadeInDown.delay(280 + i * 60).springify()}>
-                  <LinearGradient
-                    colors={[C.secondaryFixed, C.primaryFixed]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={s.eventBanner}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={s.eventTitle}>{p.title}</Text>
-                      <Text style={s.eventEyebrow}>{p.eyebrow}</Text>
-                    </View>
-                    <TouchableOpacity activeOpacity={0.85} style={s.eventBtn}>
-                      <Text style={s.eventBtnText}>{p.cta}</Text>
-                    </TouchableOpacity>
-                  </LinearGradient>
-                </Animated.View>
-              );
-            }
-
-            return (
-              <Animated.View key={p.id} entering={FadeInDown.delay(280 + i * 60).springify()} style={s.postCard}>
+          {postsLoading ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={C.primary} />
+            </View>
+          ) : posts.length === 0 ? (
+            <View style={s.emptyState}>
+              <MaterialCommunityIcons name="flower-outline" size={48} color={C.outlineVariant} />
+              <Text style={s.emptyTitle}>No posts yet</Text>
+              <Text style={s.emptySub}>Be the first to share a moment in this circle.</Text>
+            </View>
+          ) : (
+            posts.map((post, i) => (
+              <Animated.View key={post.id} entering={FadeInDown.delay(280 + i * 60).springify()} style={s.postCard}>
                 <View style={s.postHead}>
-                  <View style={[s.postTag, { backgroundColor: p.tagBg }]}>
-                    <Text style={[s.postTagText, { color: p.tagColor }]}>{p.tagLabel}</Text>
+                  <View style={[s.postTag, { backgroundColor: `${post.color_hex}20` }]}>
+                    <Text style={[s.postTagText, { color: post.color_hex }]}>
+                      {post.category}
+                    </Text>
                   </View>
-                  <Text style={s.postWhen}>{p.when}</Text>
+                  <Text style={s.postWhen}>
+                    {new Date(post.created_at).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit'
+                    })}
+                  </Text>
                 </View>
-                <Text style={[s.postBody, p.bodyEmphasis && s.postBodyEmphasis]}>
-                  {p.body}
-                </Text>
+                <Text style={s.postBody}>{post.sentence}</Text>
+                {post.anchor_word ? (
+                  <View style={s.anchorTag}>
+                    <View style={[s.anchorDot, { backgroundColor: post.color_hex }]} />
+                    <Text style={s.anchorText}>{post.anchor_word}</Text>
+                  </View>
+                ) : null}
                 <View style={s.postActions}>
-                  {p.reactions.map((rx, ri) => (
-                    <TouchableOpacity
-                      key={ri}
-                      activeOpacity={0.85}
-                      style={[
-                        s.reactionBtn,
-                        rx.subtle && s.reactionBtnSubtle,
-                      ]}
-                    >
-                      <MaterialCommunityIcons
-                        name={rx.icon}
-                        size={14}
-                        color={rx.filled ? C.primary : C.onSurfaceVariant}
-                      />
-                      {rx.label ? (
-                        <Text style={s.reactionLabel}>{rx.label} {rx.count}</Text>
-                      ) : (
-                        <Text style={s.reactionLabel}>{rx.count}</Text>
-                      )}
-                    </TouchableOpacity>
-                  ))}
+                  <TouchableOpacity activeOpacity={0.85} style={s.reactionBtn}>
+                    <MaterialCommunityIcons name="heart-outline" size={14} color={C.onSurfaceVariant} />
+                    <Text style={s.reactionLabel}>Felt this {post.resonance_count}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.85} style={s.reactionBtn}>
+                    <MaterialCommunityIcons name="emoticon-outline" size={14} color={C.onSurfaceVariant} />
+                    <Text style={s.reactionLabel}>Send a hug</Text>
+                  </TouchableOpacity>
                 </View>
               </Animated.View>
-            );
-          })}
+            ))
+          )}
         </View>
       </ScrollView>
 
@@ -810,6 +742,47 @@ const s = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 24,
     gap: 16,
+  },
+
+  // Empty state
+  emptyState: {
+    padding: 40,
+    alignItems: 'center',
+    gap: 12,
+  },
+  emptyTitle: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 17,
+    lineHeight: 22,
+    color: C.onSurface,
+  },
+  emptySub: {
+    fontFamily: 'NunitoSans_400Regular',
+    fontSize: 14,
+    lineHeight: 20,
+    color: C.onSurfaceVariant,
+    textAlign: 'center',
+  },
+
+  // Anchor tag
+  anchorTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  anchorDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  anchorText: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 13,
+    lineHeight: 16,
+    color: C.onSurfaceVariant,
+    fontStyle: 'italic',
   },
 
   // Post card (white)

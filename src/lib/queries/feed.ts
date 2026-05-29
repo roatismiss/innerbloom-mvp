@@ -6,10 +6,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import type {
-  BloomPostRow,
-  EmotionCategory,
-  HugRow,
-  ResonanceRow,
+    BloomPostRow,
+    EmotionCategory,
+    HugRow,
+    ResonanceRow,
 } from '../../types/database';
 import { sb } from './client';
 import { useTodayForMe } from './mood';
@@ -108,6 +108,84 @@ export function useFeed(limit = 30) {
   return query;
 }
 
+// ─── Read: circle feed posts (filtered by circle_id) ───────────────────────
+
+export function useCircleFeed(circleId: string, limit = 30) {
+  const qc = useQueryClient();
+  const key = ['circle-feed', circleId, limit];
+
+  const query = useQuery<BloomPostWithAuthor[]>({
+    queryKey: key,
+    staleTime: 30_000,
+    queryFn: async () => {
+      let q = sb()
+        .from('bloom_posts')
+        .select('*')
+        .eq('circle_id', circleId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      const { data, error } = await q;
+      if (error) throw error;
+      const posts = (data ?? []) as BloomPostRow[];
+
+      // Resolve aliases for all unique authors in a single round-trip.
+      const userIds = Array.from(new Set(posts.map((p) => p.user_id)));
+      if (userIds.length === 0) return [];
+
+      const { data: authors } = await sb()
+        .from('public_profiles')
+        .select('id, anonymous_alias, display_name, avatar_url')
+        .in('id', userIds);
+
+      type AuthorRow = {
+        id: string;
+        anonymous_alias: string;
+        display_name: string | null;
+        avatar_url: string | null;
+      };
+      const authorById = new Map<string, AuthorRow>(
+        (authors as AuthorRow[] | null)?.map((a) => [a.id, a]) ?? [],
+      );
+
+      return posts.map((p) => {
+        const a = authorById.get(p.user_id);
+        return {
+          ...p,
+          author_alias:        a?.anonymous_alias ?? 'Anonymous Bloom',
+          author_display_name: a?.display_name ?? null,
+          author_avatar_url:   a?.avatar_url ?? null,
+        };
+      });
+    },
+  });
+
+  // Live updates: any insert into bloom_posts for this circle → invalidate
+  useEffect(() => {
+    const channel = sb()
+      .channel(`circle-feed-${circleId}`)
+      .on(
+        'postgres_changes',
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'bloom_posts',
+          filter: `circle_id=eq.${circleId}`,
+        },
+        () => {
+          void qc.invalidateQueries({ queryKey: ['circle-feed', circleId] });
+        },
+      )
+      .subscribe();
+    return () => {
+      sb().removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [circleId]);
+
+  return query;
+}
+
 // ─── Read: my reactions ────────────────────────────────────────────────────
 // Single small query that tells the feed which posts I've already resonated
 // with / hugged. Both are bounded (~hundreds of rows for an active user).
@@ -155,6 +233,7 @@ export type CreatePostInput = {
   category: EmotionCategory;
   anchor_word: string;
   color_hex: string;
+  circle_id?: string;
 };
 
 export function useCreatePost() {
@@ -172,6 +251,7 @@ export function useCreatePost() {
           category: input.category,
           anchor_word: input.anchor_word.trim(),
           color_hex: input.color_hex,
+          circle_id: input.circle_id ?? null,
         })
         .select()
         .single();

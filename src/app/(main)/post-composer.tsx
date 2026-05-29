@@ -1,17 +1,17 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -75,6 +75,7 @@ const ANCHOR_SUGGESTIONS = [
 export default function PostComposerScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const params = useLocalSearchParams<{ circleId?: string; anonymous?: string }>();
   const createPost = useCreatePost();
 
   const [category, setCategory] = useState<EmotionCategory | null>(null);
@@ -135,8 +136,29 @@ export default function PostComposerScreen() {
         category,
         anchor_word: anchorTrim,
         color_hex: moodColor[category],
+        circle_id: params.circleId, // Include circle_id in the post
       });
-      router.back();
+      
+      // Redirect back to the circle if circleId is provided, otherwise go back
+      if (params.circleId) {
+        // Map circle IDs to their routes
+        const circleRoutes: Record<string, string> = {
+          anxiety: '/(main)/circle',
+          recovery: '/(main)/circle-recovery',
+          grief: '/(main)/circle-grief',
+          depression: '/(main)/circle-depression',
+          burnout: '/(main)/circle-burnout',
+          mindfulness: '/(main)/circle-mindfulness',
+        };
+        const route = circleRoutes[params.circleId];
+        if (route) {
+          router.replace(route as never);
+        } else {
+          router.back();
+        }
+      } else {
+        router.back();
+      }
     } catch (err) {
       setErrorMsg(
         err instanceof Error
