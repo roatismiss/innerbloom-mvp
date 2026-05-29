@@ -25,7 +25,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ReelBackground, isSchemeDark } from '../../components/reels/ReelBackground';
 import { ShareReelSheet, type SharedReelPayload } from '../../components/reels/ShareReelSheet';
-import { layout } from '../../constants/theme';
 import {
   HAS_REEL_AUDIO,
   REEL_AUDIO_VOLUME,
@@ -57,7 +56,7 @@ const VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 80 };
 export default function ReelsScreen() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const tabBarH = layout.tabBarHeight;
+  const tabBarH = 14 + 50 + Math.max(insets.bottom, 16);
   // onLayout gives the container height; with the floating tab bar the container
   // is full window height, so reelH correctly fills edge-to-edge.
   const [reelH, setReelH] = useState(0);
@@ -149,6 +148,13 @@ export default function ReelsScreen() {
 
   // Web only: arm audio on the first tap (a real click/touch event satisfies
   // the browser autoplay policy; scroll events do not). Once armed, stays armed.
+  // On web, scroll-end events are unreliable with CSS-snapped FlatList.
+  // Mirror visibleIndex once audio is armed (audioIndex >= 0).
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    setAudioIndex((cur) => (cur < 0 ? cur : visibleIndex));
+  }, [visibleIndex]);
+
   const handleArmAudio = useCallback(() => {
     if (Platform.OS !== 'web') return;
     setAudioIndex((cur) => (cur < 0 ? visibleIndex : cur));
@@ -236,7 +242,7 @@ export default function ReelsScreen() {
               height={reelH}
               tabBarH={tabBarH}
               isPlaying={index === visibleIndex && isFocused}
-              audioActive={index === audioIndex && isFocused}
+              audioActive={index === visibleIndex && isFocused && audioIndex >= 0}
               muted={reelsMuted}
               isSaved={savedIds.has(item.id)}
               onToggleSave={() => handleToggleSave(item.id)}
@@ -624,14 +630,15 @@ function NativeReelVideo({
     p.loop = true;
   });
 
+  // Single combined effect: set muted THEN call play/pause so the audio
+  // track is always activated with the correct state. Two separate effects
+  // caused player.muted = false to run without a subsequent play() call,
+  // which left the audio track silent on Android/iOS after mute→unmute.
   useEffect(() => {
     player.muted = muted;
-  }, [player, muted]);
-
-  useEffect(() => {
     if (isPlaying) player.play();
     else player.pause();
-  }, [player, isPlaying]);
+  }, [player, isPlaying, muted]);
 
   // `contain` keeps the 9:16 source intact — on a phone taller than 9:16
   // (iPhone 14 Pro Max ≈ 9:19.5) you get thin dark bars top/bottom instead
@@ -679,24 +686,20 @@ function WebReelVideo({
     return resolved?.uri ?? '';
   }, [source]);
 
+  // Same combined pattern as NativeReelVideo — muted then play/pause together.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    v.muted = muted;
     if (isPlaying) {
       const playResult = v.play();
       if (playResult && typeof playResult.catch === 'function') {
-        // Autoplay can be blocked by the browser — silent fail, the user
-        // can tap the reel and we'll retry on the next isPlaying flip.
         playResult.catch(() => {});
       }
     } else {
       v.pause();
     }
-  }, [isPlaying]);
-
-  useEffect(() => {
-    if (videoRef.current) videoRef.current.muted = muted;
-  }, [muted]);
+  }, [isPlaying, muted]);
 
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }]}>
@@ -751,12 +754,13 @@ function ReelAudio({
   }, [player, muted]);
 
   useEffect(() => {
-    if (isPlaying) {
-      player.loop = true;
-      player.play();
-    } else {
+    if (!isPlaying) {
       player.pause();
+      return;
     }
+    player.loop = true;
+    const t = setTimeout(() => player.play(), 1000);
+    return () => clearTimeout(t);
   }, [player, isPlaying]);
 
   // Belt-and-suspenders: if the native loop flag didn't trigger, restart manually.

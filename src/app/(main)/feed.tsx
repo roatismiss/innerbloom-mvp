@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
@@ -7,8 +8,9 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { greeting } from '../../lib/mood';
+import { DEFAULT_MOOD_INTENSITY, greeting, moodColor } from '../../lib/mood';
 import { useTodayIntention } from '../../lib/queries/intentions';
+import { useMoodHistory, useSubmitMood, useTodayForMe } from '../../lib/queries/mood';
 import { useMyProfile, useProfileStats } from '../../lib/queries/profile';
 import { useIntentionsStore } from '../../store/intentions';
 import { useMoodStore } from '../../store/mood';
@@ -61,15 +63,6 @@ const MOODS: MoodOption[] = [
   { key: 'stressed', label: 'Low',     icon: 'emoticon-cry-outline'      },
 ];
 
-const TREND = [
-  { day: 'M', heightPct: 40, tone: 'pastFaint' as const },
-  { day: 'T', heightPct: 60, tone: 'pastFaint' as const },
-  { day: 'W', heightPct: 85, tone: 'pastMid' as const },
-  { day: 'T', heightPct: 50, tone: 'pastFaint' as const },
-  { day: 'F', heightPct: 90, tone: 'today' as const },
-  { day: 'S', heightPct: 5,  tone: 'future' as const },
-  { day: 'S', heightPct: 5,  tone: 'future' as const },
-];
 
 const QUICK_CARE: Array<{
   key: string;
@@ -199,7 +192,21 @@ function QuestGlyph({ size = 44 }: { size?: number }) {
 export default function FeedHomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { todayMood, setTodayMood } = useMoodStore();
+  const { todayMood: localMood, hasHydrated } = useMoodStore();
+  const submitMood = useSubmitMood();
+  const serverData = useTodayForMe();
+
+  const todayMood = localMood ?? (serverData.data?.mood
+    ? {
+        category:   serverData.data.mood.category as EmotionCategory,
+        intensity:  serverData.data.mood.intensity,
+        anchorWord: serverData.data.mood.anchor_word,
+        colorHex:   serverData.data.mood.color_hex,
+      }
+    : null);
+
+  const moodResolving = !hasHydrated || serverData.isPending;
+  const moodLocked    = moodResolving || todayMood !== null;
   const greetingText = greeting();
   const profile = useMyProfile();
   const displayName = profile.data?.display_name || profile.data?.anonymous_alias?.replace('Bloom #', '') || 'there';
@@ -221,13 +228,39 @@ export default function FeedHomeScreen() {
   const questValue = taskTotal > 0 ? `${taskDone} / ${taskTotal}` : 'Begin';
   const questLabel = taskTotal > 0 ? "TODAY'S QUESTS" : 'SET YOUR INTENTION';
 
+  // ─── Mood trend chart: live 7-day history ────────────────────────────────
+  const moodHistoryQ = useMoodHistory(7);
+  const DAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
+  const trendBars = useMemo(() => {
+    const rows = (moodHistoryQ.data ?? [])
+      .slice()
+      .sort((a, b) => a.day.localeCompare(b.day))
+      .slice(-7);
+    // Pad to 7 slots from the left if fewer days available
+    const padded = Array.from({ length: 7 }, (_, i) => rows[i - (7 - rows.length)] ?? null);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    return padded.map((d, i) => {
+      const hasData = d !== null && d.intensity !== null;
+      const isToday = d?.day === todayStr;
+      const heightPct = hasData ? Math.max(10, Math.round((d!.intensity! / 5) * 100)) : 5;
+      const dayLabel = d ? DAY_INITIALS[new Date(d.day + 'T12:00:00').getDay()] : DAY_INITIALS[i];
+      let tone: 'today' | 'pastMid' | 'pastFaint' | 'future';
+      if (!hasData) tone = 'future';
+      else if (isToday) tone = 'today';
+      else if (i >= 4) tone = 'pastMid';
+      else tone = 'pastFaint';
+      return { day: dayLabel, heightPct, tone };
+    });
+  }, [moodHistoryQ.data]);
+
   function handleMoodSelect(mood: MoodOption) {
+    if (moodLocked) return;
     void Haptics.selectionAsync();
-    setTodayMood({
-      colorHex: '#994531',
-      intensity: 3,
-      anchorWord: mood.label,
-      category: mood.key,
+    submitMood.mutate({
+      category:    mood.key,
+      intensity:   DEFAULT_MOOD_INTENSITY,
+      anchor_word: mood.label,
+      color_hex:   moodColor[mood.key],
     });
   }
 
@@ -303,8 +336,9 @@ export default function FeedHomeScreen() {
               return (
                 <TouchableOpacity
                   key={m.key}
-                  style={s.moodItem}
+                  style={[s.moodItem, moodLocked && !active && { opacity: 0.45 }]}
                   onPress={() => handleMoodSelect(m)}
+                  disabled={moodLocked}
                   activeOpacity={0.75}
                 >
                   {active && <View style={s.moodRing} />}
@@ -321,10 +355,14 @@ export default function FeedHomeScreen() {
             })}
           </View>
 
+          {moodLocked && !moodResolving && (
+            <Text style={s.moodLockedHint}>Checked in today · unlocks tomorrow</Text>
+          )}
+
           {/* Trend chart */}
           <View style={s.trendWrap}>
             <View style={s.trendBars}>
-              {TREND.map((d, i) => {
+              {trendBars.map((d, i) => {
                 const isToday = d.tone === 'today';
                 const isFuture = d.tone === 'future';
                 const barColor =
@@ -794,6 +832,13 @@ const s = StyleSheet.create({
   },
   moodLabelActive: {
     color: C.primary,
+  },
+  moodLockedHint: {
+    fontSize: 12,
+    fontFamily: 'NunitoSans_400Regular',
+    color: C.outline,
+    textAlign: 'center',
+    marginTop: 8,
   },
 
   // Trend
