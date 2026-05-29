@@ -349,19 +349,12 @@ export default function ConversationScreen() {
 function MessageBubble({ message, mine }: { message: MessageRow; mine: boolean }) {
   const time = useMemo(() => formatTime(message.created_at), [message.created_at]);
   const optimistic = message.id.startsWith('optimistic-');
-  const router = useRouter();
   const isReel = !!message.reel_id;
-
-  const openReel = () => {
-    if (!message.reel_id) return;
-    void Haptics.selectionAsync();
-    router.push({ pathname: '/(main)/reels' as never, params: { id: message.reel_id } });
-  };
 
   return (
     <Animated.View entering={FadeInDown.springify().damping(18)} style={mine ? s.msgRight : s.msgLeft}>
       {isReel ? (
-        <ReelPreviewCard reelId={message.reel_id!} onPress={openReel} />
+        <ReelPreviewCard reelId={message.reel_id!} />
       ) : (
         <View style={mine ? s.bubbleOut : s.bubbleIn}>
           <Text style={mine ? s.bubbleOutText : s.bubbleInText}>{message.body}</Text>

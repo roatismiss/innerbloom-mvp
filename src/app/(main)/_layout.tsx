@@ -3,13 +3,17 @@ import { Tabs } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
 
+import { aiInputRef } from '../../lib/ai-input-ref';
 import { SideMenu } from '../../components/SideMenu';
 
 const C = {
   surface:               '#fff8f6',
   surfaceRaised:         '#ffffff',
-  secondaryContainer:    '#90f2fc',
-  onSecondaryContainer:  '#006f77',
+  // Active tab pill is warm-tonal (primaryFixed) so it lives in the same family
+  // as the Bloom center FAB and the rest of the brand, instead of the cyan
+  // secondaryContainer which read as out-of-palette against the peach bg.
+  activePillBg:          '#ffdad2',
+  activePillFg:          '#994531',
   onSurfaceVariant:      '#55433e',
   outline:               '#88726d',
   primary:               '#994531',
@@ -33,7 +37,7 @@ const TABS: TabDef[] = [
 ];
 
 // Screens that exist as routes but must not appear in the tab bar
-const HIDDEN = ['today', 'checkin', 'bloom-ai', 'breathing', 'body-scan', 'journal', 'profile', 'feed', 'bloom', 'bloom-circle', 'reflections', 'intentions', 'resources', 'garden', 'post-composer', 'article', 'notifications', 'edit-profile'];
+const HIDDEN = ['today', 'checkin', 'bloom-ai', 'breathing', 'body-scan', 'journal', 'profile', 'feed', 'bloom', 'bloom-circle', 'circle', 'circle-burnout', 'circle-mindfulness', 'circle-depression', 'circle-grief', 'circle-recovery', 'reflections', 'intentions', 'resources', 'garden', 'post-composer', 'article', 'notifications', 'edit-profile', 'insights'];
 
 function TabIcon({
   label, icon, iconFocused, focused, isCenter,
@@ -54,7 +58,7 @@ function TabIcon({
   if (focused) {
     return (
       <View style={s.activePill}>
-        <MaterialCommunityIcons name={iconFocused} size={20} color={C.onSecondaryContainer} />
+        <MaterialCommunityIcons name={iconFocused} size={20} color={C.activePillFg} />
         <Text style={s.activeLabel}>{label}</Text>
       </View>
     );
@@ -99,11 +103,25 @@ export default function MainLayout() {
         {TABS.map((tab) => {
           const isCenter = tab.name === 'soul-match';
           const isReels = tab.name === 'reels';
+          const isAI = tab.name === 'ai-companion';
           const baseStyle = isReels ? [s.tabBar, s.tabBarFloating] : s.tabBar;
           return (
             <Tabs.Screen
               key={tab.name}
               name={tab.name}
+              listeners={
+                // On iOS Safari (PWA) `inputRef.focus()` is only honored inside
+                // a real user gesture. `tabPress` fires synchronously during
+                // the tap, so this is the one place we can pop the keyboard
+                // open on entry to the AI chat without a second tap.
+                isAI
+                  ? {
+                      tabPress: () => {
+                        aiInputRef.current?.focus();
+                      },
+                    }
+                  : undefined
+              }
               options={{
                 // Reels behaves like TikTok / Instagram Reels: the video runs
                 // edge-to-edge under a floating tab bar. We override the bar
@@ -112,6 +130,11 @@ export default function MainLayout() {
                 tabBarStyle: keyboardOpen
                   ? [baseStyle, { display: 'none' as const }]
                   : baseStyle,
+                // Eagerly mount the AI screen so `aiInputRef.current` is
+                // populated before the user ever taps the AI tab — required
+                // for the iOS Safari PWA tabPress→focus trick to land on the
+                // very first tap.
+                lazy: !isAI,
                 tabBarIcon: ({ focused }: { focused: boolean }) => (
                   <TabIcon
                     label={tab.label}
@@ -166,7 +189,7 @@ const s = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: C.secondaryContainer,
+    backgroundColor: C.activePillBg,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 9999,
@@ -176,7 +199,7 @@ const s = StyleSheet.create({
     fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 10,
     lineHeight: 13,
-    color: C.onSecondaryContainer,
+    color: C.activePillFg,
     letterSpacing: 0.2,
   },
   idleTab: {

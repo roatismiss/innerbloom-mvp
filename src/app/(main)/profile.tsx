@@ -262,7 +262,7 @@ export default function ProfileScreen() {
       <ScrollView
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + HEADER_H + 24, paddingBottom: 160 },
+          { paddingTop: insets.top + HEADER_H + 24, paddingBottom: 32 },
         ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -410,6 +410,7 @@ export default function ProfileScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={s.milestonesScrollOuter}
             contentContainerStyle={s.milestonesScroll}
           >
             {milestones.map((m) => (
@@ -869,10 +870,12 @@ const s = StyleSheet.create({
   },
 
   // ── Milestones ─────────────────────────────────────────────────────────
+  // Bleed past parent's 24px padding so items reach both screen edges.
+  milestonesScrollOuter: { marginHorizontal: -24 },
   milestonesScroll: {
     gap: 16,
     paddingVertical: 8,
-    paddingHorizontal: 4,
+    paddingHorizontal: 24,
   },
   milestoneItem: {
     width: 96,

@@ -86,7 +86,7 @@ export default function GardenScreen() {
           s.scroll,
           {
             paddingTop: insets.top + 24,
-            paddingBottom: insets.bottom + 120,
+            paddingBottom: 32,
           },
         ]}
         showsVerticalScrollIndicator={false}

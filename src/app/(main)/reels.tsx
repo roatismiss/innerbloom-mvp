@@ -69,6 +69,9 @@ export default function ReelsScreen() {
   const [audioIndex, setAudioIndex] = useState(initialIndex);
   const [showSaved, setShowSaved] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  // When set, replaces the canonical REELS order with a randomized one. Stays
+  // for the lifetime of the screen; tapping shuffle again reshuffles.
+  const [shuffleSeed, setShuffleSeed] = useState(0);
   const listRef = useRef<any>(null);
   const isFocused = useIsFocused();
 
@@ -134,7 +137,28 @@ export default function ReelsScreen() {
     listRef.current?.scrollToOffset?.({ offset: 0, animated: false });
   }, []);
 
-  const feedData = showSaved ? REELS.filter((r) => savedIds.has(r.id)) : REELS;
+  const handleShuffle = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShuffleSeed((s) => s + 1);
+    setVisibleIndex(0);
+    setAudioIndex(0);
+    listRef.current?.scrollToOffset?.({ offset: 0, animated: false });
+  }, []);
+
+  // Reshuffle only when the seed changes — pure REELS order while seed is 0,
+  // a stable randomized order otherwise. Memo so React doesn't re-randomize on
+  // every render (which would crash the FlatList's keyExtractor).
+  const orderedReels = useMemo<ReelItem[]>(() => {
+    if (shuffleSeed === 0) return REELS;
+    const arr = REELS.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [shuffleSeed]);
+
+  const feedData = showSaved ? orderedReels.filter((r) => savedIds.has(r.id)) : orderedReels;
 
   return (
     <View style={s.root}>
@@ -212,6 +236,19 @@ export default function ReelsScreen() {
           </Text>
         </TouchableOpacity>
         <View style={s.topBarRight}>
+          <TouchableOpacity
+            style={s.topBarBtn}
+            activeOpacity={0.7}
+            onPress={handleShuffle}
+            accessibilityRole="button"
+            accessibilityLabel="Shuffle reels"
+          >
+            <MaterialCommunityIcons
+              name="shuffle-variant"
+              size={22}
+              color={shuffleSeed > 0 ? C.primaryContainer : C.primary}
+            />
+          </TouchableOpacity>
           {HAS_REEL_AUDIO && (
             <TouchableOpacity
               style={s.topBarBtn}

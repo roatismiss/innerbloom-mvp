@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { VideoView, useVideoPlayer, type VideoSource } from 'expo-video';
-import { createElement, useEffect, useMemo, useRef } from 'react';
+import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { Image as RNImage, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { getReelById } from '../../lib/reels-data';
@@ -26,16 +27,21 @@ const PREVIEW_H = 240; // 3:4 — feels tight in a chat bubble while still legib
 // Instagram-style reel preview card for a shared reel inside a conversation.
 // Renders the actual reel background (poster frame from the bundled video, or
 // the gradient/SVG scheme for non-video reels) plus a play badge and a 2-line
-// caption strip at the bottom. Tap routes the user to /(main)/reels?id=<id>
-// so the reels screen scrolls straight to this reel.
+// caption strip at the bottom.
+//
+// Tap behaviour: when the reel has a video track, the card plays inline —
+// scrim/caption/play badge fade out and the video unmutes so the user stays in
+// the chat. Tap again to pause and bring the overlay back. When the reel has
+// no video (scheme/gradient only), tapping falls back to the optional onPress.
 export function ReelPreviewCard({
   reelId,
   onPress,
 }: {
   reelId: string;
-  onPress: () => void;
+  onPress?: () => void;
 }) {
   const reel = getReelById(reelId);
+  const [playing, setPlaying] = useState(false);
 
   if (!reel) {
     // Reel was removed from the library since the message was sent. Show a
@@ -55,68 +61,93 @@ export function ReelPreviewCard({
   const darkBg = reel.scheme ? isSchemeDark(reel.scheme) : !!reel.darkBg;
   const text = reel.caption.trim() || reel.quote.trim();
 
+  const handlePress = () => {
+    if (videoTrack) {
+      void Haptics.selectionAsync();
+      setPlaying((p) => !p);
+      return;
+    }
+    onPress?.();
+  };
+
   return (
-    <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={s.wrap}>
+    <TouchableOpacity activeOpacity={0.95} onPress={handlePress} style={s.wrap}>
       {/* Background layer — video poster frame OR scheme art OR theme color */}
       <View style={s.bgLayer}>
         {videoTrack ? (
-          <PosterVideo source={videoTrack.source} />
+          <InlineReelVideo source={videoTrack.source} playing={playing} />
         ) : reel.scheme ? (
           <ReelBackground scheme={reel.scheme} />
         ) : (
           <View style={[StyleSheet.absoluteFill, { backgroundColor: reel.theme.bg }]} />
         )}
         {/* Subtle vignette so the play badge + caption stay readable on any bg */}
-        <View style={s.scrim} pointerEvents="none" />
+        {!playing && <View style={s.scrim} pointerEvents="none" />}
       </View>
 
-      {/* Play badge — centered */}
-      <View style={s.playBadge} pointerEvents="none">
-        <MaterialCommunityIcons name="play" size={22} color="#ffffff" />
-      </View>
-
-      {/* Bottom caption strip */}
-      <View style={s.captionStrip} pointerEvents="none">
-        <View style={s.headerRow}>
-          <MaterialCommunityIcons name="play-circle-outline" size={11} color="#ffffff" />
-          <Text style={s.headerLabel}>BLOOM REEL</Text>
+      {/* Play badge — centered. Hidden while playing so the video reads clean. */}
+      {!playing && (
+        <View style={s.playBadge} pointerEvents="none">
+          <MaterialCommunityIcons name="play" size={22} color="#ffffff" />
         </View>
-        <Text style={s.captionText} numberOfLines={2}>{text}</Text>
-        {reel.author && (
-          <Text style={s.authorText} numberOfLines={1}>— {reel.author}</Text>
-        )}
-      </View>
+      )}
 
-      {/* Top-right hint badge */}
-      <View style={[s.themeBadge, darkBg && s.themeBadgeOnDark]} pointerEvents="none">
+      {/* Bottom caption strip — hidden while playing */}
+      {!playing && (
+        <View style={s.captionStrip} pointerEvents="none">
+          <View style={s.headerRow}>
+            <MaterialCommunityIcons name="play-circle-outline" size={11} color="#ffffff" />
+            <Text style={s.headerLabel}>BLOOM REEL</Text>
+          </View>
+          <Text style={s.captionText} numberOfLines={2}>{text}</Text>
+          {reel.author && (
+            <Text style={s.authorText} numberOfLines={1}>— {reel.author}</Text>
+          )}
+        </View>
+      )}
+
+      {/* Top-right hint badge — flips to a pause icon while playing */}
+      <View
+        style={[s.themeBadge, (darkBg || playing) && s.themeBadgeOnDark]}
+        pointerEvents="none"
+      >
         <MaterialCommunityIcons
-          name="video-outline"
+          name={playing ? 'pause' : 'video-outline'}
           size={12}
-          color={darkBg ? '#ffffff' : C.primary}
+          color={darkBg || playing ? '#ffffff' : C.primary}
         />
       </View>
     </TouchableOpacity>
   );
 }
 
-// Autoplay muted, looped — same pattern Instagram / TikTok use for inline reel
-// previews. Plays as soon as the card mounts so the user always sees motion,
-// not a black box waiting for a poster frame that some platforms never paint.
+// Inline reel video. Two modes driven by the `playing` prop:
+//   - playing=false → muted poster motion (same Instagram/TikTok pattern), loops
+//   - playing=true  → unmuted, restarted from 0 so the user always sees the
+//                     reel from the top when they tap play
 //
 // Native uses expo-video; web drops down to a raw HTML5 <video> because
 // expo-video's web build does not emit `playsinline` on the underlying element,
 // which makes mobile browsers refuse to render small embedded clips.
-function PosterVideo({ source }: { source: VideoSource }) {
-  if (Platform.OS === 'web') return <WebPosterVideo source={source} />;
-  return <NativePosterVideo source={source} />;
+function InlineReelVideo({ source, playing }: { source: VideoSource; playing: boolean }) {
+  if (Platform.OS === 'web') return <WebInlineVideo source={source} playing={playing} />;
+  return <NativeInlineVideo source={source} playing={playing} />;
 }
 
-function NativePosterVideo({ source }: { source: VideoSource }) {
+function NativeInlineVideo({ source, playing }: { source: VideoSource; playing: boolean }) {
   const player = useVideoPlayer(source, (p) => {
     p.loop = true;
     p.muted = true;
     p.play();
   });
+
+  // Just flip muted — same pattern reels.tsx uses. Avoid seeking on every
+  // toggle (currentTime = 0 before metadata is loaded is what triggers the
+  // "AVPlayerItem failed to seek" / "InvalidStateError" noise in the logs).
+  useEffect(() => {
+    player.muted = !playing;
+  }, [player, playing]);
+
   return (
     <VideoView
       player={player}
@@ -127,7 +158,7 @@ function NativePosterVideo({ source }: { source: VideoSource }) {
   );
 }
 
-function WebPosterVideo({ source }: { source: VideoSource }) {
+function WebInlineVideo({ source, playing }: { source: VideoSource; playing: boolean }) {
   const ref = useRef<HTMLVideoElement | null>(null);
 
   // Normalise the require()'d asset to a URL string that <video src> understands.
@@ -144,11 +175,15 @@ function WebPosterVideo({ source }: { source: VideoSource }) {
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
+    v.muted = !playing;
+    // Don't seek — calling currentTime before the video has metadata raises
+    // an InvalidStateError on Safari. The user gets sound from the current
+    // loop position, same as Instagram's inline previews.
     const playResult = v.play();
     if (playResult && typeof playResult.catch === 'function') {
       playResult.catch(() => {});
     }
-  }, [src]);
+  }, [src, playing]);
 
   return createElement('video', {
     ref,

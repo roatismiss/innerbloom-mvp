@@ -160,7 +160,7 @@ export default function PostComposerScreen() {
         <ScrollView
           contentContainerStyle={[
             s.scroll,
-            { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 140 },
+            { paddingTop: insets.top + 16, paddingBottom: 32 },
           ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"

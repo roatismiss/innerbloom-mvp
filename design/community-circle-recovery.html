@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Safe Circle | Recovery</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&amp;family=Quicksand:wght@400;500;600;700&amp;family=Fraunces:opsz,wght@9..144,400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#994531",
+          "primary-container": "#e8836b",
+          "primary-fixed": "#ffdad2",
+          "primary-fixed-dim": "#ffb4a3",
+          "on-primary-container": "#641e0e",
+          "secondary": "#006970",
+          "secondary-container": "#90f2fc",
+          "on-secondary-container": "#006f77",
+          "tertiary": "#a8315c",
+          "surface": "#fff8f6",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#fff1ed",
+          "surface-container": "#ffe9e4",
+          "surface-container-high": "#ffe2db",
+          "surface-container-highest": "#fadcd5",
+          "surface-variant": "#fadcd5",
+          "outline": "#88726d",
+          "outline-variant": "#dbc1bb",
+          "on-surface": "#281814",
+          "on-surface-variant": "#55433e",
+          "error": "#ba1a1a",
+          "on-error": "#ffffff",
+          "background": "#fff8f6",
+          "forest-sage": "#5a7a5e",
+          "sunrise-gold": "#d4a04a",
+          "amber-glow": "#e8a87c"
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0; }
+  .hero-gradient { background: linear-gradient(180deg, #ffdad2 0%, #e8a87c 100%); }
+  .sos-gradient  { background: linear-gradient(135deg, #e8a87c 0%, #d4a04a 100%); }
+</style>
+</head>
+<body class="bg-background text-on-background">
+<!-- TOP APP BAR -->
+<header class="fixed top-0 w-full z-50 bg-surface/80">
+<div class="flex items-center justify-between px-6 h-16 max-w-lg mx-auto">
+<div class="w-10 h-10 rounded-full bg-primary-fixed border-2 border-primary-fixed"></div>
+<h1 class="text-2xl text-primary">Recovery</h1>
+<button class="material-symbols-outlined text-primary">settings</button>
+</div>
+</header>
+<main class="pt-16 pb-32 max-w-lg mx-auto">
+<!-- HERO -->
+<section class="w-full h-60 hero-gradient relative overflow-hidden flex flex-col justify-end p-6">
+<div class="absolute bottom-0 left-0 w-full h-px bg-white/30"></div>
+<div class="absolute top-12 left-1/2 -translate-x-1/2 w-32 h-32 bg-white/20 rounded-full"></div>
+<div class="relative z-10">
+<div class="w-12 h-12 rounded-full bg-white/40 flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings:'FILL' 1;">light_mode</span>
+</div>
+<p class="text-on-primary-container font-bold text-lg" style="font-family:Fraunces,serif;">Recovery is a choice you can make today. <br>And tomorrow. And the day after.</br></p>
+</div>
+</section>
+<div class="px-6 space-y-8 -mt-8 relative z-20">
+<!-- DAY COUNTER -->
+<section class="bg-surface-container rounded-3xl p-6 flex flex-col items-center text-center">
+<span class="text-on-surface-variant uppercase tracking-widest mb-1">Current Streak</span>
+<h2 class="text-7xl text-forest-sage font-bold" style="font-family:Fraunces,serif;">47</h2>
+<p class="text-on-surface-variant mb-6">Days of courage</p>
+<div class="flex flex-wrap justify-center gap-2">
+<button class="bg-forest-sage text-white px-4 py-2 rounded-full flex items-center gap-1"><span class="material-symbols-outlined">add</span>+ Log today</button>
+<button class="bg-surface-container-high border border-outline-variant px-4 py-2 rounded-full">I'm shaky</button>
+<button class="bg-primary-container/20 border border-primary-container text-primary px-4 py-2 rounded-full">Day 1 again</button>
+</div>
+</section>
+<!-- CRAVING SOS -->
+<section class="sos-gradient rounded-3xl p-6 text-white flex items-center justify-between">
+<div>
+<h3 class="font-bold">Craving hitting hard?</h3>
+<p class="opacity-90">Don't sit with it alone.</p>
+</div>
+<button class="bg-white text-sunrise-gold px-6 py-3 rounded-full font-bold">Call the circle</button>
+</section>
+<!-- HALT -->
+<section>
+<h3 class="pl-2 mb-4">HALT Check</h3>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex flex-col items-center gap-2 p-4 bg-surface-container-low rounded-3xl"><span class="material-symbols-outlined text-sunrise-gold">restaurant</span><span>Hungry</span></button>
+<button class="flex flex-col items-center gap-2 p-4 bg-surface-container-low rounded-3xl"><span class="material-symbols-outlined text-error">mode_heat</span><span>Angry</span></button>
+<button class="flex flex-col items-center gap-2 p-4 bg-surface-container-low rounded-3xl"><span class="material-symbols-outlined text-secondary">person_off</span><span>Lonely</span></button>
+<button class="flex flex-col items-center gap-2 p-4 bg-surface-container-low rounded-3xl"><span class="material-symbols-outlined text-primary">bedtime</span><span>Tired</span></button>
+</div>
+</section>
+<!-- JUST FOR TODAY -->
+<section class="p-6 rounded-3xl border-2 border-dashed border-outline-variant bg-surface-variant/30">
+<h3 class="font-bold mb-4" style="font-family:Fraunces,serif;">Just for today...</h3>
+<input class="w-full bg-white border-none rounded-2xl py-4 px-5 italic text-on-surface-variant" placeholder="I will [take a 10 min walk]" type="text">
+<div class="flex flex-wrap gap-2 mt-4">
+<span class="bg-primary-fixed text-primary-container px-3 py-1 rounded-full">Attend a meeting</span>
+<span class="bg-primary-fixed text-primary-container px-3 py-1 rounded-full">Drink 2L of water</span>
+<span class="bg-primary-fixed text-primary-container px-3 py-1 rounded-full">Call mom</span>
+</div>
+</section>
+<!-- LIVE MEETINGS -->
+<section>
+<div class="flex justify-between items-center mb-4">
+<h3>Live Meetings</h3>
+<button class="text-primary">View all</button>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4">
+<div class="w-48 bg-white p-4 rounded-3xl border-l-4 border-forest-sage">
+<span class="text-[10px] uppercase font-bold text-forest-sage bg-forest-sage/10 px-2 py-0.5 rounded">Happening Now</span>
+<h4 class="font-bold mt-2">AA Open Step</h4>
+<p class="text-on-surface-variant">142 people in room</p>
+</div>
+<div class="w-48 bg-white p-4 rounded-3xl border-l-4 border-sunrise-gold">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">In 15 Mins</span>
+<h4 class="font-bold mt-2">SMART Tools</h4>
+<p class="text-on-surface-variant">Check-in group</p>
+</div>
+<div class="w-48 bg-white p-4 rounded-3xl border-l-4 border-secondary">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">In 40 Mins</span>
+<h4 class="font-bold mt-2">Refuge Recovery</h4>
+<p class="text-on-surface-variant">Meditation based</p>
+</div>
+</div>
+</section>
+<!-- RECOVERY PATHS -->
+<section>
+<h3 class="pl-2 mb-4">Recovery Paths</h3>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-forest-sage text-white">12-Step</button>
+<button class="px-4 py-2 rounded-full bg-surface-container">SMART</button>
+<button class="px-4 py-2 rounded-full bg-surface-container">Harm Reduction</button>
+<button class="px-4 py-2 rounded-full bg-surface-container">MAT</button>
+<button class="px-4 py-2 rounded-full bg-surface-container">Secular</button>
+</div>
+</section>
+<!-- MILESTONES -->
+<section>
+<h3 class="pl-2 mb-4">Today's Milestones</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-forest-sage/5 border border-forest-sage/20 p-5 rounded-3xl flex flex-col items-center text-center">
+<div class="w-12 h-12 bg-forest-sage rounded-full flex items-center justify-center text-white mb-3"><span class="material-symbols-outlined">stars</span></div>
+<h4 class="font-bold">Year 1</h4>
+<p class="text-on-surface-variant">Sarah J.</p>
+</div>
+<div class="bg-primary-container/10 border border-primary-container/30 p-5 rounded-3xl flex flex-col items-center text-center">
+<div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center text-white mb-3"><span class="material-symbols-outlined">refresh</span></div>
+<h4 class="font-bold">Day 1 again</h4>
+<p class="text-on-surface-variant">Marcus L.</p>
+</div>
+</div>
+</section>
+<!-- FEED -->
+<section class="space-y-4">
+<h3 class="pl-2">Community Feed</h3>
+<div class="bg-white p-6 rounded-3xl border border-surface-container-high space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary font-bold">ML</div>
+<div>
+<p class="font-bold">Marcus L.</p>
+<p class="text-on-surface-variant">10 mins ago • <span class="text-primary">Day 1</span></p>
+</div>
+</div>
+<p class="italic">"I slipped. Feel heavy with shame but I'm here. Posting because honesty is the only way back. I'm starting over today."</p>
+<div class="flex gap-2 overflow-x-auto">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container"><span class="material-symbols-outlined text-secondary">favorite</span>I'm with you</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container"><span class="material-symbols-outlined text-primary">fitness_center</span>Strength</button>
+</div>
+</div>
+<div class="bg-white p-6 rounded-3xl border border-surface-container-high space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary font-bold">AK</div>
+<div>
+<p class="font-bold">Anaya K.</p>
+<p class="text-on-surface-variant">2 hours ago • <span class="text-forest-sage">Day 89</span></p>
+</div>
+</div>
+<p>"Feeling really shaky this afternoon. The cravings are loud. Taking it one breath at a time."</p>
+<div class="flex gap-2 overflow-x-auto">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container"><span class="material-symbols-outlined text-primary">accessibility_new</span>Felt this in my body</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container"><span class="material-symbols-outlined text-secondary">forum</span>Stay strong</button>
+</div>
+</div>
+</section>
+<!-- FOOTER RESOURCES -->
+<section class="pb-12 grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 p-4 bg-surface-container rounded-3xl"><span class="material-symbols-outlined">handshake</span>Sponsor needed?</button>
+<button class="flex items-center justify-center gap-2 p-4 bg-error text-on-error rounded-3xl font-bold"><span class="material-symbols-outlined">call</span>SOS Hotline 1553</button>
+</section>
+</div>
+</main>
+</body></html>

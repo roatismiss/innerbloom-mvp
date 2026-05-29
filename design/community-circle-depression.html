@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Safe Circle - Depression Community</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@600;700&amp;family=Quicksand:wght@400;500;600;700&amp;family=Fraunces:ital,opsz,wght@1,9..144,400..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    .glass-nav { background: rgba(255,248,246,0.8); backdrop-filter: blur(20px); }
+    .custom-shadow { box-shadow: 0px 8px 24px rgba(92,71,66,0.08); }
+    .pulse-dot { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(0.9); }
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface">
+<header class="fixed top-0 w-full z-50 glass-nav h-16 flex items-center justify-between px-6">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant"><span class="material-symbols-outlined">arrow_back</span></button>
+<h1>Depression</h1>
+</div>
+<div class="flex gap-2 text-on-surface-variant">
+<button><span class="material-symbols-outlined">notifications</span></button>
+<button><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+</header>
+<main class="pt-16 pb-32">
+<!-- HERO -->
+<section class="relative overflow-hidden pt-8 pb-12 px-6 bg-gradient-to-br from-surface-container-low to-background">
+<div class="absolute top-0 right-0 w-48 h-48 opacity-20">
+<svg viewBox="0 0 200 200"><path d="M40,20 Q100,5 180,80 Q190,140 120,180" fill="none" stroke="#8a7a9a" stroke-linecap="round" stroke-width="2"/></svg>
+</div>
+<div class="flex flex-col items-center text-center">
+<div class="w-20 h-20 bg-surface-container-lowest rounded-full flex items-center justify-center custom-shadow mb-6">
+<span class="material-symbols-outlined text-4xl text-[#8a7a9a]" style="font-variation-settings:'FILL' 1;">favorite</span>
+</div>
+<h2 class="italic text-5xl text-primary mb-2" style="font-family:Fraunces,serif;">Depression</h2>
+<p class="text-lg text-on-surface-variant max-w-xs mb-6">You don't have to feel better to belong here.</p>
+<div class="flex flex-col gap-2 mb-8">
+<div class="flex items-center justify-center gap-2 text-on-surface-variant">
+<span>18.4k members</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>You're not the only one</span>
+</div>
+<div class="text-outline uppercase tracking-wider">Moderated</div>
+</div>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-full flex items-center gap-2 custom-shadow">
+<span>Joined</span><span class="material-symbols-outlined">check</span>
+</button>
+</div>
+</section>
+<div class="px-6 space-y-10">
+<!-- DATE ANCHOR -->
+<section class="text-center py-6">
+<div class="text-outline uppercase tracking-widest mb-1">Tuesday, May 29</div>
+<h3 class="text-2xl text-on-surface mb-2">You made it here.</h3>
+<p class="text-on-surface-variant italic">That counts. Even if today is heavy.</p>
+</section>
+<!-- WEATHER INSIDE -->
+<section class="bg-surface-container-lowest rounded-lg p-6 custom-shadow">
+<h4 class="text-xl mb-6">How's the weather inside?</h4>
+<div class="flex justify-between items-center gap-4">
+<button class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined">filter_drama</span></div><span>foggy</span></button>
+<button class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined">fitness_center</span></div><span>heavy</span></button>
+<button class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined">horizontal_rule</span></div><span>flat</span></button>
+<button class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined">eco</span></div><span>tender</span></button>
+<button class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-outline"><span class="material-symbols-outlined">light_mode</span></div><span>a little light</span></button>
+</div>
+</section>
+<!-- SMALLEST THING -->
+<section>
+<h4 class="text-xl mb-4">Smallest thing today</h4>
+<div class="flex gap-4 overflow-x-auto pb-4">
+<div class="min-w-[140px] bg-secondary-container text-on-secondary-container p-4 rounded-lg flex flex-col justify-between aspect-square"><span class="material-symbols-outlined">water_drop</span><span>Drink water</span></div>
+<div class="min-w-[140px] bg-tertiary-container text-on-tertiary-container p-4 rounded-lg flex flex-col justify-between aspect-square"><span class="material-symbols-outlined">window</span><span>Open a window</span></div>
+<div class="min-w-[140px] bg-primary-container text-on-primary-container p-4 rounded-lg flex flex-col justify-between aspect-square"><span class="material-symbols-outlined">airline_seat_recline_normal</span><span>Sit up for 30 sec</span></div>
+<div class="min-w-[140px] bg-surface-container-high text-on-surface p-4 rounded-lg flex flex-col justify-between aspect-square"><span class="material-symbols-outlined">brush</span><span>Brush teeth</span></div>
+</div>
+</section>
+<!-- WHAT USED TO FEEL GOOD -->
+<section class="bg-surface-container-low rounded-lg p-6">
+<h4 class="text-xl mb-6 flex items-center justify-between">What used to feel good<button class="text-primary">Edit</button></h4>
+<div class="space-y-3">
+<div class="bg-surface-container-lowest p-4 rounded-full flex items-center justify-between">
+<div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">music_note</span><span>That song from college</span></div>
+<button class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">play_arrow</span></button>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-full flex items-center justify-between">
+<div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">location_on</span><span>Walking by the river</span></div>
+<button class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined">push_pin</span></button>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-full flex items-center justify-between">
+<div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">call</span><span>Calling my sister</span></div>
+<button class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined">phone</span></button>
+</div>
+</div>
+</section>
+<!-- FROM FURTHER ALONG -->
+<section class="bg-surface-container-lowest rounded-lg custom-shadow border-l-4 border-tertiary p-6">
+<div class="flex items-center gap-2 mb-4"><span class="material-symbols-outlined text-tertiary">push_pin</span><span class="text-tertiary uppercase tracking-wider">From Further Along</span></div>
+<div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-full bg-tertiary-fixed"></div><div><div>Lena</div><div class="text-on-surface-variant">3-year journey</div></div></div>
+<p class="mb-6 italic">"Three years ago, I couldn't imagine a Tuesday where I didn't feel paralyzed. It doesn't mean the clouds don't come back, but I've learned how to sit with them until they pass. You're doing better than you think just by being here."</p>
+<div class="flex flex-wrap gap-2">
+<button class="bg-surface-container-high px-4 py-2 rounded-full flex items-center gap-2"><span class="material-symbols-outlined">visibility</span>I see you</button>
+<button class="bg-surface-container-high px-4 py-2 rounded-full flex items-center gap-2"><span class="material-symbols-outlined">history</span>I've been here</button>
+</div>
+</section>
+<!-- SIT IN THE ROOM -->
+<section class="bg-gradient-to-br from-surface-container-highest to-surface-container rounded-lg p-8 text-center custom-shadow">
+<div class="flex justify-center gap-2 mb-4">
+<div class="w-2 h-2 rounded-full bg-tertiary pulse-dot"></div>
+<div class="w-2 h-2 rounded-full bg-tertiary pulse-dot" style="animation-delay:.3s"></div>
+<div class="w-2 h-2 rounded-full bg-tertiary pulse-dot" style="animation-delay:.6s"></div>
+</div>
+<h4 class="text-xl mb-2">47 people are quietly here right now.</h4>
+<p class="text-on-surface-variant mb-6">No pressure to talk. Just shared space.</p>
+<button class="bg-on-surface text-background px-8 py-3 rounded-full">Join the room</button>
+</section>
+<!-- UPDATES FILTERS -->
+<section class="space-y-6">
+<div class="flex gap-2 overflow-x-auto">
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full">All</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-full">Today is hard</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-full">Tiny wins</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-full">Honest</button>
+</div>
+<!-- POSTS -->
+<div class="space-y-4">
+<article class="bg-surface-container-lowest rounded-lg p-6 custom-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">AB</div>
+<div><div>Anonymous Bloom</div><div class="text-on-surface-variant">2h ago</div></div>
+</div>
+<span class="bg-surface-container px-3 py-1 rounded-full text-on-surface-variant uppercase">Today is hard</span>
+</div>
+<p class="text-lg mb-6">Today is hard. That's all I can say. I'm just breathing and that's taking all my energy.</p>
+<div class="flex flex-wrap gap-2">
+<button class="bg-surface-container-low p-2 px-4 rounded-full flex items-center gap-2 border border-outline-variant"><span class="material-symbols-outlined">favorite</span>Sitting with you</button>
+<button class="bg-surface-container-low p-2 px-4 rounded-full flex items-center gap-2 border border-outline-variant"><span class="material-symbols-outlined">visibility</span>12</button>
+</div>
+</article>
+<article class="bg-surface-container-lowest rounded-lg p-6 custom-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-secondary-fixed"></div><div><div>Maya</div><div class="text-on-surface-variant">5h ago</div></div></div>
+<span class="bg-secondary-container px-3 py-1 rounded-full text-on-secondary-container uppercase">Tiny win</span>
+</div>
+<p class="text-lg mb-6">I showered today. It wasn't nothing. It felt like climbing a mountain, but I'm clean now.</p>
+<div class="flex flex-wrap gap-2">
+<button class="bg-surface-container-low p-2 px-4 rounded-full flex items-center gap-2 border border-outline-variant"><span class="material-symbols-outlined">thumb_up</span>8</button>
+</div>
+</article>
+</div>
+</section>
+<!-- WEEKLY CHECK-IN — Are you safe? -->
+<section class="bg-inverse-surface text-inverse-on-surface rounded-lg p-8 custom-shadow">
+<h4 class="text-xl mb-6">Are you safe?</h4>
+<div class="flex flex-col gap-3">
+<button class="w-full bg-surface/10 border border-surface/20 p-4 rounded-lg text-left">Yes, I'm safe</button>
+<button class="w-full bg-surface/10 border border-surface/20 p-4 rounded-lg text-left">Mostly - having hard thoughts</button>
+<button class="w-full bg-error-container text-on-error-container p-4 rounded-lg text-left">I need help right now</button>
+</div>
+</section>
+</div>
+</main>
+<!-- STICKY SAFETY STRIP -->
+<div class="fixed bottom-0 w-full z-40 bg-surface-container-lowest custom-shadow pb-6 pt-4 px-6 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings:'FILL' 1;">health_and_safety</span>
+<p class="text-on-surface-variant max-w-[140px]">If you're in crisis, you don't have to be alone.</p>
+</div>
+<button class="bg-error text-on-error px-4 py-2 rounded-full font-bold">PH Hotline 1553</button>
+</div>
+<!-- FAB -->
+<button class="fixed bottom-28 right-6 z-50 w-14 h-14 bg-primary text-on-primary rounded-2xl flex items-center justify-center custom-shadow">
+<span class="material-symbols-outlined">mic</span>
+</button>
+</body></html>

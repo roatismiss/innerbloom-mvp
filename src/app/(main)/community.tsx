@@ -25,6 +25,7 @@ import {
   useToggleResonance,
 } from '../../lib/queries/feed';
 import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
+import { useScrollTopOnFocus } from '../../lib/use-scroll-top-on-focus';
 import { useUIStore } from '../../store/ui';
 
 // ─── Design tokens (AGENTS.md canonical spec) ────────────────────────────────
@@ -60,26 +61,28 @@ interface Circle {
   icon: MciName;
   iconBg: string;
   iconColor: string;
+  live?: boolean;
+  /** Absolute pathname pushed when the card is tapped (only used when live). */
+  route?: string;
 }
 
-// Circles aren't backed by the schema yet — kept as visual placeholder so the
-// section doesn't collapse. Replace with `bloom_circles` reads when that
-// model lands.
+// Each circle gets its own bespoke screen (1:1 from a design ref). Circles
+// without a `route` stay as visual placeholders until their screen lands.
 const CIRCLES: Circle[] = [
-  { id: 'anxiety',    name: 'Anxiety Support',  members: 'Coming soon', icon: 'leaf',           iconBg: C.primaryContainer,  iconColor: '#ffffff' },
-  { id: 'burnout',    name: 'Burnout Recovery', members: 'Coming soon', icon: 'meditation',     iconBg: C.tertiaryContainer, iconColor: '#ffffff' },
-  { id: 'mindful',    name: 'Mindfulness',      members: 'Coming soon', icon: 'weather-sunny',  iconBg: C.secondaryContainer, iconColor: C.onSecondaryContainer },
+  { id: 'anxiety',    name: 'Anxiety Support',  members: '12.4k members · 47 online', icon: 'leaf',           iconBg: C.primaryContainer,  iconColor: '#ffffff', live: true, route: '/(main)/circle' },
+  { id: 'depression', name: 'Depression',       members: '18.4k members · Moderated', icon: 'heart',          iconBg: '#8a7a9a',           iconColor: '#ffffff', live: true, route: '/(main)/circle-depression' },
+  { id: 'grief',      name: 'Grief',            members: '23.4k members · No finish line', icon: 'candle',     iconBg: '#8a96a3',           iconColor: '#ffffff', live: true, route: '/(main)/circle-grief' },
+  { id: 'recovery',   name: 'Recovery',         members: '47 days · Day at a time',        icon: 'white-balance-sunny', iconBg: '#5a7a5e',   iconColor: '#ffffff', live: true, route: '/(main)/circle-recovery' },
+  { id: 'burnout',    name: 'Burnout Recovery', members: '8.2k members · You belong here', icon: 'meditation', iconBg: C.tertiaryContainer, iconColor: '#ffffff', live: true, route: '/(main)/circle-burnout' },
+  { id: 'mindful',    name: 'Mindfulness',      members: '234 sitting now',           icon: 'weather-sunny',  iconBg: C.secondaryContainer, iconColor: C.onSecondaryContainer, live: true, route: '/(main)/circle-mindfulness' },
 ];
 
-// Tab bar height — keep in sync with (main)/_layout.tsx → s.tabBar.height.
-const TAB_BAR_H = Platform.select({ ios: 96, android: 82, default: 82 }) ?? 82;
-
-// Responsive card width: two cards fit cleanly side-by-side, with a small
-// "peek" of the third card showing the row is scrollable.
+// Responsive card width: exactly two cards fit per viewport, with no peek of
+// a third. Third only appears after side-scrolling.
 function computeCircleCardWidth(W: number): number {
-  const minBound = 150;
-  const maxBound = 220;
-  const usable = W - 24 - 24 - 14 - 40; // two cards + gap + peek
+  const minBound = 140;
+  const maxBound = 280;
+  const usable = W - 24 - 24 - 14; // two cards + one gap (no peek)
   return Math.max(minBound, Math.min(maxBound, Math.floor(usable / 2)));
 }
 
@@ -91,6 +94,8 @@ export default function CommunityScreen() {
   const { width: winW } = useWindowDimensions();
   const cardWidth = computeCircleCardWidth(winW);
   const openDrawer = useUIStore((s) => s.openDrawer);
+
+  const scrollRef = useScrollTopOnFocus();
 
   const feed = useFeed(50);
   const interactions = useMyPostInteractions();
@@ -136,6 +141,7 @@ export default function CommunityScreen() {
       </Animated.View>
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={s.scroll}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -158,7 +164,6 @@ export default function CommunityScreen() {
         <Animated.View entering={FadeInDown.delay(100).springify()} style={s.section}>
           <View style={s.sectionHeader}>
             <Text style={s.sectionHeading}>Featured Circles</Text>
-            <Text style={s.soonLabel}>Soon</Text>
           </View>
           <ScrollView
             horizontal
@@ -166,14 +171,33 @@ export default function CommunityScreen() {
             contentContainerStyle={s.circlesRow}
           >
             {CIRCLES.map((circle) => (
-              <CircleCard key={circle.id} circle={circle} width={cardWidth} />
+              <CircleCard
+                key={circle.id}
+                circle={circle}
+                width={cardWidth}
+                onPress={() => {
+                  if (!circle.live || !circle.route) return;
+                  void Haptics.selectionAsync();
+                  router.push({ pathname: circle.route, params: { id: circle.id } } as never);
+                }}
+              />
             ))}
           </ScrollView>
         </Animated.View>
 
         {/* Recent Updates — real bloom_posts feed */}
         <Animated.View entering={FadeInDown.delay(160).springify()} style={s.section}>
-          <Text style={[s.sectionHeading, s.sectionHeadingInline]}>Recent Updates</Text>
+          <View style={s.sectionHeader}>
+            <Text style={s.sectionHeading}>Recent Updates</Text>
+            <TouchableOpacity
+              style={s.composeBtnInline}
+              activeOpacity={0.85}
+              onPress={openComposer}
+              accessibilityLabel="Share a bloom"
+            >
+              <MaterialCommunityIcons name="pencil-plus-outline" size={18} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
 
           {feed.isLoading ? (
             <View style={s.loading}>
@@ -203,31 +227,40 @@ export default function CommunityScreen() {
         </Animated.View>
       </ScrollView>
 
-      {/* FAB — composer */}
-      <TouchableOpacity
-        style={[s.fab, { bottom: insets.bottom + TAB_BAR_H + 16 }]}
-        activeOpacity={0.85}
-        onPress={openComposer}
-      >
-        <MaterialCommunityIcons name="pencil-plus-outline" size={24} color="#ffffff" />
-      </TouchableOpacity>
     </View>
   );
 }
 
-// ─── Circle card (placeholder, no longer interactive) ────────────────────────
+// ─── Circle card ─────────────────────────────────────────────────────────────
 
-function CircleCard({ circle, width }: { circle: Circle; width: number }) {
+function CircleCard({
+  circle,
+  width,
+  onPress,
+}: {
+  circle: Circle;
+  width: number;
+  onPress: () => void;
+}) {
   return (
-    <View style={[s.circleCard, { width }]}>
+    <TouchableOpacity
+      activeOpacity={circle.live ? 0.85 : 1}
+      onPress={onPress}
+      disabled={!circle.live}
+      style={[
+        s.circleCard,
+        { width },
+        !circle.live && { opacity: 0.7 },
+      ]}
+    >
       <View style={[s.circleIcon, { backgroundColor: circle.iconBg }]}>
         <MaterialCommunityIcons name={circle.icon} size={26} color={circle.iconColor} />
       </View>
       <View style={{ gap: 2 }}>
         <Text style={s.circleName} numberOfLines={1}>{circle.name}</Text>
-        <Text style={s.circleMembers}>{circle.members}</Text>
+        <Text style={s.circleMembers} numberOfLines={1}>{circle.members}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -413,7 +446,7 @@ const s = StyleSheet.create({
   },
 
   scroll: {
-    paddingBottom: 140,
+    paddingBottom: 32,
     gap: 28,
   },
 
@@ -658,20 +691,18 @@ const s = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // FAB — `bottom` is injected inline using insets + tab bar height.
-  fab: {
-    position: 'absolute',
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  // Compose button — inline with the "Recent Updates" section heading.
+  composeBtnInline: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: C.primary,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: C.primary,
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 10,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
 });

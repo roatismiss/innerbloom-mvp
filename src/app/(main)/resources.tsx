@@ -10,12 +10,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
-
+import { ArticleArt } from '../../components/ArticleArt';
 import {
   RESOURCE_ARTICLES,
   RESOURCE_CATEGORIES,
@@ -72,42 +72,38 @@ const FEATURED_CATEGORY = RESOURCE_CATEGORIES.find(
   (c) => c.key === FEATURED.category,
 )!;
 
-// ─── Article art block — gradient + category icon (avoids per-card image fab) ─
+// ─── Article art block — bespoke editorial SVG per article (fallback to icon) ─
 function ArtBlock({
+  article,
   category,
   height,
   iconSize = 28,
 }: {
+  article?: ResourceArticle;
   category: ResourceCategory;
   height: number;
   iconSize?: number;
 }) {
   return (
-    <View style={[s.artWrap, { height }]}>
-      <Svg width="100%" height="100%" style={StyleSheet.absoluteFill}>
-        <Defs>
-          <LinearGradient id={`grad-${category.key}`} x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0" stopColor={category.bgColor} stopOpacity={1} />
-            <Stop offset="1" stopColor="rgba(255,255,255,0.10)" stopOpacity={1} />
-          </LinearGradient>
-        </Defs>
-        <Rect width="100%" height="100%" fill={`url(#grad-${category.key})`} />
-      </Svg>
-      <View style={s.artIconPill}>
-        <MaterialCommunityIcons
-          name={category.icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
-          size={iconSize}
-          color={category.iconColor}
-        />
-      </View>
+    <View style={{ height }}>
+      <ArticleArt id={article?.id} category={category} height={height} iconSize={iconSize} />
     </View>
   );
 }
 
 // ─── Screen ──────────────────────────────────────────────────────────────────
+// Carousel card width: exactly two cards fit per viewport, with no peek
+// of a third. Third only appears after side-scrolling.
+function computeArticleCardWidth(W: number): number {
+  const usable = W - 24 - 24 - 14; // page padding + one gap
+  return Math.max(140, Math.min(320, Math.floor(usable / 2)));
+}
+
 export default function ResourcesScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: winW } = useWindowDimensions();
+  const articleCardWidth = computeArticleCardWidth(winW);
   const [search, setSearch] = useState('');
 
   // Filter articles by search query (matches title or excerpt, case-insensitive).
@@ -156,7 +152,7 @@ export default function ResourcesScreen() {
           s.scroll,
           {
             paddingTop: insets.top + HEADER_H + 24,
-            paddingBottom: insets.bottom + 140,
+            paddingBottom: 32,
           },
         ]}
         showsVerticalScrollIndicator={false}
@@ -188,7 +184,7 @@ export default function ResourcesScreen() {
         {/* ── Featured Daily ── */}
         <Animated.View entering={FadeInDown.delay(80).springify()}>
           <Pressable style={s.featuredCard} onPress={() => openArticle(FEATURED)}>
-            <ArtBlock category={FEATURED_CATEGORY} height={256} iconSize={56} />
+            <ArtBlock article={FEATURED} category={FEATURED_CATEGORY} height={256} iconSize={56} />
             <View style={s.featuredOverlay} pointerEvents="none">
               <View style={s.featuredPill}>
                 <Text style={s.featuredPillText}>Featured Daily</Text>
@@ -221,15 +217,16 @@ export default function ResourcesScreen() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
+                style={s.rowScroll}
                 contentContainerStyle={s.row}
               >
                 {articles.map((a) => (
                   <Pressable
                     key={a.id}
-                    style={s.card}
+                    style={[s.card, { width: articleCardWidth }]}
                     onPress={() => openArticle(a)}
                   >
-                    <ArtBlock category={cat} height={128} />
+                    <ArtBlock article={a} category={cat} height={128} />
                     <View style={s.cardBody}>
                       <Text style={s.cardTitle} numberOfLines={2}>{a.title}</Text>
                       <Text style={s.cardExcerpt} numberOfLines={2}>{a.excerpt}</Text>
@@ -388,15 +385,15 @@ const s = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
-  // Horizontal row + card
-  row: { gap: 14, paddingRight: 24, paddingBottom: 6 },
+  // Horizontal row + card — bleeds past parent's horizontal padding so cards
+  // touch both screen edges instead of clipping with a peach gutter.
+  rowScroll: { marginHorizontal: -24 },
+  row: { gap: 14, paddingHorizontal: 24, paddingBottom: 6 },
   card: {
-    width: 240,
+    // width injected inline via computeArticleCardWidth(winW)
     backgroundColor: C.surfaceContainer,
     borderRadius: 20,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(219,193,187,0.30)',
     ...softShadow,
   },
   artWrap: {

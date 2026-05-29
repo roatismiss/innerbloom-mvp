@@ -67,7 +67,7 @@ interface NavItem {
 
 const PRIMARY_NAV: NavItem[] = [
   { key: 'garden',     label: 'Soul Garden',        icon: 'flower-tulip-outline', route: '/(main)/garden' },
-  { key: 'analytics',  label: 'Mood Analytics',     icon: 'chart-line',           route: '/(main)/dashboard' },
+  { key: 'analytics',  label: 'Mood Analytics',     icon: 'chart-line',           route: '/(main)/insights' },
   { key: 'resources',  label: 'Resource Library',   icon: 'book-open-variant',    route: '/(main)/resources' },
   { key: 'therapists', label: 'Therapist Network',  icon: 'medical-bag',          comingSoon: true },
   { key: 'intentions', label: 'Daily Intentions',   icon: 'spa-outline',          route: '/(main)/intentions' },

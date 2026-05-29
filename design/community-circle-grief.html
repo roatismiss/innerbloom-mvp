@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Grief Community | InnerBloom</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&amp;family=Quicksand:wght@400;500;600;700&amp;family=Fraunces:ital,wght@1,600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .flicker { animation: flicker 3s infinite ease-in-out; }
+        @keyframes flicker {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .glass-blur { backdrop-filter: blur(20px); }
+    </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#994531",
+            "secondary": "#006970",
+            "tertiary": "#a8315c",
+            "surface": "#fff8f6",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#fff1ed",
+            "surface-container": "#ffe9e4",
+            "surface-container-high": "#ffe2db",
+            "outline": "#88726d",
+            "outline-variant": "#dbc1bb",
+            "on-surface": "#281814",
+            "on-surface-variant": "#55433e",
+            "background": "#fff8f6",
+            "misty-blue": "#8a96a3",
+            "candle-gold": "#e6b860",
+            "soft-heather": "#a89bb0"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface">
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-surface/95 glass-blur">
+<button><span class="material-symbols-outlined">arrow_back</span></button>
+<h1>Grief</h1>
+<div class="flex gap-2">
+<button><span class="material-symbols-outlined">notifications</span></button>
+<button><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+</header>
+<main class="pt-16 pb-32">
+<!-- HERO -->
+<section class="px-6 pt-12 pb-16 text-center bg-gradient-to-b from-[#fff1ed] to-[#f5ede4]">
+<div class="flex flex-col items-center">
+<div class="mb-6 w-16 h-16 rounded-full bg-white/40 flex items-center justify-center">
+<span class="material-symbols-outlined text-candle-gold text-4xl flicker" style="font-variation-settings:'FILL' 1;">mode_fan</span>
+</div>
+<h2 class="italic text-3xl mb-4" style="font-family:Fraunces,serif;">Grief</h2>
+<p class="text-on-surface-variant max-w-[280px] mb-6">"Grief is the love that has nowhere to go." — Jamie Anderson</p>
+<div class="flex flex-wrap justify-center gap-3">
+<span class="px-3 py-1 bg-white/50 rounded-full text-xs">23.4k members</span>
+<span class="px-3 py-1 bg-white/50 rounded-full text-xs">No finish line</span>
+<span class="px-3 py-1 bg-white/50 rounded-full text-xs">Moderated</span>
+</div>
+</div>
+</section>
+<!-- WAVE CHECK -->
+<section class="px-6 mt-8">
+<div class="p-6 bg-surface-container-low rounded-lg">
+<h3 class="mb-6">Where's the wave right now?</h3>
+<div class="grid grid-cols-4 gap-3 h-24">
+<div class="flex flex-col items-center gap-2"><div class="flex-1 w-full rounded-t-full bg-gradient-to-b from-[#f5ede4] to-[#8a96a3] opacity-30"></div><span class="text-[10px] uppercase tracking-wider font-bold">Quiet</span></div>
+<div class="flex flex-col items-center gap-2"><div class="flex-1 w-full rounded-t-full bg-gradient-to-b from-[#f5ede4] to-[#8a96a3] opacity-50"></div><span class="text-[10px] uppercase tracking-wider font-bold">Receding</span></div>
+<div class="flex flex-col items-center gap-2"><div class="flex-1 w-full rounded-t-full bg-gradient-to-b from-[#f5ede4] to-[#8a96a3] opacity-80 scale-y-110 origin-bottom"></div><span class="text-[10px] uppercase tracking-wider font-bold">Cresting</span></div>
+<div class="flex flex-col items-center gap-2"><div class="flex-1 w-full rounded-t-full bg-gradient-to-b from-[#f5ede4] to-[#8a96a3] opacity-40"></div><span class="text-[10px] uppercase tracking-wider font-bold">Incoming</span></div>
+</div>
+</div>
+</section>
+<!-- REMEMBRANCE -->
+<section class="px-6 mt-12 text-center">
+<h4 class="text-on-surface-variant mb-2">Tuesday, May 29</h4>
+<p class="text-xl mb-2">Today, 12 members of this circle are remembering.</p>
+<p class="text-on-surface-variant italic mb-4">Anniversaries, birthdays, the day.</p>
+<button class="px-6 py-2 bg-misty-blue text-white rounded-full">View today's remembrances</button>
+</section>
+<!-- MEMORIAL WALL -->
+<section class="mt-12">
+<div class="px-6 flex justify-between items-end mb-4">
+<h3>Yours</h3>
+<span class="material-symbols-outlined text-outline">add_circle</span>
+</div>
+<div class="flex gap-4 overflow-x-auto px-6 pb-6">
+<div class="min-w-[110px] h-[140px] bg-white rounded-xl flex flex-col items-center p-3 border border-surface-container">
+<div class="w-16 h-16 rounded-full bg-misty-blue/20 mb-2 border-2 border-surface-container"></div>
+<span class="text-xs font-bold text-center">Lola Maria</span>
+<span class="text-[9px] text-on-surface-variant mt-0.5">2019</span>
+<span class="material-symbols-outlined text-candle-gold text-xs mt-auto flicker" style="font-variation-settings:'FILL' 1;">mode_fan</span>
+</div>
+<div class="min-w-[110px] h-[140px] bg-white rounded-xl flex flex-col items-center p-3 border border-surface-container">
+<div class="w-16 h-16 rounded-full bg-candle-gold/20 mb-2 border-2 border-surface-container"></div>
+<span class="text-xs font-bold text-center">Pepper</span>
+<span class="text-[9px] text-on-surface-variant mt-0.5">2023</span>
+<span class="material-symbols-outlined text-candle-gold text-xs mt-auto flicker" style="font-variation-settings:'FILL' 1;">mode_fan</span>
+</div>
+<div class="min-w-[110px] h-[140px] bg-white rounded-xl flex flex-col items-center p-3 border border-surface-container">
+<div class="w-16 h-16 rounded-full bg-soft-heather/20 mb-2 border-2 border-surface-container"></div>
+<span class="text-xs font-bold text-center">Mark</span>
+<span class="text-[9px] text-on-surface-variant mt-0.5">2021</span>
+<span class="material-symbols-outlined text-candle-gold text-xs mt-auto flicker" style="font-variation-settings:'FILL' 1;">mode_fan</span>
+</div>
+</div>
+</section>
+<!-- TALK TO THEM -->
+<section class="px-6 mt-8">
+<div class="p-6 bg-surface-container-low rounded-lg">
+<h3 class="mb-4">Talk to them</h3>
+<div class="flex flex-col gap-3">
+<button class="w-full h-12 flex items-center justify-center gap-2 bg-misty-blue text-white rounded-full"><span class="material-symbols-outlined">mic</span>Record a voice note to them</button>
+<button class="w-full h-12 flex items-center justify-center gap-2 border border-outline text-on-surface-variant rounded-full"><span class="material-symbols-outlined">edit</span>Write them a letter</button>
+</div>
+</div>
+</section>
+<!-- TODAY'S READING -->
+<section class="px-6 mt-12">
+<div class="bg-white p-8 rounded-lg border-l-4 border-candle-gold">
+<span class="text-[10px] font-bold tracking-[0.2em] text-candle-gold mb-4 block uppercase">Today's Reading</span>
+<p class="italic text-lg mb-4" style="font-family:Fraunces,serif;">"What is grief, if not love persevering?"</p>
+<span class="text-on-surface-variant">— Vision, WandaVision</span>
+</div>
+</section>
+<!-- COMPANION BENCH -->
+<section class="px-6 mt-8">
+<div class="p-6 rounded-lg bg-gradient-to-br from-[#f5ede4] to-[#fff8f6] border border-surface-container">
+<h3 class="mb-1">Someone arrived this week.</h3>
+<p class="text-on-surface-variant mb-6">23 members joined the circle.</p>
+<div class="flex gap-3">
+<button class="flex-1 py-3 border border-outline text-on-surface-variant rounded-full text-xs font-bold">Sit with one of them</button>
+<button class="flex-1 py-3 bg-candle-gold text-on-surface rounded-full text-xs font-bold">I'm new — find me someone</button>
+</div>
+</div>
+</section>
+<!-- FEED HEADER + FILTERS -->
+<section class="mt-12">
+<div class="px-6 mb-4"><h3 class="italic text-xl" style="font-family:Fraunces,serif;">From the circle</h3></div>
+<div class="flex gap-2 overflow-x-auto px-6 pb-3">
+<span class="px-4 py-1.5 bg-soft-heather text-white rounded-full text-xs whitespace-nowrap">Anniversary</span>
+<span class="px-4 py-1.5 bg-surface-container-high rounded-full text-xs whitespace-nowrap">Continuing bonds</span>
+<span class="px-4 py-1.5 bg-surface-container-high rounded-full text-xs whitespace-nowrap">Disenfranchised</span>
+<span class="px-4 py-1.5 bg-surface-container-high rounded-full text-xs whitespace-nowrap">Anticipatory</span>
+</div>
+<div class="flex gap-2 overflow-x-auto px-6 pb-6">
+<span class="px-4 py-1.5 bg-misty-blue/10 border border-misty-blue/30 rounded-full text-[11px] font-bold whitespace-nowrap">Parent</span>
+<span class="px-4 py-1.5 bg-misty-blue/10 border border-misty-blue/30 rounded-full text-[11px] font-bold whitespace-nowrap">Pet</span>
+<span class="px-4 py-1.5 bg-misty-blue/10 border border-misty-blue/30 rounded-full text-[11px] font-bold whitespace-nowrap">Partner</span>
+<span class="px-4 py-1.5 bg-misty-blue/10 border border-misty-blue/30 rounded-full text-[11px] font-bold whitespace-nowrap">Sibling</span>
+</div>
+</section>
+<!-- POSTS -->
+<section class="px-6 flex flex-col gap-4">
+<div class="bg-white p-5 rounded-lg border border-surface-container">
+<div class="flex justify-between mb-3">
+<div class="flex gap-2 items-center"><div class="w-8 h-8 rounded-full bg-misty-blue/20"></div><span class="text-xs font-bold">Sarah H.</span></div>
+<span class="text-[10px] px-2 py-0.5 bg-misty-blue/10 text-misty-blue rounded uppercase font-bold tracking-wider">Incoming Wave</span>
+</div>
+<p class="mb-4">Heard her song on the radio this morning... cried right in the cereal aisle. It felt like she was standing right behind me for a second.</p>
+<div class="flex gap-2 flex-wrap">
+<button class="px-3 py-1 bg-surface-container-low rounded-full text-[11px] flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">nature_people</span>I'm sitting with you</button>
+<button class="px-3 py-1 bg-surface-container-low rounded-full text-[11px] flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">waves</span>This wave too</button>
+<button class="px-3 py-1 bg-surface-container-low rounded-full text-[11px] flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-candle-gold" style="font-variation-settings:'FILL' 1;">mode_fan</span>Sending a candle</button>
+</div>
+</div>
+<div class="bg-white rounded-lg border border-surface-container overflow-hidden">
+<div class="h-1.5 bg-candle-gold w-full"></div>
+<div class="p-5">
+<div class="flex justify-between mb-3">
+<div class="flex gap-2 items-center"><div class="w-8 h-8 rounded-full bg-candle-gold/30"></div><span class="text-xs font-bold">Maya</span></div>
+<span class="text-[10px] px-2 py-0.5 bg-candle-gold/10 text-candle-gold rounded uppercase font-bold tracking-wider">Anniversary</span>
+</div>
+<p class="text-on-surface-variant mb-4">Remembering Mom today. 4 years. The world feels different without her laugh, but I'm making her favorite lemon cake tonight.</p>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined">favorite</span>
+<span class="material-symbols-outlined">chat_bubble_outline</span>
+<span class="material-symbols-outlined">share</span>
+</div>
+</div>
+</div>
+<div class="bg-white p-5 rounded-lg border border-surface-container">
+<div class="flex justify-between mb-3">
+<div class="flex gap-2 items-center"><div class="w-8 h-8 rounded-full bg-soft-heather/20"></div><span class="text-xs font-bold">James T.</span></div>
+<span class="text-[10px] px-2 py-0.5 bg-soft-heather/10 text-soft-heather rounded uppercase font-bold tracking-wider">Long Carrier</span>
+</div>
+<p class="italic border-l-2 border-soft-heather/30 pl-4 mb-4">"23 years since I lost my brother... It doesn't end. It just changes shape. Sometimes it's a pebble in my shoe, sometimes it's an anchor. Today it's just a soft breeze."</p>
+<div class="flex gap-4 text-on-surface-variant text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">favorite</span>152</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">chat_bubble</span>48</span>
+</div>
+</div>
+</section>
+<!-- LIGHTING HOUR -->
+<section class="px-6 mt-8">
+<div class="p-8 rounded-lg bg-gradient-to-r from-soft-heather to-[#f5ede4] text-white flex justify-between items-center relative overflow-hidden">
+<div>
+<h3 class="italic mb-2" style="font-family:Fraunces,serif;">Lighting Hour</h3>
+<p class="text-xs mb-4 max-w-[200px]">Join the live silent ritual at 8:00 PM tonight.</p>
+<button class="px-5 py-2 bg-white text-soft-heather rounded-full text-xs font-bold">Reserve a candle</button>
+</div>
+<span class="material-symbols-outlined text-6xl opacity-30 flicker" style="font-variation-settings:'FILL' 1;">mode_fan</span>
+</div>
+</section>
+</main>
+<!-- BEREAVEMENT STRIP -->
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] z-50 bg-white/95 glass-blur py-3 px-6 rounded-full border border-surface-container flex justify-between items-center">
+<span class="text-xs font-bold text-misty-blue">Bereavement counselor directory</span>
+<span class="material-symbols-outlined text-misty-blue">chevron_right</span>
+</div>
+<!-- FAB -->
+<button class="fixed bottom-6 right-6 w-14 h-14 bg-misty-blue text-white rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl flicker" style="font-variation-settings:'FILL' 1;">mode_fan</span>
+</button>
+</body></html>

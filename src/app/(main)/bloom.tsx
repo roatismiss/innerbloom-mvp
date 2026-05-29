@@ -101,11 +101,20 @@ export default function BloomChatScreen() {
   const inputRef = useRef<TextInput>(null);
 
   // Open the keyboard automatically every time the screen comes into focus.
+  // Multiple attempts because the tab-bar hide + KAV layout pass can swallow
+  // a single focus() call on iOS.
   useFocusEffect(
     useCallback(() => {
-      const t = setTimeout(() => inputRef.current?.focus(), 220);
+      const focus = () => inputRef.current?.focus();
+      const t1 = setTimeout(focus, 0);
+      const t2 = setTimeout(focus, 150);
+      const t3 = setTimeout(focus, 400);
+      const t4 = setTimeout(focus, 800);
       return () => {
-        clearTimeout(t);
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+        clearTimeout(t4);
         inputRef.current?.blur();
       };
     }, []),
@@ -259,6 +268,7 @@ export default function BloomChatScreen() {
           <View style={s.inputWrap}>
             <TextInput
               ref={inputRef}
+              autoFocus
               value={draft}
               onChangeText={setDraft}
               placeholder="Share your thoughts…"

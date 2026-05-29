@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InnerBloom - Burnout Recovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&amp;family=Quicksand:wght@400;600;700&amp;family=Fraunces:ital,opsz,wght@1,9..144,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        .font-fraunces { font-family: 'Fraunces', serif; }
+        .line-height-relaxed { line-height: 1.7; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        .animate-breathe { animation: breathe 8s ease-in-out infinite; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed min-h-screen pb-32">
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-surface/80 backdrop-blur-xl">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-primary">Burnout Recovery</h1>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">more_vert</span>
+</button>
+</div>
+</header>
+<main class="pt-16">
+<section class="h-[280px] w-full relative flex flex-col items-center justify-center text-center px-container-padding overflow-hidden bg-gradient-to-b from-primary-fixed/30 to-background">
+<div class="mb-6 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center animate-breathe">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<h2 class="font-fraunces italic text-headline-lg text-primary mb-2">Burnout Recovery</h2>
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-4">Recovery is a slow, sacred return.</p>
+<div class="flex gap-2 items-center text-label-md font-label-md text-outline">
+<span>8.2k members</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>You belong here</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="material-symbols-outlined text-[14px]">verified_user</span>
+</div>
+</section>
+<section class="px-container-padding mt-stack-gap-lg">
+<div class="bg-surface-container-low rounded-lg p-6">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-widest mb-1">Weekly Energy</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mostly rebuilding. 23% reported rest.</p>
+</div>
+</div>
+<div class="flex items-end justify-between h-32 gap-2">
+<div class="flex flex-col items-center flex-1"><div class="w-full bg-primary/20 rounded-t-full h-[30%]"></div><span class="text-[10px] mt-2 font-label-md text-outline">M</span></div>
+<div class="flex flex-col items-center flex-1"><div class="w-full bg-primary/40 rounded-t-full h-[45%]"></div><span class="text-[10px] mt-2 font-label-md text-outline">T</span></div>
+<div class="flex flex-col items-center flex-1"><div class="w-full bg-primary-container rounded-t-full h-[25%]"></div><span class="text-[10px] mt-2 font-label-md text-outline">W</span></div>
+<div class="flex flex-col items-center flex-1"><div class="w-full bg-primary rounded-t-full h-[60%]"></div><span class="text-[10px] mt-2 font-label-md text-outline">T</span></div>
+<div class="flex flex-col items-center flex-1"><div class="w-full bg-primary-container rounded-t-full h-[40%]"></div><span class="text-[10px] mt-2 font-label-md text-outline">F</span></div>
+<div class="flex flex-col items-center flex-1"><div class="w-full bg-secondary-fixed-dim rounded-t-full h-[85%]"></div><span class="text-[10px] mt-2 font-label-md text-outline">S</span></div>
+<div class="flex flex-col items-center flex-1"><div class="w-full bg-secondary-fixed-dim rounded-t-full h-[70%]"></div><span class="text-[10px] mt-2 font-label-md text-outline">S</span></div>
+</div>
+</div>
+</section>
+<section class="mt-section-margin">
+<div class="px-container-padding flex items-center justify-between mb-4">
+<h3 class="font-headline-sm text-headline-sm text-primary">Permission Slips</h3>
+<span class="material-symbols-outlined text-outline">history_edu</span>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar px-container-padding snap-x">
+<div class="min-w-[240px] snap-center bg-surface-container-high p-8 rounded-lg aspect-[3/4] flex flex-col justify-between border-l-4 border-primary/20"><p class="font-fraunces italic text-headline-sm text-primary line-height-relaxed">"...to rest without earning it."</p><div class="text-label-md text-outline font-label-md">Slip #01</div></div>
+<div class="min-w-[240px] snap-center bg-surface-container-high p-8 rounded-lg aspect-[3/4] flex flex-col justify-between border-l-4 border-primary/20"><p class="font-fraunces italic text-headline-sm text-primary line-height-relaxed">"...to disappoint someone today."</p><div class="text-label-md text-outline font-label-md">Slip #02</div></div>
+<div class="min-w-[240px] snap-center bg-surface-container-high p-8 rounded-lg aspect-[3/4] flex flex-col justify-between border-l-4 border-primary/20"><p class="font-fraunces italic text-headline-sm text-primary line-height-relaxed">"...to miss the meeting."</p><div class="text-label-md text-outline font-label-md">Slip #03</div></div>
+<div class="min-w-[240px] snap-center bg-surface-container-high p-8 rounded-lg aspect-[3/4] flex flex-col justify-between border-l-4 border-primary/20"><p class="font-fraunces italic text-headline-sm text-primary line-height-relaxed">"...to be messy and unoptimized."</p><div class="text-label-md text-outline font-label-md">Slip #04</div></div>
+</div>
+</section>
+<section class="px-container-padding mt-section-margin">
+<div class="bg-primary/5 rounded-lg p-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10"><span class="material-symbols-outlined text-6xl">anchor</span></div>
+<h3 class="font-label-md text-label-md text-primary uppercase tracking-widest mb-4">Today's Anchor</h3>
+<p class="font-body-lg text-body-lg text-on-surface line-height-relaxed mb-6">What did you say yes to this week that drained you — and what would it cost to say no next time?</p>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-full flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-transform">Reflect in circle<span class="material-symbols-outlined text-sm">chat_bubble</span></button>
+</div>
+</section>
+<section class="mt-section-margin">
+<div class="px-container-padding mb-4 flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-primary">Boundary Scripts</h3>
+<span class="text-label-md text-primary font-label-md">View Library</span>
+</div>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar px-container-padding">
+<div class="min-w-[180px] bg-white rounded-lg p-4 border border-surface-container"><span class="material-symbols-outlined text-secondary mb-3">work_off</span><p class="font-label-md text-on-surface">Saying no to extra work</p></div>
+<div class="min-w-[180px] bg-white rounded-lg p-4 border border-surface-container"><span class="material-symbols-outlined text-secondary mb-3">travel</span><p class="font-label-md text-on-surface">Asking for leave</p></div>
+<div class="min-w-[180px] bg-white rounded-lg p-4 border border-surface-container"><span class="material-symbols-outlined text-secondary mb-3">notifications_paused</span><p class="font-label-md text-on-surface">Off-clock notifications</p></div>
+</div>
+</section>
+<section class="mt-section-margin px-container-padding">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-6">End-of-shift notes</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4 bg-surface-container-low p-4 rounded-lg">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-primary-fixed"></div>
+<div class="flex-1"><div class="flex justify-between mb-1"><span class="font-label-md text-on-surface">Sarah M.</span><span class="text-label-md text-outline">2:04</span></div><div class="h-8 flex items-center gap-1"><div class="h-1 flex-1 bg-primary/20 rounded-full overflow-hidden relative"><div class="absolute inset-y-0 left-0 w-1/3 bg-primary"></div></div><span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">play_arrow</span></div></div>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low p-4 rounded-lg">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-primary-fixed"></div>
+<div class="flex-1"><div class="flex justify-between mb-1"><span class="font-label-md text-on-surface">David R.</span><span class="text-label-md text-outline">1:15</span></div><div class="h-8 flex items-center gap-1"><div class="h-1 flex-1 bg-primary/20 rounded-full overflow-hidden"></div><span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">play_arrow</span></div></div>
+</div>
+</div>
+</section>
+<section class="mt-section-margin">
+<div class="px-container-padding flex flex-col gap-4">
+<h3 class="font-headline-sm text-headline-sm text-primary">From the circle</h3>
+<div class="flex gap-2 overflow-x-auto hide-scrollbar">
+<span class="bg-primary text-on-primary px-4 py-2 rounded-full text-label-md font-label-md whitespace-nowrap">Boundaries</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-label-md font-label-md whitespace-nowrap">Wins</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-label-md font-label-md whitespace-nowrap">Reframes</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-label-md font-label-md whitespace-nowrap">Quit stories</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-label-md font-label-md whitespace-nowrap">Rest hacks</span>
+</div>
+</div>
+</section>
+<section class="mt-8 px-container-padding space-y-8">
+<article class="bg-white rounded-lg p-6">
+<div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center"><span class="material-symbols-outlined text-secondary text-sm">stars</span></div><span class="text-label-md font-label-md text-secondary">Boundary Win</span><span class="text-label-md text-outline ml-auto">2h ago</span></div>
+<p class="font-fraunces text-[16px] text-on-surface line-height-relaxed mb-4">Today I deleted Slack from my phone for the weekend. The initial panic lasted exactly four minutes, and then... silence. A real, heavy, lovely silence.</p>
+<div class="flex items-center gap-4 text-outline">
+<button class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">favorite</span><span class="text-label-md">124</span></button>
+<button class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">chat_bubble</span><span class="text-label-md">18</span></button>
+</div>
+</article>
+<article class="bg-white rounded-lg p-6 border-t-4 border-tertiary">
+<div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-tertiary/10 flex items-center justify-center"><span class="material-symbols-outlined text-tertiary text-sm">exit_to_app</span></div><span class="text-label-md font-label-md text-tertiary">Quit Story</span><span class="text-label-md text-outline ml-auto">5h ago</span></div>
+<p class="font-fraunces text-[16px] text-on-surface line-height-relaxed mb-4">I finally walked away from the 'dream' role that was killing my spirit. I don't have a plan yet, just a commitment to not being exhausted anymore.</p>
+<div class="flex items-center gap-4 text-outline">
+<button class="flex items-center gap-1 text-tertiary"><span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">favorite</span><span class="text-label-md">482</span></button>
+<button class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">chat_bubble</span><span class="text-label-md">56</span></button>
+</div>
+</article>
+<div class="rounded-lg overflow-hidden relative h-48 flex flex-col justify-center px-8 bg-gradient-to-r from-secondary-container to-primary-container">
+<h4 class="font-fraunces italic text-headline-sm text-on-secondary-container mb-2">Nothing Hour</h4>
+<p class="text-body-sm text-on-secondary-container opacity-80 mb-4 max-w-[200px]">60 minutes of collective doing-nothing starts in 12m.</p>
+<button class="w-max bg-white/20 backdrop-blur-md text-on-secondary-container border border-white/30 px-4 py-2 rounded-full font-label-md text-label-md">Join waiting room</button>
+</div>
+<article class="bg-white rounded-lg p-6">
+<div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><span class="material-symbols-outlined text-primary text-sm">auto_awesome</span></div><span class="text-label-md font-label-md text-primary">Reframe</span><span class="text-label-md text-outline ml-auto">Yesterday</span></div>
+<p class="font-fraunces text-[16px] text-on-surface line-height-relaxed">Productivity is a pace, not a destination. If your current pace is 'stagnant,' perhaps you're actually 'rooting.'</p>
+</article>
+</section>
+<section class="mt-section-margin px-container-padding mb-12">
+<div class="bg-surface-container p-6 rounded-lg flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined">clinical_notes</span></div>
+<div class="flex-1"><p class="font-label-md text-on-surface">Find a burnout-aware therapist</p><p class="text-body-sm text-on-surface-variant">Gentle support for your journey.</p></div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</section>
+</main>
+<div class="fixed bottom-32 right-6 flex flex-col items-end gap-3 pointer-events-none">
+<div class="bg-inverse-surface text-inverse-on-surface px-4 py-2 rounded-full text-label-md font-label-md animate-bounce opacity-80">Hold for voice</div>
+<button class="w-16 h-16 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center pointer-events-auto active:scale-90 transition-transform duration-300"><span class="material-symbols-outlined text-3xl">mic</span></button>
+</div>
+</body></html>

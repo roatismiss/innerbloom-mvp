@@ -266,7 +266,7 @@ export default function FeedHomeScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + HEADER_H + 16, paddingBottom: 160 },
+          { paddingTop: insets.top + HEADER_H + 16, paddingBottom: 32 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -521,6 +521,7 @@ export default function FeedHomeScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={s.recRowScroll}
             contentContainerStyle={s.recRow}
           >
             {RECOMMENDED.map((r) => (
@@ -1009,9 +1010,12 @@ const s = StyleSheet.create({
   },
 
   // Recommended
+  // Bleeds past parent's 24px horizontal padding so cards touch both screen
+  // edges instead of clipping with a peach gutter.
+  recRowScroll: { marginHorizontal: -24 },
   recRow: {
     gap: 14,
-    paddingRight: 24,
+    paddingHorizontal: 24,
     paddingBottom: 4,
   },
   recCard: {

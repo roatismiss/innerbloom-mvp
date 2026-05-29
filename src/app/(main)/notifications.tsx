@@ -116,7 +116,7 @@ export default function NotificationsScreen() {
       <ScrollView
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 120 },
+          { paddingTop: insets.top + 16, paddingBottom: 32 },
         ]}
         showsVerticalScrollIndicator={false}
         refreshControl={

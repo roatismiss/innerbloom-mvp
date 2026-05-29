@@ -165,16 +165,27 @@ export function usePendingKindredRequests() {
 
   // Live inbox: any kindred_requests row that targets me updates the list.
   useEffect(() => {
-    let userId: string | null = null;
-    let mounted = true;
+    let cancelled = false;
+    let channel: ReturnType<ReturnType<typeof sb>['channel']> | null = null;
 
-    const setup = async () => {
+    (async () => {
       const { data: { user } } = await sb().auth.getUser();
-      if (!user || !mounted) return;
-      userId = user.id;
+      if (!user || cancelled) return;
 
-      const channel = sb()
-        .channel(`kindred-inbox:${user.id}`)
+      const topic = `kindred-inbox:${user.id}`;
+      // StrictMode/HMR can leave a stale same-named channel already subscribed;
+      // adding `.on()` to that would throw. Drop any leftover first.
+      sb()
+        .getChannels()
+        .filter((c) => c.topic === `realtime:${topic}`)
+        .forEach((c) => {
+          void sb().removeChannel(c);
+        });
+
+      if (cancelled) return;
+
+      channel = sb()
+        .channel(topic)
         .on(
           'postgres_changes',
           {
@@ -188,15 +199,14 @@ export function usePendingKindredRequests() {
           },
         )
         .subscribe();
+    })();
 
-      return () => sb().removeChannel(channel);
-    };
-
-    const cleanup = setup();
     return () => {
-      mounted = false;
-      void cleanup.then((fn) => fn?.());
-      void userId;
+      cancelled = true;
+      if (channel) {
+        void sb().removeChannel(channel);
+        channel = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -238,7 +238,7 @@ export default function JournalScreen() {
       <ScrollView
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + HEADER_H + 16, paddingBottom: 140 },
+          { paddingTop: insets.top + HEADER_H + 16, paddingBottom: 32 },
         ]}
         showsVerticalScrollIndicator={false}
       >

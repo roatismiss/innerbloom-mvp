@@ -27,6 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { aiInputRef } from '../../lib/ai-input-ref';
 import type { BloomCard } from '../../lib/bloom-prompt';
 import { BLOOM_CRISIS_RESOURCES_PH } from '../../lib/bloom-prompt';
 import {
@@ -250,7 +251,10 @@ export default function AICompanionScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
-  const inputRef = useRef<TextInput>(null);
+  // Use the shared module-level ref so the tab-bar's `tabPress` listener
+  // (in _layout.tsx) can focus the composer synchronously inside the user
+  // gesture — required to bypass iOS Safari's keyboard-open restriction on PWA.
+  const inputRef = aiInputRef;
   const qc = useQueryClient();
 
   const [draft, setDraft] = useState('');
@@ -409,11 +413,20 @@ export default function AICompanionScreen() {
   // Open the keyboard automatically every time the screen comes into focus,
   // so Bloom AI behaves like ChatGPT / iMessage — the composer is ready and
   // the tab bar slides out, leaving the header pinned at the top.
+  // We fire several attempts because the tab-bar transition + KAV layout pass
+  // can swallow a single focus() call on iOS.
   useFocusEffect(
     useCallback(() => {
-      const t = setTimeout(() => inputRef.current?.focus(), 220);
+      const focus = () => inputRef.current?.focus();
+      const t1 = setTimeout(focus, 0);
+      const t2 = setTimeout(focus, 150);
+      const t3 = setTimeout(focus, 400);
+      const t4 = setTimeout(focus, 800);
       return () => {
-        clearTimeout(t);
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+        clearTimeout(t4);
         inputRef.current?.blur();
       };
     }, []),
@@ -473,7 +486,9 @@ export default function AICompanionScreen() {
           contentContainerStyle={[
             s.chatScroll,
             {
-              paddingTop: 24,
+              // Header is absolutely positioned (height = insets.top + HEADER_H)
+              // so we must push the chat content below it.
+              paddingTop: insets.top + HEADER_H + 16,
               paddingBottom: INPUT_BAR_H + bottomBarPad + 32,
             },
           ]}
@@ -678,7 +693,12 @@ const s = StyleSheet.create({
   },
 
   topBar: {
-    backgroundColor: 'rgba(255,248,246,0.92)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+    backgroundColor: 'rgba(255,248,246,0.96)',
     borderBottomWidth: 1,
     borderBottomColor: C.surfaceContainer,
   },

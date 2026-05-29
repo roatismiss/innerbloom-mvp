@@ -19,10 +19,12 @@ import Animated, {
   FadeInUp,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import {
   useTodayIntention,
@@ -93,6 +95,90 @@ function BloomBadge() {
   );
 }
 
+// ─── Celebration splash (shown after user confirms "Yes, I did") ─────────────
+
+function CelebrationBloom({ size = 132 }: { size?: number }) {
+  const outer = [0, 60, 120, 180, 240, 300];
+  const inner = [30, 90, 150, 210, 270, 330];
+  return (
+    <Svg width={size} height={size} viewBox="0 0 56 56" fill="none">
+      <Circle cx={28} cy={28} r={24} fill="#fa719c" opacity={0.12} />
+      {outer.map((a) => (
+        <Path
+          key={`o-${a}`}
+          d="M28 28 C 31 22, 31 12, 28 4 C 25 12, 25 22, 28 28 Z"
+          fill="#f47ca4"
+          opacity={0.95}
+          transform={`rotate(${a} 28 28)`}
+        />
+      ))}
+      {inner.map((a) => (
+        <Path
+          key={`i-${a}`}
+          d="M28 28 C 29.8 24, 29.8 16, 28 10 C 26.2 16, 26.2 24, 28 28 Z"
+          fill="#a8315c"
+          transform={`rotate(${a} 28 28)`}
+        />
+      ))}
+      <Circle cx={28} cy={28} r={4.5} fill="#700034" />
+      <Circle cx={28} cy={28} r={1.8} fill="#ffd4e1" />
+    </Svg>
+  );
+}
+
+function CelebrationSplash() {
+  const cardOpacity = useSharedValue(0);
+  const bloomScale = useSharedValue(0.5);
+  const bloomRotate = useSharedValue(-30);
+  const titleOpacity = useSharedValue(0);
+  const titleTranslate = useSharedValue(14);
+  const ringScale = useSharedValue(0.6);
+  const ringOpacity = useSharedValue(0.5);
+
+  useEffect(() => {
+    cardOpacity.value = withTiming(1, { duration: 280, easing: Easing.out(Easing.cubic) });
+    bloomScale.value = withTiming(1, { duration: 720, easing: Easing.out(Easing.back(1.4)) });
+    bloomRotate.value = withTiming(0, { duration: 720, easing: Easing.out(Easing.cubic) });
+    titleOpacity.value = withDelay(220, withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) }));
+    titleTranslate.value = withDelay(220, withTiming(0, { duration: 480, easing: Easing.out(Easing.cubic) }));
+    ringScale.value = withRepeat(withTiming(1.35, { duration: 1400, easing: Easing.out(Easing.cubic) }), -1, false);
+    ringOpacity.value = withRepeat(withTiming(0, { duration: 1400, easing: Easing.out(Easing.cubic) }), -1, false);
+  }, [cardOpacity, bloomScale, bloomRotate, titleOpacity, titleTranslate, ringScale, ringOpacity]);
+
+  const overlayStyle = useAnimatedStyle(() => ({ opacity: cardOpacity.value }));
+  const bloomStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: bloomScale.value }, { rotate: `${bloomRotate.value}deg` }],
+  }));
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: titleOpacity.value,
+    transform: [{ translateY: titleTranslate.value }],
+  }));
+  const subStyle = useAnimatedStyle(() => ({ opacity: titleOpacity.value }));
+  const ringStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: ringScale.value }],
+    opacity: ringOpacity.value,
+  }));
+
+  return (
+    <Animated.View style={[s.splashOverlay, overlayStyle]} pointerEvents="auto">
+      <View style={s.splashContent}>
+        <View style={s.splashBloomWrap}>
+          <Animated.View style={[s.splashRing, ringStyle]} />
+          <Animated.View style={bloomStyle}>
+            <CelebrationBloom size={140} />
+          </Animated.View>
+        </View>
+        <Animated.Text style={[s.splashTitle, titleStyle]}>
+          You honored it.
+        </Animated.Text>
+        <Animated.Text style={[s.splashSub, subStyle]}>
+          Your bloom remembers today.
+        </Animated.Text>
+      </View>
+    </Animated.View>
+  );
+}
+
 // ─── Screen ──────────────────────────────────────────────────────────────────
 export default function IntentionsScreen() {
   const router = useRouter();
@@ -146,6 +232,9 @@ export default function IntentionsScreen() {
   // store either on "Set Focus" or on blur.
   const [draft, setDraft] = useState(today.primary);
   const [newTaskLabel, setNewTaskLabel] = useState('');
+  // Celebration overlay shown when the user newly confirms "Yes, I did" on the
+  // evening reflection. Held briefly, then navigates back to the dashboard.
+  const [celebrating, setCelebrating] = useState(false);
 
   // If the user crosses midnight while the app is open, refresh.
   useEffect(() => {
@@ -202,6 +291,16 @@ export default function IntentionsScreen() {
     const nextHonored = today.honored === value ? null : value;
     setHonored(nextHonored);
     persist({ primary: today.primary, tasks: today.tasks, honored: nextHonored });
+
+    // Celebration moment: only fire when the user newly confirms "Yes".
+    // Tapping Yes a second time (which toggles back to null) stays silent so
+    // we don't reward an un-toggle. "Not today" never triggers it.
+    if (value === true && nextHonored === true) {
+      setCelebrating(true);
+      setTimeout(() => {
+        router.replace('/(main)/dashboard');
+      }, 1700);
+    }
   }
 
   return (
@@ -223,7 +322,7 @@ export default function IntentionsScreen() {
       <ScrollView
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + HEADER_H + 24, paddingBottom: insets.bottom + 140 },
+          { paddingTop: insets.top + HEADER_H + 24, paddingBottom: 32 },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -408,6 +507,8 @@ export default function IntentionsScreen() {
           </View>
         </Animated.View>
       </ScrollView>
+
+      {celebrating && <CelebrationSplash />}
     </View>
   );
 }
@@ -737,5 +838,54 @@ const s = StyleSheet.create({
     height: 140,
     borderRadius: 20,
     marginTop: 6,
+  },
+
+  // Celebration splash — fullscreen overlay over the screen + tab bar.
+  splashOverlay: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(255,248,246,0.98)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 9999,
+    elevation: 50,
+  },
+  splashContent: {
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    gap: 18,
+  },
+  splashBloomWrap: {
+    width: 140,
+    height: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  splashRing: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 1.5,
+    borderColor: 'rgba(168,49,92,0.45)',
+  },
+  splashTitle: {
+    fontFamily: 'Fraunces_400Regular_Italic',
+    fontStyle: 'italic',
+    fontSize: 34,
+    lineHeight: 42,
+    color: C.primary,
+    textAlign: 'center',
+    letterSpacing: -0.4,
+    marginTop: 4,
+  },
+  splashSub: {
+    fontFamily: 'NunitoSans_400Regular',
+    fontSize: 16,
+    lineHeight: 22,
+    color: C.onSurfaceVariant,
+    textAlign: 'center',
+    maxWidth: 280,
   },
 });

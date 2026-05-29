@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -13,6 +13,7 @@ import { useTodayIntention } from '../../lib/queries/intentions';
 import { useMoodHistory, useSubmitMood, useTodayForMe } from '../../lib/queries/mood';
 import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
 import { useMyProfile } from '../../lib/queries/profile';
+import { ArticleArt } from '../../components/ArticleArt';
 import {
   getRecommendedArticles,
   RESOURCE_CATEGORIES,
@@ -95,13 +96,8 @@ const QUICK_CARE: Array<{
   labelColor?: string;
   emphasis?: boolean;
 }> = [
-  { key: 'log',      label: 'Log Mood',       icon: 'emoticon-plus-outline', bg: 'rgba(144,242,252,0.30)', iconColor: C.secondary },
-  { key: 'journal',  label: 'Start Journal',  icon: 'note-edit-outline',     bg: 'rgba(250,113,156,0.18)', iconColor: C.tertiary },
-  { key: 'breathe',  label: 'Breathing',      icon: 'weather-windy',         bg: 'rgba(255,218,210,0.50)', iconColor: C.primary  },
-  { key: 'sos',      label: 'Emergency Calm', icon: 'home-heart',
-    bg: 'rgba(186,26,26,0.10)', iconColor: C.error,
-    cardBg: 'rgba(186,26,26,0.05)', cardBorder: 'rgba(186,26,26,0.10)',
-    labelColor: C.error, emphasis: true },
+  { key: 'journal',  label: 'Start Journal',  icon: 'note-edit-outline', bg: 'rgba(250,113,156,0.18)', iconColor: C.tertiary },
+  { key: 'breathe',  label: 'Breathing',      icon: 'weather-windy',     bg: 'rgba(255,218,210,0.50)', iconColor: C.primary  },
 ];
 
 const CIRCLES = [
@@ -187,9 +183,18 @@ function QuestGlyph({ size = 44 }: { size?: number }) {
 
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
+// Carousel card width: exactly two cards fit per viewport, with no peek
+// of a third. Third only appears after side-scrolling.
+function computeCarouselCardWidth(W: number, gap = 14): number {
+  const usable = W - 24 - 24 - gap;
+  return Math.max(140, Math.min(320, Math.floor(usable / 2)));
+}
+
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { width: winW } = useWindowDimensions();
+  const recCardWidth = computeCarouselCardWidth(winW);
   const profile = useMyProfile();
   const displayName = profile.data?.display_name || profile.data?.anonymous_alias?.replace(/^Bloom #/, '') || 'there';
   const avatarUri = profile.data?.avatar_url ?? null;
@@ -395,7 +400,7 @@ export default function DashboardScreen() {
       <ScrollView
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + HEADER_H + 16, paddingBottom: 160 },
+          { paddingTop: insets.top + HEADER_H + 16, paddingBottom: 32 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -702,28 +707,21 @@ export default function DashboardScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={s.recRowScroll}
             contentContainerStyle={s.recRow}
           >
             {recommendedArticles.map((article) => {
               const cat = RESOURCE_CATEGORIES.find((c) => c.key === article.category);
+              if (!cat) return null;
               return (
                 <TouchableOpacity
                   key={article.id}
-                  style={s.recCard}
+                  style={[s.recCard, { width: recCardWidth }]}
                   activeOpacity={0.85}
                   onPress={() => openArticle(article.id)}
                 >
-                  <View
-                    style={[
-                      s.recImageWrap,
-                      { backgroundColor: cat?.bgColor ?? C.surfaceContainerHigh, alignItems: 'center', justifyContent: 'center' },
-                    ]}
-                  >
-                    <MaterialCommunityIcons
-                      name={(cat?.icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']) ?? 'book-open-variant'}
-                      size={40}
-                      color={cat?.iconColor ?? C.primary}
-                    />
+                  <View style={s.recImageWrap}>
+                    <ArticleArt id={article.id} category={cat} height={132} iconSize={40} />
                     <View style={s.recBadge}>
                       <Text style={s.recBadgeText}>{article.minutes} MIN</Text>
                     </View>
@@ -1233,18 +1231,19 @@ const s = StyleSheet.create({
   },
 
   // Recommended
+  // Bleeds past parent's 24px horizontal padding so cards touch both screen
+  // edges instead of clipping with a peach gutter on the right.
+  recRowScroll: { marginHorizontal: -24 },
   recRow: {
     gap: 14,
-    paddingRight: 24,
+    paddingHorizontal: 24,
     paddingBottom: 4,
   },
   recCard: {
-    width: 252,
+    // width injected inline via computeCarouselCardWidth(winW)
     backgroundColor: C.surfaceContainerLowest,
     borderRadius: 20,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: C.surfaceContainerHigh,
     ...softShadow,
   },
   recImageWrap: {

@@ -133,7 +133,7 @@ export default function BloomCircleScreen() {
         <EmptyState onMatch={startMatch} />
       ) : (
         <ScrollView
-          contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 40 }]}
+          contentContainerStyle={[s.scroll, { paddingBottom: 32 }]}
           showsVerticalScrollIndicator={false}
         >
           {/* Pending requests */}

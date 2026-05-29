@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mindfulness - InnerBloom</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&amp;family=Quicksand:wght@300;400;500;600;700&amp;family=Fraunces:ital,opsz,wght@1,9..144,300;1,9..144,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#994531",
+              "primary-fixed": "#ffdad2",
+              "primary-container": "#e8836b",
+              "on-primary-container": "#641e0e",
+              "on-primary": "#ffffff",
+              "secondary": "#006970",
+              "secondary-container": "#90f2fc",
+              "on-secondary-container": "#006f77",
+              "tertiary": "#a8315c",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#fff1ed",
+              "surface-container": "#ffe9e4",
+              "surface-container-high": "#ffe2db",
+              "outline-variant": "#dbc1bb",
+              "outline": "#88726d",
+              "on-surface-variant": "#55433e",
+              "on-surface": "#281814",
+              "surface": "#fff8f6",
+              "background": "#fff8f6",
+              "brand-gold": "#c89860",
+              "brand-sage": "#8a9a7b"
+            }
+          }
+        }
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+      }
+      @keyframes breath {
+        0%, 100% { transform: scale(1); opacity: 0.3; }
+        40% { transform: scale(2.5); opacity: 0.1; }
+        70% { transform: scale(1); opacity: 0.3; }
+      }
+      @keyframes pulseDot {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl h-16 flex items-center px-7">
+<button><span class="material-symbols-outlined">arrow_back</span></button>
+<h1>Mindfulness</h1>
+<button><span class="material-symbols-outlined">notifications</span></button>
+</nav>
+<main class="pt-16 pb-32">
+<section class="py-12 px-7 flex flex-col items-center text-center relative">
+<div class="w-24 h-24 rounded-full border border-brand-gold flex items-center justify-center mb-8">
+<span class="material-symbols-outlined text-brand-gold text-4xl">self_improvement</span>
+</div>
+<p class="italic text-lg text-on-surface-variant max-w-[280px]">Practice together. Begin again, always.</p>
+</section>
+<section class="mt-12 px-7">
+<div class="bg-surface-container-lowest rounded-lg p-8 flex flex-col items-center">
+<div class="relative w-16 h-16 flex items-center justify-center mb-4">
+<div class="absolute inset-0 bg-brand-gold rounded-full" style="animation: breath 12s ease-in-out infinite;"></div>
+<div class="w-3 h-3 bg-brand-gold rounded-full z-10" style="animation: pulseDot 3s ease-in-out infinite;"></div>
+</div>
+<p class="text-brand-gold tracking-widest uppercase mb-1 font-semibold text-sm">Live Presence</p>
+<h2 class="text-2xl text-on-surface">234 people sitting</h2>
+</div>
+</section>
+<section class="mt-12">
+<div class="px-7 mb-4 flex justify-between items-end">
+<h3 class="text-xl">Today's Bell</h3>
+<button class="text-brand-sage">View all</button>
+</div>
+<div class="flex gap-4 overflow-x-auto px-7 pb-4">
+<button class="min-w-[140px] bg-surface-container-lowest p-6 rounded-lg flex flex-col items-center">
+<span class="material-symbols-outlined text-brand-gold mb-4">notifications</span>
+<span class="text-xl">5m</span><span class="text-on-surface-variant mt-1 text-sm">Brief sit</span>
+</button>
+<button class="min-w-[140px] bg-surface-container-lowest p-6 rounded-lg flex flex-col items-center">
+<span class="material-symbols-outlined text-brand-gold mb-4">notifications</span>
+<span class="text-xl">10m</span><span class="text-on-surface-variant mt-1 text-sm">Steady</span>
+</button>
+<button class="min-w-[140px] bg-surface-container-lowest p-6 rounded-lg flex flex-col items-center border border-brand-gold/20">
+<span class="material-symbols-outlined text-brand-gold mb-4" style="font-variation-settings: 'FILL' 1;">notifications</span>
+<span class="text-xl">Live</span><span class="text-on-surface-variant mt-1 text-sm">Join progress</span>
+</button>
+<button class="min-w-[140px] bg-surface-container-lowest p-6 rounded-lg flex flex-col items-center">
+<span class="material-symbols-outlined text-brand-gold mb-4">timer</span>
+<span class="text-xl">Open</span><span class="text-on-surface-variant mt-1 text-sm">Uncharted</span>
+</button>
+</div>
+</section>
+<section class="mt-12 px-7">
+<div class="bg-surface-container-lowest rounded-lg p-12 text-center">
+<span class="material-symbols-outlined text-brand-gold/40 mb-6">format_quote</span>
+<p class="text-2xl italic mb-6">"Notice this breath. Then the next. Nothing else is being asked of you."</p>
+<p class="text-on-surface-variant tracking-wider uppercase">— Pema Chödrön</p>
+</div>
+</section>
+<section class="mt-12">
+<div class="px-7 mb-4"><h3 class="text-xl">Teachers in Residence</h3></div>
+<div class="flex gap-4 overflow-x-auto px-7 pb-4">
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg overflow-hidden">
+<div class="w-full h-32 bg-brand-sage/20"></div>
+<div class="p-4">
+<p class="text-lg mb-1">Tenzin</p>
+<span class="inline-block bg-brand-sage/10 text-brand-sage text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">Vipassana</span>
+</div>
+</div>
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg overflow-hidden">
+<div class="w-full h-32 bg-primary-fixed/40"></div>
+<div class="p-4">
+<p class="text-lg mb-1">Sofia</p>
+<span class="inline-block bg-brand-sage/10 text-brand-sage text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">Metta</span>
+</div>
+</div>
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg overflow-hidden">
+<div class="w-full h-32 bg-brand-gold/20"></div>
+<div class="p-4">
+<p class="text-lg mb-1">Hiro</p>
+<span class="inline-block bg-brand-sage/10 text-brand-sage text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">Zen</span>
+</div>
+</div>
+</div>
+</section>
+<section class="mt-12 px-7">
+<h3 class="text-xl mb-4">Wisdom Lane</h3>
+<div class="bg-surface-container-lowest p-4 rounded-lg flex items-center gap-4">
+<button class="w-12 h-12 rounded-full bg-brand-gold/10 text-brand-gold flex items-center justify-center">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+<div class="flex-1">
+<div class="flex items-center gap-1 h-6">
+<div class="w-1 h-3 bg-brand-gold rounded-full opacity-40"></div>
+<div class="w-1 h-5 bg-brand-gold rounded-full"></div>
+<div class="w-1 h-2 bg-brand-gold rounded-full opacity-60"></div>
+<div class="w-1 h-4 bg-brand-gold rounded-full"></div>
+<div class="w-1 h-6 bg-brand-gold rounded-full"></div>
+<div class="w-1 h-3 bg-brand-gold rounded-full opacity-40"></div>
+<div class="w-1 h-2 bg-brand-gold rounded-full opacity-60"></div>
+<div class="w-1 h-4 bg-brand-gold rounded-full"></div>
+</div>
+<p class="text-on-surface-variant mt-1 text-sm">Anya: On floating thoughts</p>
+</div>
+<span class="text-brand-sage">1:24</span>
+</div>
+</section>
+<section class="mt-12 px-7">
+<h3 class="text-xl mb-4">From the Sangha</h3>
+<div class="space-y-8">
+<article class="relative pl-6">
+<div class="absolute left-0 top-0 bottom-0 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-2 mb-2">
+<span class="text-brand-sage">Anya</span><span>•</span><span class="text-on-surface-variant text-sm">2h ago</span>
+</div>
+<p class="mb-4">Noticing how much effort I put into "fighting" certain thoughts today. Trying to just sit with them as guests instead of enemies.</p>
+<div class="flex gap-4 text-on-surface-variant">
+<button>Bow 🙏 12</button><button>Sat with this 4</button>
+</div>
+</article>
+<article class="relative pl-6">
+<div class="absolute left-0 top-0 bottom-0 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-2 mb-2">
+<span class="text-brand-sage">Marcus</span><span>•</span><span class="text-on-surface-variant text-sm">5h ago</span>
+</div>
+<div class="p-4 bg-brand-gold/5 rounded-lg mb-2">
+<p class="italic font-medium">"The bell sounded like an old friend."</p>
+</div>
+<p class="mb-4">Back after 47 days. It felt like coming home.</p>
+<div class="flex gap-4 text-on-surface-variant">
+<button>Bow 🙏 28</button>
+</div>
+</article>
+<article class="p-6 bg-surface-container-lowest border-l-4 border-brand-gold">
+<div class="flex items-center gap-2 mb-3">
+<div class="w-6 h-6 rounded-full bg-brand-sage"></div>
+<span>Tenzin</span>
+<span class="bg-brand-sage/10 text-brand-sage text-[10px] px-2 py-0.5 rounded-full font-bold">TEACHER</span>
+</div>
+<p class="mb-4">When the mind wanders, do not be harsh. The act of returning is the meditation itself. The drift is not a failure; it is an opportunity to practice kindness.</p>
+<button class="text-on-surface-variant">Sat with this 89</button>
+</article>
+</div>
+</section>
+<section class="mt-12 px-7">
+<div class="bg-gradient-to-br from-[#ffe9e4] to-surface rounded-lg p-8 text-center">
+<h3 class="text-xl mb-2">Daily Sangha Sits</h3>
+<p class="text-on-surface-variant mb-6">Join our community for guided practice.</p>
+<div class="flex gap-4 justify-center">
+<div class="bg-surface/60 backdrop-blur-md px-6 py-3 rounded-full flex items-center gap-2 border border-white/40">
+<span class="material-symbols-outlined text-brand-gold text-sm">wb_twilight</span><span>6:00 AM</span>
+</div>
+<div class="bg-surface/60 backdrop-blur-md px-6 py-3 rounded-full flex items-center gap-2 border border-white/40">
+<span class="material-symbols-outlined text-brand-gold text-sm">bedtime</span><span>8:00 PM</span>
+</div>
+</div>
+</div>
+</section>
+<section class="mt-12 px-7 mb-12">
+<div class="bg-brand-sage/5 border border-brand-sage/10 p-4 rounded-lg flex items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-brand-sage">calendar_today</span>
+<p class="text-on-surface-variant text-sm">You haven't sat in 4 days. Begin again.</p>
+</div>
+<button class="text-brand-sage">Practice now</button>
+</div>
+</section>
+</main>
+<button class="fixed bottom-28 right-8 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center z-40">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">eco</span>
+</button>
+</body></html>

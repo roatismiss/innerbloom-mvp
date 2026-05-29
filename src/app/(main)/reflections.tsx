@@ -121,7 +121,7 @@ function SessionList() {
         contentContainerStyle={{
           paddingTop: insets.top + HEADER_H + 24,
           paddingHorizontal: 20,
-          paddingBottom: insets.bottom + 120,
+          paddingBottom: 32,
           gap: 28,
         }}
         showsVerticalScrollIndicator={false}
@@ -240,7 +240,7 @@ function SessionDetail({ sessionId }: { sessionId: string }) {
         contentContainerStyle={{
           paddingTop: insets.top + HEADER_H + 24,
           paddingHorizontal: 20,
-          paddingBottom: insets.bottom + 120,
+          paddingBottom: 32,
           gap: 20,
         }}
         showsVerticalScrollIndicator={false}

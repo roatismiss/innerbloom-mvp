@@ -200,3 +200,6 @@ Auth flow (/(auth)/login)
 4. Background color is `#fff8f6`, never `#FFF5F0`
 5. All text must use loaded font families (NunitoSans_* or Fraunces_*)
 6. Design quality bar: Apple-grade. Every screen should look agency-built.
+7. **No dead space between content and the tab bar.** ScrollView `contentContainerStyle.paddingBottom` must be small (`32` is the canonical value, matching `resources.tsx`). NEVER use `insets.bottom + N` for paddingBottom on (main) screens — the tab bar already has its own safe-area handling. Sticky CTAs (crisis hotline, action banners) belong pinned just above the tab bar via `position: 'absolute', bottom: tabBarHeight + insets.bottom`, NOT scrolled with content.
+8. **Carousels show exactly 2 cards, no peek.** Horizontal `ScrollView` card width must be `(W - 24 - 24 - gap) / 2` using `useWindowDimensions()`. The third card appears only after side-scrolling. No `width: 220` / `width: 252` fixed widths; clamp min around `140` to survive small screens.
+9. **No persistent floating composer FABs on feed/circle screens.** Composer entry points live inline in the section header (small pill button next to the heading), not as a floating action button overlaying the scroll.

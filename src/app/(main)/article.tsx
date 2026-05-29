@@ -12,12 +12,14 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ArticleArt } from '../../components/ArticleArt';
 import { getArticleAudio } from '../../lib/audio/article-audio';
 import {
   RESOURCE_ARTICLES,
@@ -59,28 +61,12 @@ const softShadow = {
 const HERO_H = 380;
 const CARD_OVERLAP = 80;
 
-// ─── Hero gradient (replaces image — same ArtBlock pattern as resources.tsx) ──
-function HeroBlock({ category }: { category: ResourceCategory }) {
+// ─── Hero — bespoke editorial illustration with fade-to-surface bottom ───────
+function HeroBlock({ articleId, category }: { articleId: string; category: ResourceCategory }) {
   return (
     <View style={s.heroWrap}>
-      <Svg width="100%" height="100%" style={StyleSheet.absoluteFill}>
-        <Defs>
-          <LinearGradient id="hero-grad" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0" stopColor={category.bgColor} stopOpacity={1} />
-            <Stop offset="1" stopColor="rgba(255,255,255,0.05)" stopOpacity={1} />
-          </LinearGradient>
-        </Defs>
-        <Rect width="100%" height="100%" fill="url(#hero-grad)" />
-      </Svg>
-      {/* Large decorative icon */}
-      <View style={s.heroIconWrap}>
-        <MaterialCommunityIcons
-          name={category.icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
-          size={80}
-          color={category.iconColor}
-        />
-      </View>
-      {/* Fade-to-surface gradient at bottom */}
+      <ArticleArt id={articleId} category={category} height={HERO_H} iconSize={80} />
+      {/* Fade-to-surface gradient at bottom — keeps the title legible */}
       <Svg width="100%" height={120} style={s.heroFade}>
         <Defs>
           <LinearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
@@ -200,24 +186,29 @@ function fmtTime(seconds: number): string {
   return `${m}:${sec.toString().padStart(2, '0')}`;
 }
 
+// Carousel card width: exactly two cards fit per viewport, with no peek
+// of a third. Third only appears after side-scrolling.
+function computeSuggestedCardWidth(W: number): number {
+  const usable = W - 24 - 24 - 12;
+  return Math.max(140, Math.min(300, Math.floor(usable / 2)));
+}
+
 // ─── Suggested card (Continue Reading row) ───────────────────────────────────
 function SuggestedCard({
   article,
   category,
+  width,
   onPress,
 }: {
   article: ResourceArticle;
   category: ResourceCategory;
+  width: number;
   onPress: () => void;
 }) {
   return (
-    <Pressable style={s.sugCard} onPress={onPress}>
-      <View style={[s.sugArt, { backgroundColor: category.bgColor }]}>
-        <MaterialCommunityIcons
-          name={category.icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
-          size={24}
-          color={category.iconColor}
-        />
+    <Pressable style={[s.sugCard, { width }]} onPress={onPress}>
+      <View style={s.sugArt}>
+        <ArticleArt id={article.id} category={category} height={100} iconSize={24} />
       </View>
       <View style={s.sugBody}>
         <Text style={[s.sugCategory, { color: category.iconColor }]}>{category.label}</Text>
@@ -233,6 +224,8 @@ export default function ArticleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: winW } = useWindowDimensions();
+  const sugCardWidth = computeSuggestedCardWidth(winW);
   const [saved, setSaved] = useState(false);
 
   const article = RESOURCE_ARTICLES.find((a) => a.id === id);
@@ -300,11 +293,11 @@ export default function ArticleScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}
+        contentContainerStyle={{ paddingBottom: 32 }}
       >
         {/* ─── Hero ─── */}
         <View style={{ marginTop: insets.top + 56 }}>
-          <HeroBlock category={category} />
+          <HeroBlock articleId={article.id} category={category} />
         </View>
 
         {/* ─── Content card ─── */}
@@ -388,6 +381,7 @@ export default function ArticleScreen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
+              style={s.sugRowScroll}
               contentContainerStyle={s.sugRow}
             >
               {suggested.map((a) => {
@@ -397,6 +391,7 @@ export default function ArticleScreen() {
                     key={a.id}
                     article={a}
                     category={cat}
+                    width={sugCardWidth}
                     onPress={() => {
                       void Haptics.selectionAsync();
                       router.replace({ pathname: '/(main)/article' as never, params: { id: a.id } });
@@ -676,9 +671,11 @@ const s = StyleSheet.create({
     color: C.onSurface,
     letterSpacing: -0.1,
   },
-  sugRow: { gap: 12, paddingBottom: 4 },
+  // Bleed past parent's 24px padding so cards reach both screen edges.
+  sugRowScroll: { marginHorizontal: -24 },
+  sugRow: { gap: 12, paddingHorizontal: 24, paddingBottom: 4 },
   sugCard: {
-    width: 220,
+    // width injected inline via computeSuggestedCardWidth(winW)
     backgroundColor: C.surfaceContainerLowest,
     borderRadius: 20,
     overflow: 'hidden',
