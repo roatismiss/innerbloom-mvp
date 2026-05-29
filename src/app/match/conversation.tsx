@@ -16,7 +16,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, {
+  cancelAnimation,
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ReelPreviewCard } from '../../components/reels/ReelPreviewCard';
@@ -25,6 +36,7 @@ import {
   useMessages,
   useSendMessage,
   useTodayActiveConversation,
+  useTypingPresence,
 } from '../../lib/queries/chat';
 import { useHugInConversation } from '../../lib/queries/feed';
 import {
@@ -89,6 +101,9 @@ export default function ConversationScreen() {
   const hugConv = useHugInConversation();
   const releaseKindred = useReleaseKindred();
 
+  const { otherIsTyping, setMyTyping } = useTypingPresence(resolvedId, me);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   function goBack() {
     // From a deep link or refresh, the navigation stack may be empty.
     // Fall back to the dashboard rather than landing the user on a blank
@@ -120,10 +135,37 @@ export default function ConversationScreen() {
     lastCount.current = count;
   }, [messages.data]);
 
+  // Auto-scroll when typing indicator appears
+  useEffect(() => {
+    if (otherIsTyping) {
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+    }
+  }, [otherIsTyping]);
+
+  function handleDraftChange(text: string) {
+    setDraft(text);
+    if (text.length > 0) {
+      setMyTyping(true);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => setMyTyping(false), 2000);
+    } else {
+      setMyTyping(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+    }
+  }
+
   function send() {
     const body = draft.trim();
     if (!body || !resolvedId) return;
     setDraft('');
+    setMyTyping(false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     sendMessage.mutate({ body });
   }
@@ -266,6 +308,8 @@ export default function ConversationScreen() {
             <MessageBubble key={m.id} message={m} mine={me === m.sender_id} />
           ))}
 
+          {otherIsTyping && <TypingIndicator />}
+
           {/* Kindred CTA / state strip — between last message and input */}
           <KindredStrip
             status={kindredStatus.data}
@@ -292,7 +336,7 @@ export default function ConversationScreen() {
           <View style={s.inputWrap}>
             <TextInput
               value={draft}
-              onChangeText={setDraft}
+              onChangeText={handleDraftChange}
               placeholder="Share a reflection..."
               placeholderTextColor={C.outlineVariant}
               style={s.input}
@@ -372,6 +416,50 @@ function MessageBubble({ message, mine }: { message: MessageRow; mine: boolean }
           )
         ) : null}
       </View>
+    </Animated.View>
+  );
+}
+
+// ─── Typing indicator (three bouncing dots) ──────────────────────────────────
+
+function TypingIndicator() {
+  const d1 = useSharedValue(0);
+  const d2 = useSharedValue(0);
+  const d3 = useSharedValue(0);
+
+  useEffect(() => {
+    function bounce(sv: typeof d1, delay: number) {
+      sv.value = withDelay(
+        delay,
+        withRepeat(
+          withSequence(
+            withTiming(-5, { duration: 250 }),
+            withTiming(0, { duration: 250 }),
+            withDelay(400, withTiming(0, { duration: 1 })),
+          ),
+          -1,
+        ),
+      );
+    }
+    bounce(d1, 0);
+    bounce(d2, 150);
+    bounce(d3, 300);
+    return () => {
+      cancelAnimation(d1);
+      cancelAnimation(d2);
+      cancelAnimation(d3);
+    };
+  }, [d1, d2, d3]);
+
+  const a1 = useAnimatedStyle(() => ({ transform: [{ translateY: d1.value }] }));
+  const a2 = useAnimatedStyle(() => ({ transform: [{ translateY: d2.value }] }));
+  const a3 = useAnimatedStyle(() => ({ transform: [{ translateY: d3.value }] }));
+
+  return (
+    <Animated.View entering={FadeIn.duration(200)} style={s.typingBubble}>
+      <Animated.View style={[s.typingDot, a1]} />
+      <Animated.View style={[s.typingDot, a2]} />
+      <Animated.View style={[s.typingDot, a3]} />
     </Animated.View>
   );
 }
@@ -784,6 +872,23 @@ const s = StyleSheet.create({
   timestampOut: {
     fontFamily: 'NunitoSans_400Regular',
     fontSize: 10, lineHeight: 14, color: C.outlineVariant,
+  },
+
+  typingBubble: {
+    alignSelf: 'flex-start',
+    backgroundColor: C.surfaceContainerHigh,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    borderBottomLeftRadius: 4, borderBottomRightRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    ...softShadow,
+  },
+  typingDot: {
+    width: 7, height: 7, borderRadius: 3.5,
+    backgroundColor: C.outline,
   },
 
   // Kindred strip — none

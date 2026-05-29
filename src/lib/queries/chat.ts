@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type {
   ConversationRow,
@@ -215,4 +215,53 @@ export function useSendMessage(conversationId: string) {
       );
     },
   });
+}
+
+// Broadcast typing presence via Supabase Realtime.
+// Returns whether the OTHER user is currently typing, and a setter to
+// broadcast our own state. Uses Presence (no DB round-trip, ~50ms latency).
+export function useTypingPresence(
+  conversationId: string | null | undefined,
+  myUserId: string | null,
+) {
+  const [otherIsTyping, setOtherIsTyping] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const channelRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!conversationId || !myUserId) return;
+
+    const channel = sb().channel(`typing:${conversationId}`, {
+      config: { presence: { key: myUserId } },
+    });
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState<{ typing: boolean }>();
+        const typing = Object.entries(state).some(
+          ([key, payloads]) =>
+            key !== myUserId && payloads.some((p) => p.typing),
+        );
+        setOtherIsTyping(typing);
+      })
+      .subscribe(async (status: string) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ typing: false });
+        }
+      });
+
+    channelRef.current = channel;
+
+    return () => {
+      void sb().removeChannel(channel);
+      channelRef.current = null;
+      setOtherIsTyping(false);
+    };
+  }, [conversationId, myUserId]);
+
+  const setMyTyping = useCallback((typing: boolean) => {
+    void channelRef.current?.track({ typing });
+  }, []);
+
+  return { otherIsTyping, setMyTyping };
 }
