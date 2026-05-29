@@ -78,6 +78,7 @@ export function ShareReelSheet({
   const handleClose = () => {
     setSelected(new Set());
     setNote('');
+    setSending(false);
     onClose();
   };
 
@@ -111,7 +112,10 @@ export function ShareReelSheet({
       handleClose();
 
       if (includesAI) {
-        router.push('/(main)/ai-companion');
+        // Defer navigation one frame so the modal close state flushes first
+        requestAnimationFrame(() => {
+          router.push('/(main)/ai-companion');
+        });
       }
     } catch (err) {
       setSending(false);

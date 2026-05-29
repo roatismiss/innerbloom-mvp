@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { aiInputRef } from '../../lib/ai-input-ref';
 import { SideMenu } from '../../components/SideMenu';
@@ -58,20 +59,27 @@ function TabIcon({
   if (focused) {
     return (
       <View style={s.activePill}>
-        <MaterialCommunityIcons name={iconFocused} size={20} color={C.activePillFg} />
+        <MaterialCommunityIcons name={iconFocused} size={22} color={C.activePillFg} />
         <Text style={s.activeLabel}>{label}</Text>
       </View>
     );
   }
   return (
     <View style={s.idleTab}>
-      <MaterialCommunityIcons name={icon} size={20} color={C.onSurfaceVariant} />
+      <MaterialCommunityIcons name={icon} size={22} color={C.onSurfaceVariant} />
       <Text style={s.idleLabel}>{label}</Text>
     </View>
   );
 }
 
 export default function MainLayout() {
+  const insets = useSafeAreaInsets();
+  // Bottom padding: use the home-indicator inset when available (iOS PWA / native),
+  // fall back to 16. This prevents React Navigation from applying the inset as a
+  // separate offset that raises the bar and leaves a gap below it.
+  const tabPad = Math.max(insets.bottom, 16);
+  const tabH = 14 + 50 + tabPad; // paddingTop + icon zone + bottom safe area
+
   // `tabBarHideOnKeyboard: true` is unreliable on iOS, so we mirror the behavior
   // manually: hide the bar on `keyboardWillShow`, restore on `keyboardWillHide`.
   // This lets chat screens (AI, Bloom) glue the input directly to the keyboard,
@@ -88,12 +96,14 @@ export default function MainLayout() {
     };
   }, []);
 
+  const dynTab = { height: tabH, paddingBottom: tabPad } as const;
+
   return (
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarStyle: s.tabBar,
+          tabBarStyle: [s.tabBar, dynTab],
           tabBarShowLabel: false,
           // Native fallback (works on Android out of the box); the manual
           // `keyboardOpen` state below covers iOS where this prop is unreliable.
@@ -126,8 +136,8 @@ export default function MainLayout() {
                 // through the rounded corners of the bar. Background stays solid
                 // (no opacity) — only the corner cutouts reveal the video behind.
                 tabBarStyle: keyboardOpen
-                  ? [s.tabBar, isReels && s.tabBarFloating, { display: 'none' as const }]
-                  : isReels ? [s.tabBar, s.tabBarFloating] : s.tabBar,
+                  ? [s.tabBar, dynTab, isReels && s.tabBarFloating, { display: 'none' as const }]
+                  : isReels ? [s.tabBar, dynTab, s.tabBarFloating] : [s.tabBar, dynTab],
                 // Eagerly mount the AI screen so `aiInputRef.current` is
                 // populated before the user ever taps the AI tab — required
                 // for the iOS Safari PWA tabPress→focus trick to land on the
@@ -162,8 +172,6 @@ const s = StyleSheet.create({
     backgroundColor: C.surfaceRaised,
     borderTopWidth: Platform.select({ ios: 0.5, default: 1 }),
     borderTopColor: 'rgba(28,27,26,0.08)',
-    height: Platform.select({ ios: 96, android: 82, default: 82 }) ?? 82,
-    paddingBottom: Platform.select({ ios: 24, android: 16, default: 16 }) ?? 16,
     paddingTop: 14,
     paddingHorizontal: 8,
     borderTopLeftRadius: 28,
