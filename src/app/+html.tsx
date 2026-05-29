@@ -25,7 +25,11 @@ export default function Root({ children }: PropsWithChildren) {
 
         {/* iOS Safari — Add to Home Screen support */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        {/* black-translucent: content fills the full screen including behind the
+            status bar (edge-to-edge, like Instagram Reels). The status bar has a
+            black semi-transparent overlay so white icons stay readable over any
+            background. `default` would render a separate white bar above the app. */}
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="InnerBloom" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 

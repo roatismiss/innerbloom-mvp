@@ -42,6 +42,7 @@ export function useFeed(limit = 30) {
       let q = sb()
         .from('bloom_posts')
         .select('*')
+        .is('circle_id', null)
         .order('created_at', { ascending: false })
         .limit(limit);
 

@@ -72,7 +72,7 @@ export default function RootLayout() {
           <AuthBootstrap />
           <NotificationsBootstrap />
           <NotificationsBadgeBootstrap />
-          <StatusBar barStyle="dark-content" backgroundColor={tokens.light.surface} />
+          <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
           <View style={{ flex: 1, backgroundColor: tokens.light.surface }}>
             <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
               <Stack.Screen name="index" />

@@ -94,6 +94,7 @@ export type Database = {
         Row: {
           anchor_word: string
           category: string
+          circle_id: string | null
           color_hex: string
           created_at: string
           id: string
@@ -104,6 +105,7 @@ export type Database = {
         Insert: {
           anchor_word: string
           category: string
+          circle_id?: string | null
           color_hex: string
           created_at?: string
           id?: string
@@ -114,6 +116,7 @@ export type Database = {
         Update: {
           anchor_word?: string
           category?: string
+          circle_id?: string | null
           color_hex?: string
           created_at?: string
           id?: string

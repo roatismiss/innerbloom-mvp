@@ -10,6 +10,7 @@ import {
   FlatList,
   Image as RNImage,
   Platform,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -94,6 +95,27 @@ export default function ReelsScreen() {
     });
   }, [deepLinkedId]);
 
+  // Full-screen immersive mode — white status bar icons over reel content, just
+  // like Instagram Reels. On Android we also need to set translucent + transparent
+  // background so the window extends behind the status bar (the app.json config
+  // sets this at build time; the imperative calls below handle runtime toggling
+  // in Expo Go / development builds before a full rebuild is done).
+  useEffect(() => {
+    if (isFocused) {
+      StatusBar.setBarStyle('light-content', true);
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor('transparent', true);
+        StatusBar.setTranslucent(true);
+      }
+    } else {
+      StatusBar.setBarStyle('dark-content', true);
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor('#fff8f6', true);
+        StatusBar.setTranslucent(false);
+      }
+    }
+  }, [isFocused]);
+
   const reelsMuted = useAudioPrefs((s) => s.reelsMuted);
   const toggleMuted = useAudioPrefs((s) => s.toggleReelsMuted);
 
@@ -111,7 +133,12 @@ export default function ReelsScreen() {
   // mid-swipe (TikTok / Instagram Reels behavior). Compute the index from the
   // settled offset rather than relying on viewability (which fires at 80%).
   // On web this is also the first user gesture, which unblocks browser autoplay.
-  const handleMomentumScrollEnd = useCallback(
+  //
+  // We handle BOTH onMomentumScrollEnd (fast fling) and onScrollEndDrag (slow
+  // deliberate swipe) because pagingEnabled scroll can settle without momentum
+  // when the user lifts their finger slowly — in that case onMomentumScrollEnd
+  // never fires and audioIndex would stay stuck at the previous reel.
+  const handleScrollSnap = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (reelH <= 0) return;
       const idx = Math.round(e.nativeEvent.contentOffset.y / reelH);
@@ -237,7 +264,8 @@ export default function ReelsScreen() {
           })}
           viewabilityConfig={VIEWABILITY_CONFIG}
           onViewableItemsChanged={onViewableItemsChanged}
-          onMomentumScrollEnd={handleMomentumScrollEnd}
+          onMomentumScrollEnd={handleScrollSnap}
+          onScrollEndDrag={handleScrollSnap}
           // Keep current ± 2 reels mounted so expo-video pre-initialises
           // the next player before the user swipes to it (Instagram pattern).
           windowSize={5}
