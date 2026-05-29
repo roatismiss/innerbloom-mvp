@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
@@ -19,6 +18,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BloomAvatar } from './BloomAvatar';
 import { supabase } from '../lib/supabase';
 import { usePendingKindredRequests } from '../lib/queries/kindred';
 import { unregisterPushTokenForCurrentDevice } from '../lib/queries/notifications';
@@ -49,8 +49,6 @@ const C = {
   errorContainer:         '#ffdad6',
 } as const;
 
-const PROFILE_FALLBACK_AVATAR =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuApSgPTkTEtRCoihcOFOolOJH8DpWq-xWNDquVXQDNU_Ue1pgQrECRouxEatRFVytCZNFSpHYHWs1O6VCd3CE-BMRb8sf568yFdukyR1ckduL8WCBSo9puySCIUTvhgBWouEOsl-NKiQzkhHy2kyRLHs1S6cCUvE3KFfciDl-0hJ9UXcYGclhIF22JyFdJ8QK6Rrmw1jzCAflS5rWLJX48OhSjXc0TCSutYK_T_Y9ChlB8btkRzzwf7by00imVljDM4_a9grOEwB3qV';
 
 type Mci = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -160,7 +158,6 @@ export function SideMenu() {
   }
 
   const displayName = profileName?.trim() || user?.anonymousAlias || 'Bloom';
-  const avatarUri = profileAvatar || PROFILE_FALLBACK_AVATAR;
 
   return (
     <Animated.View style={[s.host, renderEpsilon]} pointerEvents="box-none">
@@ -196,10 +193,10 @@ export function SideMenu() {
             }}
           >
             <View style={s.avatarWrap}>
-              <Image
-                source={{ uri: avatarUri }}
-                style={s.avatar}
-                contentFit="cover"
+              <BloomAvatar
+                uri={profileAvatar}
+                size={64}
+                style={{ borderWidth: 3, borderColor: C.primaryFixed }}
               />
             </View>
             <View style={{ flex: 1 }}>

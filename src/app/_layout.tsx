@@ -48,14 +48,14 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   // Reels ambient loops should:
-  //   - respect the iOS silent switch (a calm-app firing sound during a
-  //     meeting is the worst possible first impression)
+  //   - play even when the iOS silent switch is on (this is intentional —
+  //     ambient audio IS the experience, same as Calm / Headspace / Spotify)
   //   - stop when the user backgrounds the app (battery; also they're done
   //     listening when they leave)
   //   - mix with other audio (so a user playing their own music keeps it)
   useEffect(() => {
     setAudioModeAsync({
-      playsInSilentMode: false,
+      playsInSilentMode: true,
       shouldPlayInBackground: false,
       interruptionMode: 'mixWithOthers',
     }).catch(() => {

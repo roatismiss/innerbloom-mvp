@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
+import { BloomAvatar } from '../../components/BloomAvatar';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
@@ -366,15 +366,7 @@ export default function DashboardScreen() {
               onPress={() => router.push('/(main)/profile')}
             >
               <View style={s.avatarRing}>
-                {avatarUri ? (
-                  <Image source={{ uri: avatarUri }} style={s.avatarImg} contentFit="cover" />
-                ) : (
-                  <View style={[s.avatarImg, s.avatarInitials]}>
-                    <Text style={s.avatarInitialsText}>
-                      {(profile.data?.display_name || profile.data?.anonymous_alias || '?')[0].toUpperCase()}
-                    </Text>
-                  </View>
-                )}
+                <BloomAvatar uri={avatarUri} size={36} />
                 <View style={s.onlineDot} />
               </View>
             </TouchableOpacity>
@@ -594,15 +586,7 @@ export default function DashboardScreen() {
                 "You are doing a wonderful job navigating your emotions today. Remember that your growth is not linear, but every small petal counts."
               </Text>
               <View style={s.insightAttrib}>
-                {avatarUri ? (
-                  <Image source={{ uri: avatarUri }} style={s.insightAvatar} contentFit="cover" />
-                ) : (
-                  <View style={[s.insightAvatar, s.avatarInitials]}>
-                    <Text style={[s.avatarInitialsText, { fontSize: 10 }]}>
-                      {(profile.data?.display_name || profile.data?.anonymous_alias || '?')[0].toUpperCase()}
-                    </Text>
-                  </View>
-                )}
+                <BloomAvatar uri={avatarUri} size={22} />
                 <Text style={s.insightAttribText}>Insight from Bloom AI  →</Text>
               </View>
             </View>

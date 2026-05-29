@@ -54,9 +54,12 @@ const C = {
 const VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 80 };
 
 export default function ReelsScreen() {
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const reelH = height;
+  const tabBarH = layout.tabBarHeight;
+  // onLayout gives the container height; with the floating tab bar the container
+  // is full window height, so reelH correctly fills edge-to-edge.
+  const [reelH, setReelH] = useState(0);
   const params = useLocalSearchParams<{ id?: string }>();
   const deepLinkedId = typeof params.id === 'string' ? params.id : undefined;
   const initialIndex = deepLinkedId ? Math.max(0, getReelIndexById(deepLinkedId)) : 0;
@@ -66,7 +69,9 @@ export default function ReelsScreen() {
   // audioIndex lags visibleIndex during a swipe — it only catches up once the
   // scroll has snapped to its final reel. Drives audio (ambient loop +
   // voiceover unmute) so sound never starts mid-gesture.
-  const [audioIndex, setAudioIndex] = useState(initialIndex);
+  // On web, browsers block autoplay audio without a prior user gesture, so we
+  // start at -1 (no audio) and arm it only after the first scroll snap.
+  const [audioIndex, setAudioIndex] = useState(Platform.OS === 'web' ? -1 : initialIndex);
   const [showSaved, setShowSaved] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   // When set, replaces the canonical REELS order with a randomized one. Stays
@@ -105,6 +110,7 @@ export default function ReelsScreen() {
   // what stops the next reel's voiceover / ambient loop from bleeding in
   // mid-swipe (TikTok / Instagram Reels behavior). Compute the index from the
   // settled offset rather than relying on viewability (which fires at 80%).
+  // On web this is also the first user gesture, which unblocks browser autoplay.
   const handleMomentumScrollEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (reelH <= 0) return;
@@ -113,6 +119,13 @@ export default function ReelsScreen() {
     },
     [reelH],
   );
+
+  // Web only: arm audio on the first tap (a real click/touch event satisfies
+  // the browser autoplay policy; scroll events do not). Once armed, stays armed.
+  const handleArmAudio = useCallback(() => {
+    if (Platform.OS !== 'web') return;
+    setAudioIndex((cur) => (cur < 0 ? visibleIndex : cur));
+  }, [visibleIndex]);
 
   const handleMutePress = useCallback(() => {
     Haptics.selectionAsync();
@@ -160,8 +173,23 @@ export default function ReelsScreen() {
 
   const feedData = showSaved ? orderedReels.filter((r) => savedIds.has(r.id)) : orderedReels;
 
+  // Single ambient audio player — lives at screen level so only one AudioContext
+  // exists across all rendered reel cards. Multiple AudioContexts created at
+  // initial render (before user gesture) stay suspended on web/PWA even after
+  // the user activates the page, causing reel 2+ to stay silent.
+  // key={audioIndex} recreates the player when the snap settles; by that point
+  // the user has already tapped (arming the context via onArmAudio on web) or
+  // the native player doesn't need a gesture at all.
+  const activeReel = audioIndex >= 0 && audioIndex < feedData.length ? feedData[audioIndex] : null;
+  const activeAudioKey = activeReel?.audioKey ?? null;
+  const activeAudioTrack = activeAudioKey ? getReelAudio(activeAudioKey) : null;
+  const activeVideoTrack = activeReel?.videoKey ? getReelVideo(activeReel.videoKey) : null;
+  const activeAudioVolume = activeAudioKey
+    ? REEL_AUDIO_VOLUME[activeAudioKey] * (activeVideoTrack?.hasVoiceover ? 0.15 : 1)
+    : 1;
+
   return (
-    <View style={s.root}>
+    <View style={s.root} onLayout={(e) => setReelH(e.nativeEvent.layout.height)}>
       {/* Full-screen snap feed */}
       {feedData.length === 0 && showSaved ? (
         <View style={s.emptyState}>
@@ -179,11 +207,13 @@ export default function ReelsScreen() {
               reel={item}
               width={width}
               height={reelH}
+              tabBarH={tabBarH}
               isPlaying={index === visibleIndex && isFocused}
               audioActive={index === audioIndex && isFocused}
               muted={reelsMuted}
               isSaved={savedIds.has(item.id)}
               onToggleSave={() => handleToggleSave(item.id)}
+              onArmAudio={handleArmAudio}
               onShare={() =>
                 setShareTarget({
                   id: item.id,
@@ -216,6 +246,17 @@ export default function ReelsScreen() {
           // Don't unmount off-screen players — avoids audio/video restart
           // when the user swipes back to a previously-viewed reel.
           removeClippedSubviews={false}
+        />
+      )}
+
+      {/* Single ambient audio player for all reels — see comment above feedData. */}
+      {activeAudioTrack?.source && (
+        <ReelAudio
+          key={audioIndex}
+          source={activeAudioTrack.source}
+          volume={activeAudioVolume}
+          isPlaying={audioIndex >= 0 && isFocused}
+          muted={reelsMuted}
         />
       )}
 
@@ -282,16 +323,19 @@ function ReelCard({
   reel,
   width,
   height,
+  tabBarH,
   isPlaying,
   audioActive,
   muted,
   isSaved,
   onToggleSave,
+  onArmAudio,
   onShare,
 }: {
   reel: ReelItem;
   width: number;
   height: number;
+  tabBarH: number;
   isPlaying: boolean;
   // True only after the scroll has snapped to this reel. Drives audio so
   // sound never leaks in mid-swipe (the visible reel can still play silently).
@@ -299,6 +343,8 @@ function ReelCard({
   muted: boolean;
   isSaved: boolean;
   onToggleSave: () => void;
+  // Web only: called on first tap to satisfy browser autoplay policy.
+  onArmAudio: () => void;
   onShare: () => void;
 }) {
   const [hugged, setHugged] = useState(false);
@@ -307,19 +353,15 @@ function ReelCard({
   const [paused, setPaused] = useState(false);
   const lastTap = useRef(0);
   const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const audioTrack = getReelAudio(reel.audioKey);
   const effectivePlaying = isPlaying && !paused;
   // Mute the video while it isn't the snapped reel — keeps the visual rolling
   // during the swipe but silences any baked-in voiceover until the gesture lands.
   const effectiveMuted = muted || !audioActive;
-  const audioPlaying = audioActive && !paused;
   const videoTrack = getReelVideo(reel.videoKey);
   const isVideoReel = !!videoTrack;
-  // When a video has voiceover baked in, play ambient at 15% so it adds
-  // warmth without competing with the voice. Full volume otherwise.
-  const ambientVolumeMult = videoTrack?.hasVoiceover ? 0.15 : 1;
 
   function handleTap() {
+    onArmAudio();
     const now = Date.now();
     if (now - lastTap.current < 350) {
       // Double tap — hug
@@ -362,19 +404,6 @@ function ReelCard({
       style={[s.reel, { width, height }]}
       onPress={handleTap}
     >
-      {/* Ambient audio loop — plays at full volume for non-voice reels,
-          at 15% under voiceover reels to add warmth without competing.
-          Tied to audioPlaying (not effectivePlaying) so the loop only starts
-          once the scroll has snapped, never mid-swipe. */}
-      {reel.audioKey && audioTrack?.source != null && (
-        <ReelAudio
-          source={audioTrack.source}
-          volume={REEL_AUDIO_VOLUME[reel.audioKey] * ambientVolumeMult}
-          isPlaying={audioPlaying}
-          muted={muted}
-        />
-      )}
-
       {/* Background — video (mp4 + voiceover) > scheme (gradient + SVG art) >
           bgImage > legacy color blobs. Video covers everything below it.
           Video keeps playing visually during the swipe but is muted until
@@ -444,7 +473,7 @@ function ReelCard({
       {!isVideoReel && reel.dailyBloom && (
         <Animated.View
           entering={FadeIn.delay(200).springify()}
-          style={s.dailyCardWrap}
+          style={[s.dailyCardWrap, { bottom: 140 + tabBarH }]}
         >
           <View style={s.dailyCardBlurWrap}>
             {Platform.OS !== 'web' ? (
@@ -461,7 +490,7 @@ function ReelCard({
       )}
 
       {/* Right sidebar */}
-      <View style={s.sidebar}>
+      <View style={[s.sidebar, { bottom: 120 + tabBarH }]}>
         {/* Avatar */}
         <View style={s.sidebarAvatarWrap}>
           <View style={[s.sidebarAvatar, { backgroundColor: avatarBg }]}>
@@ -493,7 +522,7 @@ function ReelCard({
       {/* Bottom caption — video reels surface the voiceover attribution
           in the music pill (with a microphone icon) instead of the loop
           label, since there's no ambient pad playing. */}
-      <View style={s.caption}>
+      <View style={[s.caption, { bottom: 24 + tabBarH }]}>
         <Text style={[s.captionHandle, darkBg && s.captionHandleOnDark]}>{reel.handle}</Text>
         <Text style={[s.captionText, darkBg && s.captionTextOnDark]} numberOfLines={2}>{reel.caption}</Text>
         <View style={s.musicTagWrap}>
@@ -585,7 +614,7 @@ function NativeReelVideo({
       <VideoView
         player={player}
         style={StyleSheet.absoluteFill}
-        contentFit="contain"
+        contentFit="cover"
         nativeControls={false}
       />
     </View>
@@ -657,7 +686,7 @@ function WebReelVideo({
         style: {
           width: '100%',
           height: '100%',
-          objectFit: 'contain',
+          objectFit: 'cover',
           pointerEvents: 'none',
           display: 'block',
           background: '#000',
@@ -915,14 +944,13 @@ const s = StyleSheet.create({
   },
 
   // Daily bloom card — anchored bottom-left, clear of the right action column
-  // (sidebar lives at right:16 with width ~48, so we keep right:96 of breathing
-  // room) and stacked above the caption block at the bottom. tabBarHeight is
-  // added because the reel now extends edge-to-edge under the floating tab bar.
+  // (sidebar lives at right:16 with width ~48, so we keep right:96 of breathing room)
+  // and stacked above the caption block at the bottom.
   dailyCardWrap: {
     position: 'absolute',
     left: 24,
     right: 96,
-    bottom: 140 + layout.tabBarHeight,
+    bottom: 140,
     zIndex: 15,
     maxWidth: 320,
   },
@@ -945,12 +973,10 @@ const s = StyleSheet.create({
     color: C.onSurface,
   },
 
-  // Sidebar — bottom offset includes tabBarHeight because the reel runs under
-  // the floating tab bar (TikTok / Instagram Reels behavior).
   sidebar: {
     position: 'absolute',
     right: 16,
-    bottom: 120 + layout.tabBarHeight,
+    bottom: 120,
     zIndex: 20,
     alignItems: 'center',
     gap: 12,
@@ -988,11 +1014,9 @@ const s = StyleSheet.create({
     color: C.onSurface,
   },
 
-  // Caption — bottom offset includes tabBarHeight so it sits just above the
-  // floating tab bar instead of being hidden behind it.
   caption: {
     position: 'absolute',
-    bottom: 24 + layout.tabBarHeight,
+    bottom: 24,
     left: 0,
     right: 72,
     paddingHorizontal: 24,

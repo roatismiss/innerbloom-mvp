@@ -1,6 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -20,6 +19,7 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AvatarCropModal } from '../../components/AvatarCropModal';
+import { BloomAvatar } from '../../components/BloomAvatar';
 import {
   useSetMyIdentity,
   useUploadAvatar,
@@ -202,17 +202,7 @@ export default function EditProfileScreen() {
           {/* Avatar */}
           <Animated.View entering={FadeInUp.springify()} style={s.avatarSection}>
             <View style={s.avatarWrap}>
-              {avatarUrl ? (
-                <Image
-                  source={{ uri: avatarUrl }}
-                  style={s.avatar}
-                  contentFit="cover"
-                />
-              ) : (
-                <View style={[s.avatar, s.avatarFallback]}>
-                  <MaterialCommunityIcons name="flower-tulip" size={56} color={C.primary} />
-                </View>
-              )}
+              <BloomAvatar uri={avatarUrl} size={136} />
 
               {uploadAvatar.isPending ? (
                 <View style={s.avatarLoading}>

@@ -69,7 +69,7 @@ export const layout = {
   sectionGap: 32,
   touchTarget: 44,
   maxContentWidth: 430,
-  tabBarHeight: Platform.select({ ios: 83, android: 65 }) ?? 65,
+  tabBarHeight: Platform.select({ ios: 96, android: 82, default: 82 }) ?? 82,
 } as const;
 
 export const radius = {

@@ -104,7 +104,6 @@ export default function MainLayout() {
           const isCenter = tab.name === 'soul-match';
           const isReels = tab.name === 'reels';
           const isAI = tab.name === 'ai-companion';
-          const baseStyle = isReels ? [s.tabBar, s.tabBarFloating] : s.tabBar;
           return (
             <Tabs.Screen
               key={tab.name}
@@ -123,13 +122,12 @@ export default function MainLayout() {
                   : undefined
               }
               options={{
-                // Reels behaves like TikTok / Instagram Reels: the video runs
-                // edge-to-edge under a floating tab bar. We override the bar
-                // style here so the screen container becomes full-height for
-                // this tab only.
+                // Reels: floating bar so the video extends full-height and peeks
+                // through the rounded corners of the bar. Background stays solid
+                // (no opacity) — only the corner cutouts reveal the video behind.
                 tabBarStyle: keyboardOpen
-                  ? [baseStyle, { display: 'none' as const }]
-                  : baseStyle,
+                  ? [s.tabBar, isReels && s.tabBarFloating, { display: 'none' as const }]
+                  : isReels ? [s.tabBar, s.tabBarFloating] : s.tabBar,
                 // Eagerly mount the AI screen so `aiInputRef.current` is
                 // populated before the user ever taps the AI tab — required
                 // for the iOS Safari PWA tabPress→focus trick to land on the
@@ -176,14 +174,14 @@ const s = StyleSheet.create({
     shadowOffset: { width: 0, height: -10 },
     elevation: 20,
   },
-  // Reels tab: bar floats over the video. Slightly translucent so the reel
-  // shows through subtly, matching TikTok / Instagram Reels.
+  // Reels only: floats over the video so the full-height reel peeks through
+  // the rounded corners. No backgroundColor override — inherits surfaceRaised
+  // from s.tabBar so the bar body stays fully opaque.
   tabBarFloating: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255,255,255,0.92)',
   },
   activePill: {
     flexDirection: 'column',
