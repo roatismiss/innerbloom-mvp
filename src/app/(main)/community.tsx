@@ -4,25 +4,24 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import {
-  ActivityIndicator,
-  Platform,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
+    ActivityIndicator,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  type BloomPostWithAuthor,
-  useFeed,
-  useHugPost,
-  useMyPostInteractions,
-  useToggleResonance,
+    type BloomPostWithAuthor,
+    useFeed,
+    useHugPost,
+    useMyPostInteractions,
+    useToggleResonance,
 } from '../../lib/queries/feed';
 import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
 import { useScrollTopOnFocus } from '../../lib/use-scroll-top-on-focus';
@@ -68,13 +67,14 @@ interface Circle {
 
 // Each circle gets its own bespoke screen (1:1 from a design ref). Circles
 // without a `route` stay as visual placeholders until their screen lands.
+// Featured circles with vivid colors (active state)
 const CIRCLES: Circle[] = [
-  { id: 'anxiety',    name: 'Anxiety Support',  members: '12.4k members · 47 online', icon: 'leaf',           iconBg: C.primaryContainer,  iconColor: '#ffffff', live: true, route: '/(main)/circle' },
-  { id: 'depression', name: 'Depression',       members: '18.4k members · Moderated', icon: 'heart',          iconBg: '#8a7a9a',           iconColor: '#ffffff', live: true, route: '/(main)/circle-depression' },
-  { id: 'grief',      name: 'Grief',            members: '23.4k members · No finish line', icon: 'candle',     iconBg: '#8a96a3',           iconColor: '#ffffff', live: true, route: '/(main)/circle-grief' },
-  { id: 'recovery',   name: 'Recovery',         members: '47 days · Day at a time',        icon: 'white-balance-sunny', iconBg: '#5a7a5e',   iconColor: '#ffffff', live: true, route: '/(main)/circle-recovery' },
-  { id: 'burnout',    name: 'Burnout Recovery', members: '8.2k members · You belong here', icon: 'meditation', iconBg: C.tertiaryContainer, iconColor: '#ffffff', live: true, route: '/(main)/circle-burnout' },
-  { id: 'mindful',    name: 'Mindfulness',      members: '234 sitting now',           icon: 'weather-sunny',  iconBg: C.secondaryContainer, iconColor: C.onSecondaryContainer, live: true, route: '/(main)/circle-mindfulness' },
+  { id: 'anxiety',    name: 'Anxiety Support',  members: '12.4k members · 47 online', icon: 'leaf',           iconBg: '#FF6B4A',  iconColor: '#ffffff', live: true, route: '/(main)/circle' },
+  { id: 'depression', name: 'Depression',       members: '18.4k members · Moderated', icon: 'heart',          iconBg: '#9B59B6',           iconColor: '#ffffff', live: true, route: '/(main)/circle-depression' },
+  { id: 'grief',      name: 'Grief',            members: '23.4k members · No finish line', icon: 'candle',     iconBg: '#5DADE2',           iconColor: '#ffffff', live: true, route: '/(main)/circle-grief' },
+  { id: 'recovery',   name: 'Recovery',         members: '47 days · Day at a time',        icon: 'white-balance-sunny', iconBg: '#27AE60',   iconColor: '#ffffff', live: true, route: '/(main)/circle-recovery' },
+  { id: 'burnout',    name: 'Burnout Recovery', members: '8.2k members · You belong here', icon: 'meditation', iconBg: '#E91E63', iconColor: '#ffffff', live: true, route: '/(main)/circle-burnout' },
+  { id: 'mindful',    name: 'Mindfulness',      members: '234 sitting now',           icon: 'weather-sunny',  iconBg: '#00BCD4', iconColor: '#ffffff', live: true, route: '/(main)/circle-mindfulness' },
 ];
 
 // Responsive card width: exactly two cards fit per viewport, with no peek of
@@ -176,7 +176,7 @@ export default function CommunityScreen() {
                 circle={circle}
                 width={cardWidth}
                 onPress={() => {
-                  if (!circle.live || !circle.route) return;
+                  if (!circle.route) return;
                   void Haptics.selectionAsync();
                   router.push({ pathname: circle.route, params: { id: circle.id } } as never);
                 }}
@@ -244,14 +244,9 @@ function CircleCard({
 }) {
   return (
     <TouchableOpacity
-      activeOpacity={circle.live ? 0.85 : 1}
+      activeOpacity={0.85}
       onPress={onPress}
-      disabled={!circle.live}
-      style={[
-        s.circleCard,
-        { width },
-        !circle.live && { opacity: 0.7 },
-      ]}
+      style={[s.circleCard, { width }]}
     >
       <View style={[s.circleIcon, { backgroundColor: circle.iconBg }]}>
         <MaterialCommunityIcons name={circle.icon} size={26} color={circle.iconColor} />
