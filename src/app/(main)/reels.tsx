@@ -54,12 +54,9 @@ const C = {
 const VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 80 };
 
 export default function ReelsScreen() {
-  const { width } = useWindowDimensions();
+  const { width, height: reelH } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const tabBarH = 14 + 50 + Math.max(insets.bottom, 16);
-  // onLayout gives the container height; with the floating tab bar the container
-  // is full window height, so reelH correctly fills edge-to-edge.
-  const [reelH, setReelH] = useState(0);
   const params = useLocalSearchParams<{ id?: string }>();
   const deepLinkedId = typeof params.id === 'string' ? params.id : undefined;
   const initialIndex = deepLinkedId ? Math.max(0, getReelIndexById(deepLinkedId)) : 0;
@@ -222,7 +219,7 @@ export default function ReelsScreen() {
     : 1;
 
   return (
-    <View style={s.root} onLayout={(e) => setReelH(e.nativeEvent.layout.height)}>
+    <View style={s.root}>
       {/* Full-screen snap feed */}
       {feedData.length === 0 && showSaved ? (
         <View style={s.emptyState}>

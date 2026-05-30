@@ -101,6 +101,9 @@ export default function MainLayout() {
   return (
     <View style={{ flex: 1 }}>
       <Tabs
+        // Disable React Navigation's automatic bottom safe-area padding —
+        // we compute it ourselves in dynTab so it isn't applied twice.
+        safeAreaInsets={{ bottom: 0 }}
         screenOptions={{
           headerShown: false,
           tabBarStyle: [s.tabBar, dynTab],
