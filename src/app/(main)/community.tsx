@@ -504,7 +504,6 @@ const s = StyleSheet.create({
     gap: 16,
     borderWidth: 1,
     borderColor: 'rgba(219,193,187,0.25)',
-    opacity: 0.7,
     ...softShadow,
   },
   circleIcon: {

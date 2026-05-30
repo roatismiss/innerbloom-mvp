@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -97,13 +97,20 @@ export default function MainLayout() {
   }, []);
 
   const dynTab = { height: tabH, paddingBottom: tabPad } as const;
+  const pathname = usePathname();
+  const onReels = pathname === '/reels';
 
   return (
     <View style={{ flex: 1 }}>
+      {/* White fill that covers the gap between the tab bar bottom edge and the
+          screen bottom. React Navigation adds paddingBottom: insets.bottom to its
+          container so the bar ends insets.bottom pixels above the screen — this
+          rectangle, anchored to the true screen bottom, closes the gap visually.
+          Hidden on reels where the floating bar sits over dark video content. */}
+      {insets.bottom > 0 && !onReels && (
+        <View style={[s.tabBarFiller, { height: insets.bottom }]} />
+      )}
       <Tabs
-        // Disable React Navigation's automatic bottom safe-area padding —
-        // we compute it ourselves in dynTab so it isn't applied twice.
-        safeAreaInsets={{ bottom: 0 }}
         screenOptions={{
           headerShown: false,
           tabBarStyle: [s.tabBar, dynTab],
@@ -135,12 +142,11 @@ export default function MainLayout() {
                   : undefined
               }
               options={{
-                // Reels: floating bar so the video extends full-height and peeks
-                // through the rounded corners of the bar. Background stays solid
-                // (no opacity) — only the corner cutouts reveal the video behind.
                 tabBarStyle: keyboardOpen
-                  ? [s.tabBar, dynTab, isReels && s.tabBarFloating, { display: 'none' as const }]
-                  : isReels ? [s.tabBar, dynTab, s.tabBarFloating] : [s.tabBar, dynTab],
+                  ? { display: 'none' as const }
+                  : isReels
+                    ? [s.tabBar, dynTab, s.tabBarFloating]
+                    : [s.tabBar, dynTab],
                 // Eagerly mount the AI screen so `aiInputRef.current` is
                 // populated before the user ever taps the AI tab — required
                 // for the iOS Safari PWA tabPress→focus trick to land on the
@@ -193,6 +199,13 @@ const s = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  tabBarFiller: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: C.surfaceRaised,
   },
   activePill: {
     flexDirection: 'column',
