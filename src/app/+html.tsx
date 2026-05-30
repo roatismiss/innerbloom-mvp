@@ -31,7 +31,7 @@ export default function Root({ children }: PropsWithChildren) {
             background. `default` would render a separate white bar above the app. */}
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="InnerBloom" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
         {/* Favicons */}
         <link rel="icon" type="image/png" href="/favicon.ico" />
