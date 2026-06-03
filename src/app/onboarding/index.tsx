@@ -14,19 +14,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const C = {
-  primary:              '#994531',
-  primaryContainer:     '#e8836b',
-  onPrimaryContainer:   '#641e0e',
-  onPrimary:            '#ffffff',
-  onSurface:            '#281814',
-  onSurfaceVariant:     '#55433e',
-  outlineVariant:       '#dbc1bb',
-  surface:              '#fff8f6',
-  surfaceContainerLow:  '#fff1ed',
-  tertiaryFixedDim:     '#ffb1c4',
-  secondaryFixed:       '#90f2fc',
-};
+import { ui as C } from '@/constants/palette';
+// Design tokens centralized in src/constants/palette.ts.
 
 type WelcomeSlide = {
   kind: 'welcome';
@@ -187,6 +176,8 @@ export default function OnboardingScreen() {
             style={({ pressed }) => [styles.skipBtn, pressed && styles.skipBtnPressed]}
             onPress={goToLogin}
             hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Skip onboarding"
           >
             <SkipText>Skip</SkipText>
           </Pressable>
@@ -200,6 +191,8 @@ export default function OnboardingScreen() {
             <Pressable
               style={({ pressed }) => [styles.cta, { width: W - 48 }, pressed && styles.ctaPressed]}
               onPress={goToLogin}
+              accessibilityRole="button"
+              accessibilityLabel="Get started"
             >
               <CtaText>Get Started</CtaText>
             </Pressable>
@@ -293,11 +286,18 @@ function WelcomeSlideView({
                 pressed && welcomeStyles.ctaPressed,
               ]}
               onPress={onStart}
+              accessibilityRole="button"
+              accessibilityLabel="Start your journey"
             >
               <WelcomeCtaLabel>Start Your Journey</WelcomeCtaLabel>
             </Pressable>
 
-            <Pressable onPress={onLogin} hitSlop={8}>
+            <Pressable
+              onPress={onLogin}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Already have an account? Log in"
+            >
               <LoginLink />
             </Pressable>
           </View>

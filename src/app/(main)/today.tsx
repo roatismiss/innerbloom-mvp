@@ -176,7 +176,11 @@ export default function TodayScreen() {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity
+        style={styles.fab}
+        accessibilityRole="button"
+        accessibilityLabel="Talk to Bloom"
+      >
         <Ionicons name="chatbubble-ellipses" size={28} color="#FFFFFF" />
       </TouchableOpacity>
     </View>

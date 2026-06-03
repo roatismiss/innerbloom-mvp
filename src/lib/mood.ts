@@ -40,7 +40,7 @@ export const moodColor: Record<Emotion, string> = {
   hopeful:  '#e8836b', // primaryContainer
   neutral:  '#ffe2db', // surfaceContainerHigh
   anxious:  '#c9a0dc', // soft lavender (not a token, but reads "tender")
-  sad:      '#90f2fc', // secondaryContainer
+  sad:      '#b8e6e0', // secondaryContainer
   stressed: '#994531', // primary
 };
 

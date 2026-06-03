@@ -39,10 +39,10 @@ const C = {
   primaryFixed:          '#ffdad2',
   onPrimary:             '#ffffff',
   onPrimaryContainer:    '#641e0e',
-  secondary:             '#006970',
-  secondaryContainer:    '#90f2fc',
-  secondaryFixed:        '#90f2fc',
-  onSecondaryContainer:  '#006f77',
+  secondary:             '#0e4d49',
+  secondaryContainer:    '#b8e6e0',
+  secondaryFixed:        '#b8e6e0',
+  onSecondaryContainer:  '#0e4d49',
   tertiary:              '#a8315c',
   tertiaryContainer:     '#fa719c',
   tertiaryFixed:         '#ffd9e1',
@@ -201,7 +201,7 @@ export default function CircleDepressionScreen() {
       {/* ── Sticky Header ── */}
       <View style={[s.topBar, { paddingTop: insets.top, height: insets.top + headerH }]}>
         <View style={s.topLeft}>
-          <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn}>
+          <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Back">
             <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurfaceVariant} />
           </TouchableOpacity>
           <Text style={s.topTitle} numberOfLines={1}>Depression</Text>
@@ -211,10 +211,12 @@ export default function CircleDepressionScreen() {
             style={s.iconBtn}
             activeOpacity={0.7}
             onPress={() => router.push('/(main)/notifications')}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
           >
             <MaterialCommunityIcons name="bell-outline" size={22} color={C.onSurfaceVariant} />
           </TouchableOpacity>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="More options">
             <MaterialCommunityIcons name="dots-vertical" size={22} color={C.onSurfaceVariant} />
           </TouchableOpacity>
         </View>
@@ -330,7 +332,7 @@ export default function CircleDepressionScreen() {
                   <MaterialCommunityIcons name={g.icon} size={22} color={C.primary} />
                   <Text style={s.goodRowLabel}>{g.label}</Text>
                 </View>
-                <TouchableOpacity activeOpacity={0.85} style={s.goodAction}>
+                <TouchableOpacity activeOpacity={0.85} style={s.goodAction} accessibilityRole="button" accessibilityLabel={g.label} hitSlop={8}>
                   <MaterialCommunityIcons name={g.action} size={16} color={C.onPrimaryContainer} />
                 </TouchableOpacity>
               </View>
@@ -472,6 +474,8 @@ export default function CircleDepressionScreen() {
         activeOpacity={0.85}
         onPress={openComposer}
         style={[s.fab, { bottom: insets.bottom + TAB_BAR_H + 28 }]}
+        accessibilityRole="button"
+        accessibilityLabel="New post"
       >
         <MaterialCommunityIcons name="microphone" size={26} color={C.onPrimary} />
       </TouchableOpacity>
@@ -507,9 +511,9 @@ const s = StyleSheet.create({
   topLeft:  { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
   topRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   iconBtn: {
-    width: 40, height: 40,
+    width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 22,
   },
   topTitle: {
     fontFamily: 'NunitoSans_600SemiBold',

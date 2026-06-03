@@ -35,9 +35,9 @@ const C = {
   primaryFixed:            '#ffdad2',
   onPrimary:               '#ffffff',
   onPrimaryFixedVariant:   '#7a2e1d',
-  secondaryContainer:      '#90f2fc',
-  onSecondaryContainer:    '#006f77',
-  secondaryFixed:          '#90f2fc',
+  secondaryContainer:      '#b8e6e0',
+  onSecondaryContainer:    '#0e4d49',
+  secondaryFixed:          '#b8e6e0',
   onSecondaryFixedVariant: '#004f55',
   tertiaryContainer:       '#fa719c',
   onTertiaryContainer:     '#700034',
@@ -341,6 +341,8 @@ function TopBar({ topInset, onBack }: { topInset: number; onBack: () => void }) 
     >
       <View style={styles.topBarInner}>
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
           hitSlop={8}
           onPress={onBack}
           style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
@@ -403,6 +405,8 @@ function InterestCard({
   if (variant === 'full') {
     return (
       <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
         onPress={onToggle}
         style={({ pressed }) => [
           styles.cardBase,
@@ -434,6 +438,8 @@ function InterestCard({
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
       onPress={onToggle}
       style={({ pressed }) => [
         styles.cardBase,

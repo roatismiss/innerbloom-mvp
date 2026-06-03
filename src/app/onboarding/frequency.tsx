@@ -22,8 +22,8 @@ const C = {
   onPrimaryContainer:     '#641e0e',
   primaryFixed:           '#ffdad2',
   onPrimaryFixed:         '#3d0600',
-  secondaryFixed:         '#90f2fc',
-  onSecondaryFixed:       '#002022',
+  secondaryFixed:         '#b8e6e0',
+  onSecondaryFixed:       '#063b37',
   tertiaryFixed:          '#ffd9e1',
   onTertiaryFixed:        '#3f001a',
   surface:                '#fff8f6',
@@ -150,6 +150,8 @@ export default function OnboardingFrequencyScreen() {
             return (
               <Pressable
                 key={opt.id}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
                 onPress={() => handleSelect(opt.id)}
                 style={({ pressed }) => [
                   styles.card,

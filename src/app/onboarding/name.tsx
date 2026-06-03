@@ -27,7 +27,7 @@ const C = {
   primaryContainer:    '#e8836b',
   onPrimaryContainer:  '#641e0e',
   primaryFixed:        '#ffdad2',
-  secondaryFixed:      '#90f2fc',
+  secondaryFixed:      '#b8e6e0',
   surfaceContainerHigh:'#ffe2db',
   surface:             '#fff8f6',
   surfaceContainer:    '#ffe9e4',
@@ -172,7 +172,7 @@ export default function OnboardingNameScreen() {
         <View style={[s.inner, { paddingTop: insets.top + 24 }]}>
           {/* Top nav */}
           <View style={s.topNav}>
-            <Pressable style={s.backBtn} onPress={() => router.back()} hitSlop={8}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Back" style={s.backBtn} onPress={() => router.back()} hitSlop={8}>
               <MaterialCommunityIcons name="chevron-left" size={26} color={C.primary} />
             </Pressable>
             <Text style={s.brand}>InnerBloom</Text>
@@ -182,7 +182,7 @@ export default function OnboardingNameScreen() {
           {/* Avatar picker */}
           <View style={s.avatarSection}>
             {/* Large circle */}
-            <Pressable style={s.avatarCircleWrap} onPress={handlePickPhoto}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Add photo" style={s.avatarCircleWrap} onPress={handlePickPhoto}>
               {renderLargeAvatar()}
               <View style={s.cameraBadge}>
                 <MaterialCommunityIcons name="pencil-outline" size={13} color={C.onPrimaryContainer} />
@@ -197,6 +197,8 @@ export default function OnboardingNameScreen() {
             >
               {/* Upload from gallery */}
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Upload from gallery"
                 style={[s.presetTile, s.presetTileUpload]}
                 onPress={handlePickPhoto}
               >
@@ -206,6 +208,9 @@ export default function OnboardingNameScreen() {
               {BLOOM_PRESETS.map((p) => (
                 <Pressable
                   key={p.key}
+                  accessibilityRole="button"
+                  accessibilityLabel="Avatar option"
+                  accessibilityState={{ selected: selectedAvatar === p.key }}
                   style={[
                     s.presetTile,
                     { backgroundColor: p.bg },

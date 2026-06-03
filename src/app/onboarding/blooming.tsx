@@ -19,7 +19,7 @@ const C = {
   primaryContainer:     '#e8836b',
   primaryFixed:         '#ffdad2',
   primaryFixedDim:      '#ffb4a3',
-  secondaryFixed:       '#90f2fc',
+  secondaryFixed:       '#b8e6e0',
   tertiaryFixed:        '#ffd9e1',
   surface:              '#fff8f6',
   surfaceContainerHigh: '#ffe2db',

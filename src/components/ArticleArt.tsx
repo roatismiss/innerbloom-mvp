@@ -38,7 +38,7 @@ const T = {
   burgundyDark: '#641e0e',
   ink:          '#281814',
   pink:         '#a8315c',
-  cyan:         '#90f2fc',
+  cyan:         '#b8e6e0',
   white:        '#ffffff',
 };
 

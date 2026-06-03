@@ -42,7 +42,7 @@ const C = {
   onPrimaryContainer:   '#641e0e',
   surfaceContainerHigh: '#ffe2db',
   onSurface:            '#281814',
-  onSurfaceVariant:     '#55443e',
+  onSurfaceVariant:     '#55433e',
   outline:              '#88726d',
   surfaceContainerLow:  '#fff1ed',
 } as const;
@@ -71,9 +71,11 @@ export default function ReelsScreen() {
   const [audioIndex, setAudioIndex] = useState(Platform.OS === 'web' ? -1 : initialIndex);
   const [showSaved, setShowSaved] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-  // When set, replaces the canonical REELS order with a randomized one. Stays
-  // for the lifetime of the screen; tapping shuffle again reshuffles.
-  const [shuffleSeed, setShuffleSeed] = useState(0);
+  // 0 = canonical REELS order (used only for deep-linked shares so the linked
+  // reel lands at its known index); any value > 0 = a fresh randomized order.
+  // Default to shuffled on a normal open (TikTok-style — you don't always start
+  // at the same reel 1); reshuffles on each tab re-focus and on the shuffle btn.
+  const [shuffleSeed, setShuffleSeed] = useState(() => (deepLinkedId ? 0 : 1));
   const listRef = useRef<any>(null);
   const isFocused = useIsFocused();
 
@@ -83,6 +85,9 @@ export default function ReelsScreen() {
     if (!deepLinkedId) return;
     const idx = getReelIndexById(deepLinkedId);
     if (idx < 0) return;
+    // Switch to canonical order so getReelIndexById's index matches the feed,
+    // then jump to the shared reel.
+    setShuffleSeed(0);
     setShowSaved(false);
     setVisibleIndex(idx);
     setAudioIndex(idx);
@@ -90,6 +95,22 @@ export default function ReelsScreen() {
       listRef.current?.scrollToIndex?.({ index: idx, animated: false });
     });
   }, [deepLinkedId]);
+
+  // TikTok-style: every time the Reels tab is (re)opened, present a fresh
+  // shuffled order from the top. Skip when we arrived via a deep-linked share
+  // (keep canonical order so the linked reel stays at its index) or while
+  // viewing the Saved filter. Fires only on a real blur→focus transition, so it
+  // never reshuffles mid-session on an incidental re-render.
+  const prevFocusedRef = useRef(isFocused);
+  useEffect(() => {
+    const gainedFocus = isFocused && !prevFocusedRef.current;
+    prevFocusedRef.current = isFocused;
+    if (!gainedFocus || deepLinkedId || showSaved) return;
+    setShuffleSeed((sd) => sd + 1);
+    setVisibleIndex(0);
+    setAudioIndex(Platform.OS === 'web' ? -1 : 0);
+    listRef.current?.scrollToOffset?.({ offset: 0, animated: false });
+  }, [isFocused, deepLinkedId, showSaved]);
 
   // Full-screen immersive mode — white status bar icons over reel content, just
   // like Instagram Reels. On Android we also need to set translucent + transparent
@@ -297,7 +318,14 @@ export default function ReelsScreen() {
         style={[s.topBar, { top: insets.top }]}
         pointerEvents="box-none"
       >
-        <TouchableOpacity style={s.topBarSavedBtn} activeOpacity={0.7} onPress={handleToggleSavedView}>
+        <TouchableOpacity
+          style={s.topBarSavedBtn}
+          activeOpacity={0.7}
+          onPress={handleToggleSavedView}
+          accessibilityRole="button"
+          accessibilityState={{ selected: showSaved }}
+          accessibilityLabel={showSaved ? 'Showing saved reels' : 'Show saved reels'}
+        >
           <MaterialCommunityIcons
             name={showSaved ? 'bookmark' : 'bookmark-outline'}
             size={20}
@@ -534,15 +562,20 @@ function ReelCard({
           label={formatCount(hugCount)}
           iconColor={hugged ? '#e8836b' : C.primary}
           onPress={handleHugPress}
+          a11yLabel={hugged ? `Hugged, ${hugCount}` : `Send a hug, ${hugCount}`}
+          selected={hugged}
         />
         <SidebarBtn
           icon={isSaved ? 'bookmark' : 'bookmark-outline'}
           label="Save"
           iconColor={isSaved ? C.primaryContainer : C.primary}
           onPress={onToggleSave}
+          a11yLabel={isSaved ? 'Saved' : 'Save reel'}
+          selected={isSaved}
         />
         <SidebarBtn
           icon="share-variant-outline"
+          a11yLabel="Share reel"
           onPress={() => {
             Haptics.selectionAsync();
             onShare();
@@ -788,14 +821,25 @@ function SidebarBtn({
   label,
   iconColor = C.primary,
   onPress,
+  a11yLabel,
+  selected,
 }: {
   icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   label?: string;
   iconColor?: string;
   onPress: () => void;
+  a11yLabel?: string;
+  selected?: boolean;
 }) {
   return (
-    <TouchableOpacity style={s.sidebarItem} onPress={onPress} activeOpacity={0.75}>
+    <TouchableOpacity
+      style={s.sidebarItem}
+      onPress={onPress}
+      activeOpacity={0.75}
+      accessibilityRole="button"
+      accessibilityLabel={a11yLabel ?? label}
+      accessibilityState={selected == null ? undefined : { selected }}
+    >
       <View style={s.sidebarBtnBlurWrap}>
         {Platform.OS !== 'web' ? (
           <BlurView intensity={30} tint="light" style={s.sidebarBtnInner}>

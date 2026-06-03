@@ -40,9 +40,9 @@ const C = {
   primaryFixedDim:        '#ffb4a3',
   onPrimary:              '#ffffff',
   onPrimaryContainer:     '#641e0e',
-  secondary:              '#006970',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondary:              '#0e4d49',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   onSecondaryFixedVariant:'#004f55',
   tertiary:               '#a8315c',
   tertiaryContainer:      '#fa719c',
@@ -133,7 +133,7 @@ export default function ResourcesScreen() {
       >
         <View style={s.topBarInner}>
           <View style={s.topBarLeft}>
-            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()}>
+            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back">
               <MaterialCommunityIcons name="chevron-left" size={26} color={C.primary} />
             </TouchableOpacity>
             <View style={s.brandRow}>
@@ -141,7 +141,7 @@ export default function ResourcesScreen() {
               <Text style={s.topTitle}>Resource Library</Text>
             </View>
           </View>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Search">
             <MaterialCommunityIcons name="magnify" size={22} color={C.onSurfaceVariant} />
           </TouchableOpacity>
         </View>
@@ -175,6 +175,8 @@ export default function ResourcesScreen() {
               activeOpacity={0.7}
               onPress={() => setSearch('')}
               hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Clear search"
             >
               <MaterialCommunityIcons name="close-circle" size={18} color={C.outline} />
             </TouchableOpacity>
@@ -278,7 +280,7 @@ const s = StyleSheet.create({
   topBarLeft: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
     alignItems: 'center', justifyContent: 'center',
   },
   topTitle: {

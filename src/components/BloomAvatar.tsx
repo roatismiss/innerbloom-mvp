@@ -6,7 +6,7 @@ import { StyleProp, View, ViewStyle } from 'react-native';
 // Stored in DB as 'bloom:1' … 'bloom:6'. Decoded here into icon+color combos.
 export const BLOOM_PRESETS = [
   { key: 'bloom:1', icon: 'flower-tulip-outline' as const, bg: '#ffdad2', fg: '#994531' },
-  { key: 'bloom:2', icon: 'leaf'                  as const, bg: '#90f2fc', fg: '#006f77' },
+  { key: 'bloom:2', icon: 'leaf'                  as const, bg: '#b8e6e0', fg: '#0e4d49' },
   { key: 'bloom:3', icon: 'heart-outline'          as const, bg: '#ffe2db', fg: '#a8315c' },
   { key: 'bloom:4', icon: 'white-balance-sunny'    as const, bg: '#e8836b', fg: '#641e0e' },
   { key: 'bloom:5', icon: 'star-four-points'       as const, bg: '#fff1ed', fg: '#55433e' },

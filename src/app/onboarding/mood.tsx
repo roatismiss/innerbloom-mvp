@@ -23,9 +23,9 @@ const C = {
   onPrimary:             '#ffffff',
   onPrimaryContainer:    '#641e0e',
   onPrimaryFixedVariant: '#7a2e1d',
-  secondary:             '#006970',
-  secondaryContainer:    '#90f2fc',
-  onSecondaryContainer:  '#006f77',
+  secondary:             '#0e4d49',
+  secondaryContainer:    '#b8e6e0',
+  onSecondaryContainer:  '#0e4d49',
   surface:               '#fff8f6',
   surfaceContainerLow:   '#fff1ed',
   surfaceContainer:      '#ffe9e4',
@@ -117,6 +117,8 @@ export default function OnboardingMoodScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Back"
             style={({ pressed }) => [styles.headerBtn, pressed && styles.headerBtnPressed]}
             onPress={() => router.back()}
             hitSlop={8}
@@ -163,6 +165,8 @@ export default function OnboardingMoodScreen() {
             return (
               <Pressable
                 key={mood.key}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
                 onPress={() => handleSelect(mood.key)}
                 style={({ pressed }) => [
                   styles.moodCard,

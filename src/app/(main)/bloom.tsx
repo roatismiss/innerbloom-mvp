@@ -37,11 +37,11 @@ const C = {
   primaryContainer:       '#e8836b',
   primaryFixed:           '#ffdad2',
   onPrimaryFixedVariant:  '#7a2e1d',
-  secondary:              '#006970',
-  secondaryFixed:         '#90f2fc',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
-  onSecondaryFixed:       '#002022',
+  secondary:              '#0e4d49',
+  secondaryFixed:         '#b8e6e0',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
+  onSecondaryFixed:       '#063b37',
   tertiary:               '#a8315c',
   outline:                '#88726d',
   outlineVariant:         '#dbc1bb',
@@ -146,7 +146,7 @@ export default function BloomChatScreen() {
       >
         <View style={s.topBarInner}>
           <View style={s.topBarLeft}>
-            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Open menu">
               <MaterialCommunityIcons name="menu" size={24} color={C.primary} />
             </TouchableOpacity>
             <View style={s.brandRow}>
@@ -162,7 +162,7 @@ export default function BloomChatScreen() {
               </View>
             </View>
           </View>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Notifications">
             <MaterialCommunityIcons name="bell-outline" size={22} color={C.primary} />
           </TouchableOpacity>
         </View>
@@ -262,7 +262,7 @@ export default function BloomChatScreen() {
 
         {/* ─── Bottom input bar ─── */}
         <View style={[s.inputBar, { paddingBottom: bottomBarPad }]}>
-          <TouchableOpacity style={s.inputSideBtn} activeOpacity={0.75}>
+          <TouchableOpacity style={s.inputSideBtn} activeOpacity={0.75} accessibilityRole="button" accessibilityLabel="Add attachment">
             <MaterialCommunityIcons name="plus" size={22} color={C.primary} />
           </TouchableOpacity>
           <View style={s.inputWrap}>
@@ -282,11 +282,14 @@ export default function BloomChatScreen() {
               style={[s.sendBtn, !draft.trim() && { opacity: 0.45 }]}
               activeOpacity={0.85}
               onPress={send}
+              accessibilityRole="button"
+              accessibilityLabel="Send message"
+              hitSlop={8}
             >
               <MaterialCommunityIcons name="send" size={16} color={C.onPrimary} />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={s.inputSideBtn} activeOpacity={0.75}>
+          <TouchableOpacity style={s.inputSideBtn} activeOpacity={0.75} accessibilityRole="button" accessibilityLabel="Record voice message">
             <MaterialCommunityIcons name="microphone-outline" size={22} color={C.primary} />
           </TouchableOpacity>
         </View>
@@ -350,9 +353,9 @@ const s = StyleSheet.create({
   },
   topBarLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },

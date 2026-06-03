@@ -26,28 +26,9 @@ import { useMyProfile } from '../lib/queries/profile';
 import { useAuthStore } from '../store/auth';
 import { useMoodStore } from '../store/mood';
 import { useUIStore } from '../store/ui';
+import { ui as C } from '@/constants/palette';
 
-// ─── Design tokens (1:1 with the side-nav HTML reference) ────────────────────
-const C = {
-  surface:                '#fff8f6',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerLow:    '#fff1ed',
-  surfaceContainer:       '#ffe9e4',
-  surfaceContainerHigh:   '#ffe2db',
-  primary:                '#994531',
-  primaryFixed:           '#ffdad2',
-  primaryFixedVariant:    '#7a2e1d',
-  onPrimaryFixed:         '#3d0600',
-  primaryContainer:       '#e8836b',
-  tertiary:               '#a8315c',
-  tertiaryContainer:      '#fa719c',
-  onTertiaryContainer:    '#700034',
-  outlineVariant:         '#dbc1bb',
-  onSurface:              '#281814',
-  onSurfaceVariant:       '#55433e',
-  error:                  '#ba1a1a',
-  errorContainer:         '#ffdad6',
-} as const;
+// Design tokens centralized in src/constants/palette.ts.
 
 
 type Mci = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -163,7 +144,12 @@ export function SideMenu() {
     <Animated.View style={[s.host, renderEpsilon]} pointerEvents="box-none">
       {/* Backdrop — tap to dismiss */}
       <Animated.View style={[s.backdrop, backdropStyle]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={backdropTap} />
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={backdropTap}
+          accessibilityRole="button"
+          accessibilityLabel="Close menu"
+        />
       </Animated.View>
 
       {/* Sliding panel */}
@@ -174,6 +160,8 @@ export function SideMenu() {
             <TouchableOpacity
               style={s.closeBtn}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Close menu"
               onPress={() => {
                 void Haptics.selectionAsync();
                 closeDrawer();
@@ -186,6 +174,8 @@ export function SideMenu() {
           {/* Profile card — taps to Edit Profile */}
           <Pressable
             style={s.profileRow}
+            accessibilityRole="button"
+            accessibilityLabel={`${displayName}. Edit profile`}
             onPress={() => {
               void Haptics.selectionAsync();
               closeDrawer();
@@ -233,6 +223,8 @@ export function SideMenu() {
             <TouchableOpacity
               style={s.signOutBtn}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Log out"
               onPress={handleSignOut}
             >
               <MaterialCommunityIcons name="logout" size={18} color={C.error} />
@@ -257,7 +249,14 @@ function NavRow({
   variant: 'primary' | 'secondary';
 }) {
   return (
-    <TouchableOpacity style={s.navRow} activeOpacity={0.75} onPress={onPress}>
+    <TouchableOpacity
+      style={s.navRow}
+      activeOpacity={0.75}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!item.comingSoon }}
+      accessibilityLabel={item.comingSoon ? `${item.label}, coming soon` : item.label}
+    >
       <View style={s.navRowLeft}>
         <MaterialCommunityIcons
           name={item.icon}

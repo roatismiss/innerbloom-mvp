@@ -40,9 +40,9 @@ const C = {
   primaryContainer:       '#e8836b',
   primaryFixed:           '#ffdad2',
   onPrimaryContainer:     '#641e0e',
-  secondary:              '#006970',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondary:              '#0e4d49',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   tertiary:               '#a8315c',
   outline:                '#88726d',
   outlineVariant:         '#dbc1bb',
@@ -273,19 +273,19 @@ export default function ArticleScreen() {
         entering={FadeInUp.springify()}
         style={[s.topBar, { paddingTop: insets.top, height: insets.top + 56 }]}
       >
-        <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()}>
+        <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back">
           <MaterialCommunityIcons name="arrow-left" size={24} color={C.primary} />
         </TouchableOpacity>
         <Text style={s.topTitle}>Article</Text>
         <View style={s.topRight}>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={handleSave}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={handleSave} accessibilityRole="button" accessibilityLabel="Save" accessibilityState={{ selected: saved }}>
             <MaterialCommunityIcons
               name={saved ? 'bookmark' : 'bookmark-outline'}
               size={22}
               color={saved ? C.primary : C.onSurfaceVariant}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={handleShare}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={handleShare} accessibilityRole="button" accessibilityLabel="Share">
             <MaterialCommunityIcons name="share-outline" size={22} color={C.onSurfaceVariant} />
           </TouchableOpacity>
         </View>
@@ -438,7 +438,7 @@ const s = StyleSheet.create({
   },
   topRight: { flexDirection: 'row', gap: 0 },
   iconBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
     alignItems: 'center', justifyContent: 'center',
   },
 

@@ -28,7 +28,7 @@ export interface ResourceCategory {
 
 export const RESOURCE_CATEGORIES: ResourceCategory[] = [
   { key: 'work-stress', label: 'Work Stress',  short: 'Work',        icon: 'briefcase-outline',     bgColor: 'rgba(232,131,107,0.18)', iconColor: '#994531' },
-  { key: 'anxiety',     label: 'Anxiety',       short: 'Anxiety',    icon: 'waveform',              bgColor: 'rgba(144,242,252,0.40)', iconColor: '#006970' },
+  { key: 'anxiety',     label: 'Anxiety',       short: 'Anxiety',    icon: 'waveform',              bgColor: 'rgba(144,242,252,0.40)', iconColor: '#0e4d49' },
   { key: 'depression',  label: 'Depression',    short: 'Depression', icon: 'weather-cloudy',        bgColor: 'rgba(85,67,62,0.10)',    iconColor: '#55433e' },
   { key: 'addiction',   label: 'Addiction',     short: 'Addiction',  icon: 'shield-heart-outline',  bgColor: 'rgba(186,26,26,0.10)',   iconColor: '#ba1a1a' },
   { key: 'motivation',  label: 'Motivation',    short: 'Drive',      icon: 'arrow-up-bold-outline', bgColor: 'rgba(168,49,92,0.14)',   iconColor: '#a8315c' },

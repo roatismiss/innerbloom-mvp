@@ -31,10 +31,10 @@ const C = {
   primaryFixed:          '#ffdad2',
   onPrimary:             '#ffffff',
   onPrimaryContainer:    '#641e0e',
-  secondary:             '#006970',
-  secondaryContainer:    '#90f2fc',
-  secondaryFixed:        '#90f2fc',
-  onSecondaryContainer:  '#006f77',
+  secondary:             '#0e4d49',
+  secondaryContainer:    '#b8e6e0',
+  secondaryFixed:        '#b8e6e0',
+  onSecondaryContainer:  '#0e4d49',
   onSurface:             '#281814',
   onSurfaceVariant:      '#55433e',
   outline:               '#88726d',
@@ -61,7 +61,7 @@ const CIRCLES: Record<string, CircleMeta> = {
   anxiety: {
     id: 'anxiety',
     name: 'Anxiety Support',
-    hero: { icon: 'leaf', gradient: ['#90f2fc', '#ffdad2'] },
+    hero: { icon: 'leaf', gradient: ['#b8e6e0', '#ffdad2'] },
     memberCount: '12.4k members',
     onlineCount: '47 online',
   },
@@ -157,7 +157,7 @@ export default function CircleScreen() {
       {/* Top App Bar — fixed/translucent */}
       <View style={[s.topBar, { paddingTop: insets.top, height: insets.top + headerH }]}>
         <View style={s.topLeft}>
-          <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn}>
+          <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Back">
             <MaterialCommunityIcons name="arrow-left" size={22} color={C.primary} />
           </TouchableOpacity>
           <Text style={s.topTitle} numberOfLines={1}>{meta.name}</Text>
@@ -167,10 +167,12 @@ export default function CircleScreen() {
             style={s.iconBtn}
             activeOpacity={0.7}
             onPress={() => router.push('/(main)/notifications')}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
           >
             <MaterialCommunityIcons name="bell-outline" size={22} color={C.onSurfaceVariant} />
           </TouchableOpacity>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="More options">
             <MaterialCommunityIcons name="dots-vertical" size={22} color={C.onSurfaceVariant} />
           </TouchableOpacity>
         </View>
@@ -282,7 +284,7 @@ export default function CircleScreen() {
             {VOICE_NOTES.map((vn) => (
               <View key={vn.id} style={s.voiceCard}>
                 <View style={s.voiceTop}>
-                  <TouchableOpacity activeOpacity={0.85} style={s.voicePlay}>
+                  <TouchableOpacity activeOpacity={0.85} style={s.voicePlay} accessibilityRole="button" accessibilityLabel="Play voice note">
                     <MaterialCommunityIcons name="play" size={22} color={C.primary} />
                   </TouchableOpacity>
                   <View style={s.voiceWave}>
@@ -423,9 +425,9 @@ const s = StyleSheet.create({
   topLeft:  { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
   topRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   iconBtn: {
-    width: 40, height: 40,
+    width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 22,
   },
   topTitle: {
     fontFamily: 'NunitoSans_600SemiBold',

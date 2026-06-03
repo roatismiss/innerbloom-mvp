@@ -36,8 +36,8 @@ const C = {
   primary:                 '#994531',
   primaryContainer:        '#e8836b',
   primaryFixed:            '#ffdad2',
-  secondary:               '#006970',
-  secondaryContainer:      '#90f2fc',
+  secondary:               '#0e4d49',
+  secondaryContainer:      '#b8e6e0',
   tertiaryContainer:       '#fa719c',
   onSurface:               '#281814',
   onSurfaceVariant:        '#55433e',
@@ -297,7 +297,7 @@ function ResonanceField() {
           <LinearGradient id="resGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <Stop offset="0%"   stopColor="#ffdad2" />
             <Stop offset="50%"  stopColor="#fa719c" />
-            <Stop offset="100%" stopColor="#90f2fc" />
+            <Stop offset="100%" stopColor="#b8e6e0" />
           </LinearGradient>
           {/* CSS filter: blur(40px) — approximate with feGaussianBlur.
               stdDeviation ≈ blur radius / √2 ≈ 28. */}

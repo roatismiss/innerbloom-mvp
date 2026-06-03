@@ -62,9 +62,9 @@ const C = {
   primaryContainer:       '#e8836b',
   onPrimaryContainer:     '#641e0e',
   primaryFixed:           '#ffdad2',
-  secondary:              '#006970',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondary:              '#0e4d49',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   tertiary:               '#a8315c',
   tertiaryFixed:          '#ffd9e1',
   tertiaryFixedDim:       '#ffb1c4',
@@ -214,9 +214,12 @@ export default function ConversationScreen() {
       >
         <View style={s.headerInner}>
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Back"
             style={s.iconBtn}
             activeOpacity={0.75}
             onPress={goBack}
+            hitSlop={8}
           >
             <MaterialCommunityIcons name="arrow-left" size={24} color={C.primary} />
           </TouchableOpacity>
@@ -261,12 +264,15 @@ export default function ConversationScreen() {
           </View>
 
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="More options"
             style={s.iconBtn}
             activeOpacity={0.75}
             onPress={() => {
               void Haptics.selectionAsync();
               setMenuOpen(true);
             }}
+            hitSlop={8}
           >
             <MaterialCommunityIcons name="dots-vertical" size={22} color={C.outline} />
           </TouchableOpacity>
@@ -321,6 +327,8 @@ export default function ConversationScreen() {
         {/* ── Input bar ── */}
         <View style={[s.inputBar, { paddingBottom: bottomPad }]}>
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Send a hug"
             style={[s.inputSideBtn, hugSent && s.inputSideBtnActive]}
             activeOpacity={0.7}
             onPress={sendHug}
@@ -347,6 +355,8 @@ export default function ConversationScreen() {
           </View>
 
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Send"
             style={[s.sendBtn, !draft.trim() && s.sendBtnDisabled]}
             activeOpacity={0.85}
             onPress={send}

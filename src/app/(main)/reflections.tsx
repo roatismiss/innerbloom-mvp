@@ -32,10 +32,10 @@ const C = {
   onPrimary:              '#ffffff',
   primaryContainer:       '#e8836b',
   primaryFixed:           '#ffdad2',
-  secondaryFixed:         '#90f2fc',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
-  onSecondaryFixed:       '#002022',
+  secondaryFixed:         '#b8e6e0',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
+  onSecondaryFixed:       '#063b37',
   tertiary:               '#a8315c',
   outline:                '#88726d',
   outlineVariant:         '#dbc1bb',
@@ -109,7 +109,13 @@ function SessionList() {
         style={[s.topBar, { paddingTop: insets.top, height: insets.top + HEADER_H }]}
       >
         <View style={s.topBarInner}>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.iconBtn}
+            activeOpacity={0.7}
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+          >
             <MaterialCommunityIcons name="chevron-left" size={26} color={C.primary} />
           </TouchableOpacity>
           <Text style={s.topTitle}>Reflections</Text>
@@ -228,6 +234,8 @@ function SessionDetail({ sessionId }: { sessionId: string }) {
             style={s.iconBtn}
             activeOpacity={0.7}
             onPress={() => router.push('/(main)/reflections')}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
           >
             <MaterialCommunityIcons name="chevron-left" size={26} color={C.primary} />
           </TouchableOpacity>
@@ -406,9 +414,9 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },

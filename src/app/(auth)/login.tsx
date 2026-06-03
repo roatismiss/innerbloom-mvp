@@ -15,28 +15,13 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ui as C } from '@/constants/palette';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/auth';
 
-const C = {
-  primary:              '#994531',
-  primaryContainer:     '#e8836b',
-  onPrimaryContainer:   '#641e0e',
-  secondaryContainer:   '#90f2fc',
-  onSecondaryContainer: '#006f77',
-  surface:              '#fff8f6',
-  surfaceLowest:        '#ffffff',
-  surfaceContainer:     '#ffe9e4',
-  surfaceLow:           '#fff1ed',
-  surfaceHigh:          '#ffe2db',
-  primaryFixed:         '#ffdad2',
-  secondaryFixed:       '#90f2fc',
-  onSurface:            '#281814',
-  onSurfaceVariant:     '#55443e',
-  outlineVariant:       '#dbc1bb',
-  outline:              '#88726d',
-  tertiary:             '#a8315c',
-};
+// Colors centralized in src/constants/palette.ts. This screen previously had a
+// drifted `onSurfaceVariant` (#55443e vs #55433e) and the neon cyan toggle —
+// both fixed at the source now.
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
@@ -133,12 +118,18 @@ export default function LoginScreen() {
             <Pressable
               style={[styles.toggleTab, isSignUp && styles.toggleTabActive]}
               onPress={() => { setIsSignUp(true); setError(''); }}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isSignUp }}
+              accessibilityLabel="Sign up"
             >
               <Text style={[styles.toggleLabel, isSignUp && styles.toggleLabelActive]}>Sign Up</Text>
             </Pressable>
             <Pressable
               style={[styles.toggleTab, !isSignUp && styles.toggleTabActive]}
               onPress={() => { setIsSignUp(false); setError(''); }}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: !isSignUp }}
+              accessibilityLabel="Log in"
             >
               <Text style={[styles.toggleLabel, !isSignUp && styles.toggleLabelActive]}>Login</Text>
             </Pressable>
@@ -152,11 +143,12 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="sarah@example.com"
-              placeholderTextColor={C.outlineVariant}
+              placeholderTextColor={C.placeholder}
               keyboardType="email-address"
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
+              accessibilityLabel="Email address"
             />
           </View>
 
@@ -166,15 +158,18 @@ export default function LoginScreen() {
               <TextInput
                 style={[styles.input, { paddingRight: 52 }]}
                 placeholder="••••••••"
-                placeholderTextColor={C.outlineVariant}
+                placeholderTextColor={C.placeholder}
                 secureTextEntry={!showPassword}
                 value={password}
                 onChangeText={setPassword}
+                accessibilityLabel="Password"
               />
               <Pressable
                 style={styles.eyeBtn}
                 onPress={() => setShowPassword((v) => !v)}
-                hitSlop={8}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
               >
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
@@ -191,6 +186,9 @@ export default function LoginScreen() {
             style={({ pressed }) => [styles.submitButton, pressed && { opacity: 0.88, transform: [{ scale: 0.98 }] }]}
             onPress={handleSubmit}
             disabled={loading}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: loading, busy: loading }}
+            accessibilityLabel={isSignUp ? 'Create account' : 'Log in'}
           >
             {loading ? (
               <ActivityIndicator color={C.onPrimaryContainer} />
@@ -209,11 +207,19 @@ export default function LoginScreen() {
           </View>
 
           {/* Social buttons */}
-          <Pressable style={styles.socialBtn}>
+          <Pressable
+            style={({ pressed }) => [styles.socialBtn, pressed && styles.socialBtnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Continue with Google"
+          >
             <Ionicons name="logo-google" size={20} color={C.onSurfaceVariant} />
             <Text style={styles.socialLabel}>Continue with Google</Text>
           </Pressable>
-          <Pressable style={styles.socialBtn}>
+          <Pressable
+            style={({ pressed }) => [styles.socialBtn, pressed && styles.socialBtnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Continue with Apple"
+          >
             <Ionicons name="logo-apple" size={20} color={C.onSurfaceVariant} />
             <Text style={styles.socialLabel}>Continue with Apple</Text>
           </Pressable>
@@ -429,6 +435,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: C.outlineVariant,
     gap: 12,
+  },
+  socialBtnPressed: {
+    opacity: 0.6,
+    backgroundColor: C.surfaceContainerLow,
   },
   socialLabel: {
     fontFamily: 'NunitoSans_600SemiBold',

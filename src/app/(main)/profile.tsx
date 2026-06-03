@@ -40,9 +40,9 @@ const C = {
   primaryFixedDim:        '#ffb4a3',
   onPrimary:              '#ffffff',
   onPrimaryContainer:     '#641e0e',
-  secondary:              '#006970',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondary:              '#0e4d49',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   tertiary:               '#a8315c',
   tertiaryContainer:      '#fa719c',
   onTertiaryContainer:    '#700034',
@@ -243,7 +243,7 @@ export default function ProfileScreen() {
       >
         <View style={s.topBarInner}>
           <View style={s.topBarLeft}>
-            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={openDrawer}>
+            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={openDrawer} accessibilityRole="button" accessibilityLabel="Open menu">
               <MaterialCommunityIcons name="menu" size={24} color={C.primary} />
             </TouchableOpacity>
             <Text style={s.brand}>InnerBloom</Text>
@@ -252,6 +252,8 @@ export default function ProfileScreen() {
             style={s.iconBtn}
             activeOpacity={0.7}
             onPress={() => router.push('/(main)/notifications')}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
           >
             <MaterialCommunityIcons name="bell-outline" size={24} color={C.primary} />
             {(unreadCount ?? 0) > 0 ? <View style={s.profileBellDot} /> : null}
@@ -638,9 +640,9 @@ const s = StyleSheet.create({
     letterSpacing: -0.2,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',

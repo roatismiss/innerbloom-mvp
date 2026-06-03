@@ -34,9 +34,9 @@ const C = {
   primaryContainer:       '#e8836b',
   primaryFixed:           '#ffdad2',
   onPrimaryContainer:     '#641e0e',
-  secondary:              '#006970',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondary:              '#0e4d49',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   tertiary:               '#a8315c',
   tertiaryContainer:      '#fa719c',
   tertiaryFixed:          '#ffd9e1',
@@ -306,7 +306,7 @@ export default function InsightsScreen() {
         style={[s.topBar, { paddingTop: insets.top, height: insets.top + HEADER_H }]}
       >
         <View style={s.topBarInner}>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back">
             <MaterialCommunityIcons name="chevron-left" size={26} color={C.primary} />
           </TouchableOpacity>
           <Text style={s.topTitle}>InnerBloom</Text>
@@ -314,6 +314,8 @@ export default function InsightsScreen() {
             style={s.iconBtn}
             activeOpacity={0.7}
             onPress={() => router.push('/(main)/notifications')}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
           >
             <MaterialCommunityIcons name="bell-outline" size={22} color={C.primary} />
           </TouchableOpacity>
@@ -505,7 +507,7 @@ const s = StyleSheet.create({
     color: C.primary, letterSpacing: -0.1,
   },
   iconBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
     alignItems: 'center', justifyContent: 'center',
   },
 

@@ -44,9 +44,9 @@ const C = {
   onPrimary:              '#ffffff',
   primaryContainer:       '#e8836b',
   onPrimaryContainer:     '#641e0e',
-  secondary:              '#006970',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondary:              '#0e4d49',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   tertiary:               '#a8315c',
   tertiaryContainer:      '#fa719c',
   tertiaryFixed:          '#ffd9e1',
@@ -311,7 +311,13 @@ export default function IntentionsScreen() {
         style={[s.topBar, { paddingTop: insets.top, height: insets.top + HEADER_H }]}
       >
         <View style={s.topBarInner}>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.iconBtn}
+            activeOpacity={0.7}
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+          >
             <MaterialCommunityIcons name="chevron-left" size={26} color={C.primary} />
           </TouchableOpacity>
           <Text style={s.topTitle}>Daily Intentions</Text>
@@ -396,6 +402,8 @@ export default function IntentionsScreen() {
                     hitSlop={8}
                     activeOpacity={0.7}
                     onPress={() => onRemoveTask(task.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Remove task"
                   >
                     <MaterialCommunityIcons name="close" size={16} color={C.outline} />
                   </TouchableOpacity>
@@ -422,6 +430,8 @@ export default function IntentionsScreen() {
               activeOpacity={0.85}
               disabled={!newTaskLabel.trim()}
               onPress={onAddTask}
+              accessibilityRole="button"
+              accessibilityLabel="Add"
             >
               <MaterialCommunityIcons name="plus" size={20} color={C.onPrimary} />
             </TouchableOpacity>
@@ -534,7 +544,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
   },
   iconBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
     alignItems: 'center', justifyContent: 'center',
   },
   topTitle: {

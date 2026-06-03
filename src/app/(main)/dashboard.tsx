@@ -4,9 +4,19 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  interpolateColor,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
+
+import { ui as C } from '@/constants/palette';
 
 import { DEFAULT_MOOD_INTENSITY, greeting, moodColor } from '../../lib/mood';
 import { useTodayIntention } from '../../lib/queries/intentions';
@@ -24,34 +34,8 @@ import { useMoodStore } from '../../store/mood';
 import { useUIStore } from '../../store/ui';
 import type { EmotionCategory } from '../../types';
 
-// ─── Design tokens (design/home-screen.html is source of truth) ───────────────
-const C = {
-  surface:               '#fff8f6',
-  surfaceContainerLowest:'#ffffff',
-  surfaceContainerLow:   '#fff1ed',
-  surfaceContainer:      '#ffe9e4',
-  surfaceContainerHigh:  '#ffe2db',
-  surfaceContainerHighest:'#fadcd5',
-  surfaceVariant:        '#fadcd5',
-  primary:               '#994531',
-  primaryContainer:      '#e8836b',
-  primaryFixed:          '#ffdad2',
-  onPrimary:             '#ffffff',
-  onPrimaryContainer:    '#641e0e',
-  secondary:             '#006970',
-  secondaryContainer:    '#90f2fc',
-  onSecondaryContainer:  '#006f77',
-  tertiary:              '#a8315c',
-  tertiaryContainer:     '#fa719c',
-  onTertiaryContainer:   '#700034',
-  error:                 '#ba1a1a',
-  errorContainer:        '#ffdad6',
-  outline:               '#88726d',
-  outlineVariant:        '#dbc1bb',
-  onSurface:             '#281814',
-  onSurfaceVariant:      '#55433e',
-  online:                '#16a34a',
-} as const;
+// Design tokens are centralized in src/constants/palette.ts (imported as `C`).
+// The cyan "today" circle badge and every other accent now retune from one place.
 
 // ─── Mood data ────────────────────────────────────────────────────────────────
 
@@ -70,6 +54,20 @@ const MOODS: MoodOption[] = [
   { key: 'sad',      label: 'Tired',   icon: 'emoticon-sad-outline'      },
   { key: 'stressed', label: 'Low',     icon: 'emoticon-cry-outline'      },
 ];
+
+// Bloom AI insight copy, keyed to today's mood so the card actually responds to
+// the user instead of showing one canned line to everyone. Falls back to a
+// gentle default before a mood is logged.
+const BLOOM_INSIGHTS: Record<EmotionCategory, string> = {
+  happy:    'Radiance like today is worth noticing. Let yourself feel it fully — you earned this lightness, one small petal at a time.',
+  hopeful:  'Hope is a quiet kind of strength. Whatever you are reaching toward, today you are a little closer than yesterday.',
+  neutral:  'Steady is not nothing — steady is the ground that growth stands on. There is grace in an even, unhurried day.',
+  anxious:  'Anxiety often means you care deeply. You do not have to quiet every thought — just let one slow breath be enough for now.',
+  sad:      'Tiredness is the body asking for tenderness, not more effort. Be as gentle with yourself as you would with a dear friend.',
+  stressed: 'When everything feels like too much, you only have to carry the next breath. The rest can wait. We are here with you.',
+};
+const BLOOM_INSIGHT_DEFAULT =
+  'However today unfolds, your growth is not linear — and every small petal counts. Take one gentle moment that is just for you.';
 
 type TrendTone = 'pastFaint' | 'pastMid' | 'today' | 'future' | 'empty';
 type TrendBar = { day: string; heightPct: number; tone: TrendTone };
@@ -190,6 +188,68 @@ function computeCarouselCardWidth(W: number, gap = 14): number {
   return Math.max(140, Math.min(320, Math.floor(usable / 2)));
 }
 
+// Animated mood button. Selecting a mood is the single most-tapped moment on
+// this screen, so the active state springs in (scale + ring + color crossfade)
+// instead of snapping between two static styles. Honors Reduce Motion.
+function MoodButton({
+  mood,
+  active,
+  locked,
+  onPress,
+}: {
+  mood: MoodOption;
+  active: boolean;
+  locked: boolean;
+  onPress: () => void;
+}) {
+  const reduceMotion = useReducedMotion();
+  const p = useSharedValue(active ? 1 : 0);
+
+  useEffect(() => {
+    p.value = reduceMotion
+      ? active
+        ? 1
+        : 0
+      : withSpring(active ? 1 : 0, { stiffness: 220, damping: 18, mass: 1 });
+  }, [active, reduceMotion, p]);
+
+  const circleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + p.value * 0.18 }],
+    backgroundColor: interpolateColor(
+      p.value,
+      [0, 1],
+      [C.surfaceContainer, C.primaryContainer],
+    ),
+  }));
+
+  const ringStyle = useAnimatedStyle(() => ({
+    opacity: p.value,
+    transform: [{ scale: 0.7 + p.value * 0.3 }],
+  }));
+
+  return (
+    <TouchableOpacity
+      style={[s.moodItem, locked && !active && { opacity: 0.35 }]}
+      onPress={onPress}
+      activeOpacity={locked ? 1 : 0.75}
+      disabled={locked}
+      accessibilityRole="button"
+      accessibilityLabel={`${mood.label} mood`}
+      accessibilityState={{ selected: active, disabled: locked }}
+    >
+      <Animated.View style={[s.moodRing, ringStyle]} pointerEvents="none" />
+      <Animated.View style={[s.moodCircle, circleStyle]}>
+        <MaterialCommunityIcons
+          name={mood.icon}
+          size={24}
+          color={active ? C.onPrimaryContainer : C.onSurfaceVariant}
+        />
+      </Animated.View>
+      <Text style={[s.moodLabel, active && s.moodLabelActive]}>{mood.label}</Text>
+    </TouchableOpacity>
+  );
+}
+
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -237,6 +297,12 @@ export default function DashboardScreen() {
     router.push({ pathname: '/(main)/article', params: { id } });
   }
   const greetingText = greeting();
+
+  // Mood-aware Bloom AI insight — responds to what the user actually logged
+  // today rather than showing one canned line to everyone.
+  const insightText = todayMood?.category
+    ? BLOOM_INSIGHTS[todayMood.category]
+    : BLOOM_INSIGHT_DEFAULT;
 
   // Current streak comes from today_for_me().streak (kept fresh by the DB
   // trigger T4). Falls back to 0 when the user has never checked in.
@@ -358,12 +424,20 @@ export default function DashboardScreen() {
       >
         <View style={s.topBarInner}>
           <View style={s.topBarLeft}>
-            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={openDrawer}>
+            <TouchableOpacity
+              style={s.iconBtn}
+              activeOpacity={0.7}
+              onPress={openDrawer}
+              accessibilityRole="button"
+              accessibilityLabel="Open menu"
+            >
               <MaterialCommunityIcons name="menu" size={24} color={C.onSurfaceVariant} />
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={() => router.push('/(main)/profile')}
+              accessibilityRole="button"
+              accessibilityLabel="Your profile"
             >
               <View style={s.avatarRing}>
                 <BloomAvatar uri={avatarUri} size={36} />
@@ -372,7 +446,7 @@ export default function DashboardScreen() {
             </TouchableOpacity>
             <View>
               <Text style={s.brand}>InnerBloom</Text>
-              <Text style={s.brandSub}>Premium Member</Text>
+              <Text style={s.brandSub}>Your gentle space</Text>
             </View>
           </View>
           <View style={s.topBarRight}>
@@ -380,6 +454,12 @@ export default function DashboardScreen() {
               style={s.iconBtn}
               activeOpacity={0.7}
               onPress={() => router.push('/(main)/notifications')}
+              accessibilityRole="button"
+              accessibilityLabel={
+                (unreadCount ?? 0) > 0
+                  ? `Notifications, ${unreadCount} unread`
+                  : 'Notifications'
+              }
             >
               <MaterialCommunityIcons name="bell-outline" size={22} color={C.onSurfaceVariant} />
               {(unreadCount ?? 0) > 0 ? <View style={s.notifDot} /> : null}
@@ -411,6 +491,8 @@ export default function DashboardScreen() {
             style={s.focusCard}
             activeOpacity={0.9}
             onPress={openIntentions}
+            accessibilityRole="button"
+            accessibilityLabel={`${focusEyebrow}: ${focusTitle}. ${focusCtaLabel}`}
           >
             <View style={s.focusIcon}>
               <MaterialCommunityIcons name="target" size={22} color={C.primary} />
@@ -419,13 +501,10 @@ export default function DashboardScreen() {
               <Text style={s.focusEyebrow}>{focusEyebrow}</Text>
               <Text style={s.focusTitle} numberOfLines={2}>{focusTitle}</Text>
             </View>
-            <TouchableOpacity
-              style={s.focusCta}
-              activeOpacity={0.85}
-              onPress={openIntentions}
-            >
+            {/* Visual CTA only — the whole card is the single VoiceOver target. */}
+            <View style={s.focusCta} accessible={false} pointerEvents="none">
               <Text style={s.focusCtaText}>{focusCtaLabel}</Text>
-            </TouchableOpacity>
+            </View>
           </TouchableOpacity>
         </Animated.View>
 
@@ -434,28 +513,15 @@ export default function DashboardScreen() {
           <Text style={s.moodHeading}>How are you blooming?</Text>
 
           <View style={s.moodRow} pointerEvents={locked ? 'none' : 'auto'}>
-            {MOODS.map((m) => {
-              const active = todayMood?.category === m.key;
-              return (
-                <TouchableOpacity
-                  key={m.key}
-                  style={[s.moodItem, locked && !active && { opacity: 0.35 }]}
-                  onPress={() => handleMoodSelect(m)}
-                  activeOpacity={locked ? 1 : 0.75}
-                  disabled={locked}
-                >
-                  {active && <View style={s.moodRing} />}
-                  <View style={[s.moodCircle, active && s.moodCircleActive]}>
-                    <MaterialCommunityIcons
-                      name={m.icon}
-                      size={active ? 26 : 22}
-                      color={active ? C.onPrimaryContainer : C.onSurfaceVariant}
-                    />
-                  </View>
-                  <Text style={[s.moodLabel, active && s.moodLabelActive]}>{m.label}</Text>
-                </TouchableOpacity>
-              );
-            })}
+            {MOODS.map((m) => (
+              <MoodButton
+                key={m.key}
+                mood={m}
+                active={todayMood?.category === m.key}
+                locked={locked}
+                onPress={() => handleMoodSelect(m)}
+              />
+            ))}
           </View>
           {locked && (
             <View style={s.moodLockedBadge}>
@@ -511,6 +577,8 @@ export default function DashboardScreen() {
                 key={p.title}
                 style={s.practiceRow}
                 activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={`${p.title}. ${p.sub}`}
                 onPress={() => {
                   void Haptics.selectionAsync();
                   if (p.route) router.push(p.route as any);
@@ -542,6 +610,8 @@ export default function DashboardScreen() {
                   q.cardBorder && { borderColor: q.cardBorder },
                 ]}
                 activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={q.label}
                 onPress={() => {
                   void Haptics.selectionAsync();
                   if (q.key === 'journal')  router.push('/(main)/journal');
@@ -568,6 +638,8 @@ export default function DashboardScreen() {
         {/* Bloom AI Insight — tap to open AI Companion chat */}
         <TouchableOpacity
           activeOpacity={0.9}
+          accessibilityRole="button"
+          accessibilityLabel={`Insight from Bloom AI. ${insightText}`}
           onPress={() => {
             void Haptics.selectionAsync();
             router.push('/(main)/ai-companion');
@@ -582,9 +654,7 @@ export default function DashboardScreen() {
                 color={C.primary}
                 style={{ marginBottom: 12 }}
               />
-              <Text style={s.insightQuote}>
-                "You are doing a wonderful job navigating your emotions today. Remember that your growth is not linear, but every small petal counts."
-              </Text>
+              <Text style={s.insightQuote}>“{insightText}”</Text>
               <View style={s.insightAttrib}>
                 <BloomAvatar uri={avatarUri} size={22} />
                 <Text style={s.insightAttribText}>Insight from Bloom AI  →</Text>
@@ -600,6 +670,8 @@ export default function DashboardScreen() {
             <TouchableOpacity
               style={s.journeyCard}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={`Current streak: ${streakDays === 1 ? '1 day' : `${streakDays} days`}`}
               onPress={() => {
                 void Haptics.selectionAsync();
                 router.push('/(main)/profile');
@@ -616,6 +688,8 @@ export default function DashboardScreen() {
             <TouchableOpacity
               style={s.journeyCard}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={`${questLabel}: ${questValue}`}
               onPress={() => {
                 void Haptics.selectionAsync();
                 router.push('/(main)/intentions');
@@ -634,7 +708,12 @@ export default function DashboardScreen() {
         <Animated.View entering={FadeInDown.delay(260).springify()} style={s.section}>
           <View style={s.sectionHeader}>
             <Text style={s.sectionHeading}>Upcoming Circles</Text>
-            <TouchableOpacity activeOpacity={0.7}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Join queue"
+            >
               <Text style={s.sectionLink}>Join Queue</Text>
             </TouchableOpacity>
           </View>
@@ -644,6 +723,8 @@ export default function DashboardScreen() {
                 key={i}
                 style={[s.circleRow, !c.accent && { opacity: 0.7 }]}
                 activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={`${c.title}. ${c.when} ${c.time}. ${c.meta}`}
               >
                 <View
                   style={[
@@ -684,7 +765,13 @@ export default function DashboardScreen() {
         <Animated.View entering={FadeInDown.delay(300).springify()} style={s.section}>
           <View style={s.sectionHeader}>
             <Text style={s.sectionHeading}>Recommended for today</Text>
-            <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/(main)/resources')}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="See all resources"
+              onPress={() => router.push('/(main)/resources')}
+            >
               <Text style={s.sectionLink}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -702,6 +789,8 @@ export default function DashboardScreen() {
                   key={article.id}
                   style={[s.recCard, { width: recCardWidth }]}
                   activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${article.title}. ${article.minutes} minute read`}
                   onPress={() => openArticle(article.id)}
                 >
                   <View style={s.recImageWrap}>
@@ -809,9 +898,9 @@ const s = StyleSheet.create({
     color: C.onSurfaceVariant,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -857,11 +946,13 @@ const s = StyleSheet.create({
 
   // Greeting
   greeting: {
-    fontFamily: 'NunitoSans_600SemiBold',
+    // Editorial hero moment — the one place Fraunces earns its keep on the home
+    // screen, giving the daily greeting a warm, boutique-magazine voice.
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 32,
     lineHeight: 40,
     color: C.onSurface,
-    letterSpacing: -0.32,
+    letterSpacing: -0.5,
   },
   greetingSubRow: {
     flexDirection: 'row',

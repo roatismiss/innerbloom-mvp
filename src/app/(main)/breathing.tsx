@@ -24,8 +24,8 @@ const C = {
   onPrimary:              '#ffffff',
   primaryContainer:       '#e8836b',
   onPrimaryContainer:     '#641e0e',
-  secondaryFixed:         '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondaryFixed:         '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   tertiaryFixedDim:       '#ffb1c4',
   error:                  '#ba1a1a',
   errorContainer:         '#ffdad6',
@@ -137,6 +137,8 @@ export default function BreathingScreen() {
           style={s.glassBtn}
           activeOpacity={0.8}
           onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
         >
           <MaterialCommunityIcons name="close" size={22} color={C.onSurface} />
         </TouchableOpacity>
@@ -146,7 +148,12 @@ export default function BreathingScreen() {
           <Text style={s.sessionTimer}>{timeLabel}</Text>
         </View>
 
-        <TouchableOpacity style={s.glassBtn} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={s.glassBtn}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Mute"
+        >
           <MaterialCommunityIcons name="volume-high" size={22} color={C.onSurface} />
         </TouchableOpacity>
       </View>

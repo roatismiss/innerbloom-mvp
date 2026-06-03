@@ -38,11 +38,11 @@ const C = {
   primaryFixedDim:       '#ffb4a3',
   onPrimary:             '#ffffff',
   onPrimaryContainer:    '#641e0e',
-  secondary:             '#006970',
-  secondaryContainer:    '#90f2fc',
-  secondaryFixed:        '#90f2fc',
+  secondary:             '#0e4d49',
+  secondaryContainer:    '#b8e6e0',
+  secondaryFixed:        '#b8e6e0',
   secondaryFixedDim:     '#73d5df',
-  onSecondaryContainer:  '#006f77',
+  onSecondaryContainer:  '#0e4d49',
   tertiary:              '#a8315c',
   onSurface:             '#281814',
   onSurfaceVariant:      '#55433e',
@@ -196,7 +196,7 @@ export default function CircleBurnoutScreen() {
     <View style={s.root}>
       {/* Top App Bar (translucent, fixed) */}
       <View style={[s.topBar, { paddingTop: insets.top, height: insets.top + headerH }]}>
-        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn}>
+        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Back">
           <MaterialCommunityIcons name="arrow-left" size={22} color={C.primary} />
         </TouchableOpacity>
         <Text style={s.topTitle} numberOfLines={1}>Burnout Recovery</Text>
@@ -205,10 +205,12 @@ export default function CircleBurnoutScreen() {
             style={s.iconBtn}
             activeOpacity={0.7}
             onPress={() => router.push('/(main)/notifications')}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
           >
             <MaterialCommunityIcons name="bell-outline" size={22} color={C.primary} />
           </TouchableOpacity>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="More options">
             <MaterialCommunityIcons name="dots-vertical" size={22} color={C.primary} />
           </TouchableOpacity>
         </View>
@@ -344,7 +346,7 @@ export default function CircleBurnoutScreen() {
                     <View style={s.voiceProgTrack}>
                       <View style={[s.voiceProgFill, { width: `${v.progress * 100}%` }]} />
                     </View>
-                    <TouchableOpacity activeOpacity={0.85}>
+                    <TouchableOpacity activeOpacity={0.85} accessibilityRole="button" accessibilityLabel="Play voice note" hitSlop={8}>
                       <MaterialCommunityIcons name="play" size={22} color={C.primary} />
                     </TouchableOpacity>
                   </View>
@@ -505,9 +507,9 @@ const s = StyleSheet.create({
     borderBottomColor: 'rgba(219,193,187,0.18)',
   },
   iconBtn: {
-    width: 40, height: 40,
+    width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 22,
   },
   topTitle: {
     flex: 1,

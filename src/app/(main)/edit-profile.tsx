@@ -38,8 +38,8 @@ const C = {
   primaryContainer:       '#e8836b',
   primaryFixed:           '#ffdad2',
   onPrimaryContainer:     '#641e0e',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   tertiary:               '#a8315c',
   outline:                '#88726d',
   outlineVariant:         '#dbc1bb',
@@ -185,6 +185,8 @@ export default function EditProfileScreen() {
                 else router.replace('/(main)/dashboard');
               }}
               hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
             >
               <MaterialCommunityIcons name="arrow-left" size={22} color={C.primary} />
             </Pressable>
@@ -322,7 +324,7 @@ const s = StyleSheet.create({
 
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   backBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
     backgroundColor: 'rgba(255,255,255,0.85)',
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: C.outlineVariant,

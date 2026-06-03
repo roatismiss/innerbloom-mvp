@@ -4,7 +4,6 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import {
-    ActivityIndicator,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -26,28 +25,12 @@ import {
 import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
 import { useScrollTopOnFocus } from '../../lib/use-scroll-top-on-focus';
 import { useUIStore } from '../../store/ui';
+import { emotionAccent, ui as C } from '@/constants/palette';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 
-// ─── Design tokens (AGENTS.md canonical spec) ────────────────────────────────
-const C = {
-  surface:               '#fff8f6',
-  surfaceContainerLowest:'#ffffff',
-  surfaceContainerLow:   '#fff1ed',
-  surfaceContainer:      '#ffe9e4',
-  surfaceContainerHigh:  '#ffe2db',
-  primary:               '#994531',
-  primaryContainer:      '#e8836b',
-  onPrimaryContainer:    '#641e0e',
-  secondaryContainer:    '#90f2fc',
-  secondaryFixed:        '#90f2fc',
-  onSecondaryFixed:      '#002022',
-  onSecondaryContainer:  '#006f77',
-  tertiaryContainer:     '#fa719c',
-  outlineVariant:        '#dbc1bb',
-  onSurface:             '#281814',
-  onSurfaceVariant:      '#55433e',
-  outline:               '#88726d',
-  error:                 '#ba1a1a',
-} as const;
+// Design tokens centralized in src/constants/palette.ts. The hugs-pill cyan now
+// retunes from one place; circle accents use the harmonized emotion family
+// instead of the old saturated Material/Flat-UI rainbow.
 
 type MciName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -69,12 +52,12 @@ interface Circle {
 // without a `route` stay as visual placeholders until their screen lands.
 // Featured circles with vivid colors (active state)
 const CIRCLES: Circle[] = [
-  { id: 'anxiety',    name: 'Anxiety Support',  members: '12.4k members · 47 online', icon: 'leaf',           iconBg: '#FF6B4A',  iconColor: '#ffffff', live: true, route: '/(main)/circle' },
-  { id: 'depression', name: 'Depression',       members: '18.4k members · Moderated', icon: 'heart',          iconBg: '#9B59B6',           iconColor: '#ffffff', live: true, route: '/(main)/circle-depression' },
-  { id: 'grief',      name: 'Grief',            members: '23.4k members · No finish line', icon: 'candle',     iconBg: '#5DADE2',           iconColor: '#ffffff', live: true, route: '/(main)/circle-grief' },
-  { id: 'recovery',   name: 'Recovery',         members: '47 days · Day at a time',        icon: 'white-balance-sunny', iconBg: '#27AE60',   iconColor: '#ffffff', live: true, route: '/(main)/circle-recovery' },
-  { id: 'burnout',    name: 'Burnout Recovery', members: '8.2k members · You belong here', icon: 'meditation', iconBg: '#E91E63', iconColor: '#ffffff', live: true, route: '/(main)/circle-burnout' },
-  { id: 'mindful',    name: 'Mindfulness',      members: '234 sitting now',           icon: 'weather-sunny',  iconBg: '#00BCD4', iconColor: '#ffffff', live: true, route: '/(main)/circle-mindfulness' },
+  { id: 'anxiety',    name: 'Anxiety Support',  members: '12.4k members · 47 online', icon: 'leaf',           iconBg: emotionAccent.anxiety,     iconColor: '#ffffff', live: true, route: '/(main)/circle' },
+  { id: 'depression', name: 'Depression',       members: '18.4k members · Moderated', icon: 'heart',          iconBg: emotionAccent.depression,  iconColor: '#ffffff', live: true, route: '/(main)/circle-depression' },
+  { id: 'grief',      name: 'Grief',            members: '23.4k members · No finish line', icon: 'candle',     iconBg: emotionAccent.grief,       iconColor: '#ffffff', live: true, route: '/(main)/circle-grief' },
+  { id: 'recovery',   name: 'Recovery',         members: '47 days · Day at a time',        icon: 'white-balance-sunny', iconBg: emotionAccent.recovery, iconColor: '#ffffff', live: true, route: '/(main)/circle-recovery' },
+  { id: 'burnout',    name: 'Burnout Recovery', members: '8.2k members · You belong here', icon: 'meditation', iconBg: emotionAccent.burnout,     iconColor: '#ffffff', live: true, route: '/(main)/circle-burnout' },
+  { id: 'mindful',    name: 'Mindfulness',      members: '234 sitting now',           icon: 'weather-sunny',  iconBg: emotionAccent.mindfulness, iconColor: '#ffffff', live: true, route: '/(main)/circle-mindfulness' },
 ];
 
 // Responsive card width: exactly two cards fit per viewport, with no peek of
@@ -126,7 +109,13 @@ export default function CommunityScreen() {
     <View style={[s.root, { paddingTop: insets.top }]}>
       {/* Top App Bar */}
       <Animated.View entering={FadeInUp.springify()} style={s.topBar}>
-        <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={openDrawer}>
+        <TouchableOpacity
+          style={s.iconBtn}
+          activeOpacity={0.7}
+          onPress={openDrawer}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu"
+        >
           <MaterialCommunityIcons name="menu" size={22} color={C.primary} />
         </TouchableOpacity>
         <Text style={s.wordmark}>InnerBloom</Text>
@@ -134,6 +123,10 @@ export default function CommunityScreen() {
           style={s.iconBtn}
           activeOpacity={0.7}
           onPress={() => router.push('/(main)/notifications')}
+          accessibilityRole="button"
+          accessibilityLabel={
+            (unreadCount ?? 0) > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'
+          }
         >
           <MaterialCommunityIcons name="bell-outline" size={22} color={C.primary} />
           {(unreadCount ?? 0) > 0 ? <View style={s.bellDot} /> : null}
@@ -200,8 +193,10 @@ export default function CommunityScreen() {
           </View>
 
           {feed.isLoading ? (
-            <View style={s.loading}>
-              <ActivityIndicator color={C.primary} />
+            <View style={s.postsStack}>
+              <SkeletonCard />
+              <SkeletonCard lines={3} />
+              <SkeletonCard />
             </View>
           ) : feed.isError ? (
             <View style={s.errorBox}>
@@ -247,6 +242,8 @@ function CircleCard({
       activeOpacity={0.85}
       onPress={onPress}
       style={[s.circleCard, { width }]}
+      accessibilityRole="button"
+      accessibilityLabel={`${circle.name}. ${circle.members}`}
     >
       <View style={[s.circleIcon, { backgroundColor: circle.iconBg }]}>
         <MaterialCommunityIcons name={circle.icon} size={26} color={circle.iconColor} />
@@ -349,6 +346,9 @@ function PostCard({
           activeOpacity={0.8}
           onPress={handleResonate}
           disabled={toggleResonance.isPending}
+          accessibilityRole="button"
+          accessibilityState={{ selected: hasResonated }}
+          accessibilityLabel={`${post.resonance_count} felt this${hasResonated ? '. You felt this too' : '. Tap if you felt this'}`}
         >
           <MaterialCommunityIcons
             name={hasResonated ? 'heart' : 'heart-outline'}
@@ -365,6 +365,9 @@ function PostCard({
           activeOpacity={0.8}
           onPress={handleHug}
           disabled={hugPost.isPending}
+          accessibilityRole="button"
+          accessibilityState={{ selected: hasHugged }}
+          accessibilityLabel={hasHugged ? 'You hugged this post' : 'Send a hug'}
         >
           <MaterialCommunityIcons
             name="hand-heart"
@@ -418,9 +421,9 @@ const s = StyleSheet.create({
     backgroundColor: C.surface,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',

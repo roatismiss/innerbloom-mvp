@@ -41,9 +41,9 @@ const C = {
   onPrimary:              '#ffffff',
   primaryContainer:       '#e8836b',
   onPrimaryContainer:     '#641e0e',
-  secondary:              '#006970',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondary:              '#0e4d49',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   outline:                '#88726d',
   outlineVariant:         '#dbc1bb',
   onSurface:              '#281814',
@@ -128,7 +128,7 @@ function MoodTrendChart() {
 // we ship per-entry mood tagging. Keeps the editorial look while honest about
 // the schema: we only persist body + timestamp.
 const ENTRY_VARIANTS = [
-  { moodBg: '#90f2fc',                moodColor: '#006f77', moodIcon: 'emoticon-happy-outline'   as const },
+  { moodBg: '#b8e6e0',                moodColor: '#0e4d49', moodIcon: 'emoticon-happy-outline'   as const },
   { moodBg: '#fadcd5',                moodColor: '#55433e', moodIcon: 'emoticon-neutral-outline' as const },
   { moodBg: 'rgba(232,131,107,0.20)', moodColor: '#994531', moodIcon: 'emoticon-excited-outline' as const },
 ];
@@ -224,11 +224,22 @@ export default function JournalScreen() {
         style={[s.topBar, { paddingTop: insets.top, height: insets.top + HEADER_H }]}
       >
         <View style={s.topBarInner}>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={openDrawer}>
+          <TouchableOpacity
+            style={s.iconBtn}
+            activeOpacity={0.7}
+            onPress={openDrawer}
+            accessibilityRole="button"
+            accessibilityLabel="Open menu"
+          >
             <MaterialCommunityIcons name="menu" size={24} color={C.primary} />
           </TouchableOpacity>
           <Text style={s.topBrand}>InnerBloom</Text>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={s.iconBtn}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
+          >
             <MaterialCommunityIcons name="bell-outline" size={22} color={C.primary} />
           </TouchableOpacity>
         </View>
@@ -399,7 +410,13 @@ export default function JournalScreen() {
       >
         <View style={s.composeRoot}>
           <View style={[s.composeHeader, { paddingTop: insets.top + 16 }]}>
-            <TouchableOpacity onPress={closeCompose} style={s.composeClose} activeOpacity={0.7}>
+            <TouchableOpacity
+              onPress={closeCompose}
+              style={s.composeClose}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
               <MaterialCommunityIcons name="close" size={22} color={C.onSurface} />
             </TouchableOpacity>
             <Text style={s.composeTitle}>New Entry</Text>
@@ -449,6 +466,8 @@ export default function JournalScreen() {
         style={[s.fab, { bottom: insets.bottom + TAB_BAR_H + 16 }]}
         activeOpacity={0.88}
         onPress={onNewEntry}
+        accessibilityRole="button"
+        accessibilityLabel="New entry"
       >
         <MaterialCommunityIcons name="pencil-outline" size={28} color={C.onPrimary} />
       </TouchableOpacity>
@@ -483,7 +502,7 @@ const s = StyleSheet.create({
     color: C.primary,
   },
   iconBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
     alignItems: 'center', justifyContent: 'center',
   },
 
@@ -857,9 +876,9 @@ const s = StyleSheet.create({
     paddingBottom: 16,
   },
   composeClose: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: C.surfaceContainer,
     alignItems: 'center',
     justifyContent: 'center',

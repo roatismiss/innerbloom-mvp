@@ -169,7 +169,7 @@ export default function CircleMindfulnessScreen() {
     <View style={s.root}>
       {/* ── Top Nav ── */}
       <View style={[s.topBar, { paddingTop: insets.top, height: insets.top + headerH }]}>
-        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn}>
+        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Back">
           <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurfaceVariant} />
         </TouchableOpacity>
         <Text style={s.topTitle} numberOfLines={1}>Mindfulness</Text>
@@ -177,6 +177,8 @@ export default function CircleMindfulnessScreen() {
           style={s.iconBtn}
           activeOpacity={0.7}
           onPress={() => router.push('/(main)/notifications')}
+          accessibilityRole="button"
+          accessibilityLabel="Notifications"
         >
           <MaterialCommunityIcons name="bell-outline" size={22} color={C.onSurfaceVariant} />
         </TouchableOpacity>
@@ -275,7 +277,7 @@ export default function CircleMindfulnessScreen() {
         <Animated.View entering={FadeInUp.delay(240).springify()} style={[s.section, { paddingHorizontal: 28 }]}>
           <Text style={[s.sectionHeading, { marginBottom: 16 }]}>Wisdom Lane</Text>
           <View style={s.wisdomCard}>
-            <TouchableOpacity activeOpacity={0.85} style={s.wisdomPlay}>
+            <TouchableOpacity activeOpacity={0.85} style={s.wisdomPlay} accessibilityRole="button" accessibilityLabel="Play voice note">
               <MaterialCommunityIcons name="play" size={22} color={C.brandGold} />
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
@@ -391,6 +393,8 @@ export default function CircleMindfulnessScreen() {
         activeOpacity={0.85}
         onPress={openComposer}
         style={[s.fab, { bottom: insets.bottom + TAB_BAR_H + 28 }]}
+        accessibilityRole="button"
+        accessibilityLabel="New post"
       >
         <MaterialCommunityIcons name="leaf" size={26} color={C.onPrimary} />
       </TouchableOpacity>
@@ -424,9 +428,9 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   iconBtn: {
-    width: 40, height: 40,
+    width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 22,
   },
   topTitle: {
     fontFamily: 'NunitoSans_600SemiBold',

@@ -30,11 +30,15 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { name: 'dashboard',    label: 'Dashboard',  icon: 'home-outline',          iconFocused: 'home'          },
-  { name: 'community',    label: 'Community',  icon: 'account-group-outline', iconFocused: 'account-group' },
-  { name: 'soul-match',   label: 'Bloom',      icon: 'yin-yang',              iconFocused: 'yin-yang'      },
-  { name: 'reels',        label: 'Reels',      icon: 'play-circle-outline',   iconFocused: 'play-circle'   },
-  { name: 'ai-companion', label: 'AI',         icon: 'head-heart-outline',    iconFocused: 'head-heart'    },
+  { name: 'dashboard',    label: 'Dashboard',  icon: 'home-outline',          iconFocused: 'home'              },
+  { name: 'community',    label: 'Community',  icon: 'account-group-outline', iconFocused: 'account-group'     },
+  // Center tab. Label now matches its destination screen ("Soul Match") instead
+  // of the old "Bloom" (which collided with the AI companion, also named Bloom).
+  // Icon swapped off the yin-yang (read as new-agey, out of the wellness
+  // register) to a two-hearts glyph that plainly signals human connection.
+  { name: 'soul-match',   label: 'Match',      icon: 'heart-multiple-outline',iconFocused: 'heart-multiple'    },
+  { name: 'reels',        label: 'Reels',      icon: 'play-circle-outline',   iconFocused: 'play-circle'       },
+  { name: 'ai-companion', label: 'AI',         icon: 'head-heart-outline',    iconFocused: 'head-heart'        },
 ];
 
 // Screens that exist as routes but must not appear in the tab bar
@@ -132,6 +136,11 @@ export default function MainLayout() {
                   : undefined
               }
               options={{
+                // Labels are visually hidden (tabBarShowLabel:false) so VoiceOver
+                // needs them spelled out here. The center tab announces its full
+                // destination name rather than the short visual label.
+                tabBarAccessibilityLabel:
+                  tab.name === 'soul-match' ? 'Soul Match' : tab.label,
                 tabBarStyle: keyboardOpen
                   ? { display: 'none' as const }
                   : isReels

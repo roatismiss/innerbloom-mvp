@@ -21,12 +21,14 @@ import Animated, {
   FadeInDown,
   FadeInUp,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ui as C } from '@/constants/palette';
 import { aiInputRef } from '../../lib/ai-input-ref';
 import type { BloomCard } from '../../lib/bloom-prompt';
 import { BLOOM_CRISIS_RESOURCES_PH } from '../../lib/bloom-prompt';
@@ -37,33 +39,8 @@ import {
   type BloomSessionWithMessages,
 } from '../../lib/queries/bloom';
 
-// ─── Design tokens (design/bloom-ai-chat.html is source of truth) ────────────
-const C = {
-  surface:                '#fff8f6',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerLow:    '#fff1ed',
-  surfaceContainer:       '#ffe9e4',
-  surfaceContainerHigh:   '#ffe2db',
-  surfaceContainerHighest:'#fadcd5',
-  primary:                '#994531',
-  onPrimary:              '#ffffff',
-  primaryContainer:       '#e8836b',
-  primaryFixed:           '#ffdad2',
-  onPrimaryFixedVariant:  '#7a2e1d',
-  secondary:              '#006970',
-  secondaryFixed:         '#90f2fc',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
-  onSecondaryFixed:       '#002022',
-  tertiary:               '#a8315c',
-  outline:                '#88726d',
-  outlineVariant:         '#dbc1bb',
-  onSurface:              '#281814',
-  onSurfaceVariant:       '#55433e',
-  error:                  '#b3261e',
-  errorContainer:         '#f9dedc',
-  onErrorContainer:       '#410e0b',
-} as const;
+// Design tokens centralized in src/constants/palette.ts. The breathing orb and
+// mood pills inherit the retuned (calm aqua) secondary from one place now.
 
 const BLOOM_AVATAR =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuB23GMOBJc4wUxKqUTWd2iaHGfe78CyEB8cQKfzW0xe6GzVFghdQg4QP4BuhwrgvwyMhqgpqFg-ALR0wXUTCzXK6QZgFt_gKfhalbQX6WNrxuSglpi96Bcqx1cpwjmUYbp14YbrF7fmRzopL6XgSxdPtshyhw9NlDiU5OnR1NxkMuwujMMXwMbrH7ieyJ5CaX66srpPT1E4EneCyu8-mmrv2rUsVoNwfS13EpN2y-p1B_C1jG6x9KqL3y1-UTdnOFJK_pL4fZGTVQuC';
@@ -96,10 +73,17 @@ function genId() {
 
 // ─── Pulsing breathing orb ────────────────────────────────────────────────────
 function BreathingOrb() {
+  const reduceMotion = useReducedMotion();
   const scale = useSharedValue(1);
   const opacity = useSharedValue(0.5);
 
   useEffect(() => {
+    if (reduceMotion) {
+      // Respect Reduce Motion: hold a calm static state, no pulsing.
+      scale.value = 1;
+      opacity.value = 0.3;
+      return;
+    }
     scale.value = withRepeat(
       withTiming(1.35, { duration: 2200, easing: Easing.inOut(Easing.quad) }),
       -1,
@@ -110,7 +94,7 @@ function BreathingOrb() {
       -1,
       true,
     );
-  }, [opacity, scale]);
+  }, [opacity, scale, reduceMotion]);
 
   const pulseStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -129,11 +113,16 @@ function BreathingOrb() {
 
 // ─── Typing dots ──────────────────────────────────────────────────────────────
 function TypingDots() {
+  const reduceMotion = useReducedMotion();
   const a = useSharedValue(0);
   const b = useSharedValue(0);
   const c = useSharedValue(0);
 
   useEffect(() => {
+    if (reduceMotion) {
+      a.value = 1; b.value = 1; c.value = 1;
+      return;
+    }
     const cfg = { duration: 600, easing: Easing.inOut(Easing.quad) };
     a.value = withRepeat(withTiming(1, cfg), -1, true);
     const t1 = setTimeout(() => { b.value = withRepeat(withTiming(1, cfg), -1, true); }, 180);
@@ -142,7 +131,7 @@ function TypingDots() {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [a, b, c]);
+  }, [a, b, c, reduceMotion]);
 
   const sA = useAnimatedStyle(() => ({ opacity: 0.3 + a.value * 0.7, transform: [{ translateY: -a.value * 2 }] }));
   const sB = useAnimatedStyle(() => ({ opacity: 0.3 + b.value * 0.7, transform: [{ translateY: -b.value * 2 }] }));
@@ -168,7 +157,13 @@ function BreathingCard({ card, onStart }: { card: Extract<BloomCard, { type: 'br
         <Text style={s.breathTitle}>{card.name}</Text>
         <Text style={s.breathSub}>4 seconds in… 4 seconds hold… 4 seconds out.</Text>
       </View>
-      <TouchableOpacity style={s.breathCta} activeOpacity={0.88} onPress={onStart}>
+      <TouchableOpacity
+        style={s.breathCta}
+        activeOpacity={0.88}
+        onPress={onStart}
+        accessibilityRole="button"
+        accessibilityLabel={`Start breathing session, ${mins} minute${mins === 1 ? '' : 's'}`}
+      >
         <Text style={s.breathCtaText}>Start Session · {mins} min</Text>
       </TouchableOpacity>
     </View>
@@ -196,6 +191,9 @@ function MoodPickerCard({
               onPress={() => onSelect(opt)}
               activeOpacity={0.85}
               style={[s.pill, active && s.pillActive]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={opt}
             >
               <Text style={[s.pillText, active && s.pillTextActive]}>{opt}</Text>
             </TouchableOpacity>
@@ -233,6 +231,8 @@ function CrisisCard() {
                   onPress={() => Linking.openURL(`tel:${n.replace(/[^0-9+]/g, '')}`)}
                   style={s.crisisPill}
                   activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Call ${r.name} at ${n}`}
                 >
                   <MaterialCommunityIcons name="phone" size={13} color={C.onErrorContainer} />
                   <Text style={s.crisisPillText}>{n}</Text>
@@ -449,7 +449,13 @@ export default function AICompanionScreen() {
       >
         <View style={s.topBarInner}>
           <View style={s.topBarLeft}>
-            <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} onPress={() => router.back()}>
+            <TouchableOpacity
+              style={s.iconBtn}
+              activeOpacity={0.7}
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+            >
               <MaterialCommunityIcons name="chevron-left" size={26} color={C.primary} />
             </TouchableOpacity>
             <View style={s.brandRow}>
@@ -469,6 +475,8 @@ export default function AICompanionScreen() {
             style={s.iconBtn}
             activeOpacity={0.7}
             onPress={() => router.push('/(main)/reflections')}
+            accessibilityRole="button"
+            accessibilityLabel="Conversation history"
           >
             <MaterialCommunityIcons name="history" size={22} color={C.primary} />
           </TouchableOpacity>
@@ -623,7 +631,12 @@ export default function AICompanionScreen() {
 
         {/* ─── Bottom input bar ─── */}
         <View style={[s.inputBar, { paddingBottom: bottomBarPad }]}>
-          <TouchableOpacity style={s.inputSideBtn} activeOpacity={0.75}>
+          <TouchableOpacity
+            style={s.inputSideBtn}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel="Add attachment"
+          >
             <MaterialCommunityIcons name="plus" size={22} color={C.primary} />
           </TouchableOpacity>
           <View style={s.inputWrap}>
@@ -645,11 +658,19 @@ export default function AICompanionScreen() {
               activeOpacity={0.85}
               onPress={handleSendPress}
               disabled={!canSend}
+              accessibilityRole="button"
+              accessibilityLabel="Send message"
+              accessibilityState={{ disabled: !canSend }}
             >
               <MaterialCommunityIcons name="send" size={16} color={C.onPrimary} />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={s.inputSideBtn} activeOpacity={0.75}>
+          <TouchableOpacity
+            style={s.inputSideBtn}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel="Voice input"
+          >
             <MaterialCommunityIcons name="microphone-outline" size={22} color={C.primary} />
           </TouchableOpacity>
         </View>
@@ -711,9 +732,9 @@ const s = StyleSheet.create({
   },
   topBarLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -41,8 +41,8 @@ const C = {
   primaryFixed:            '#ffdad2',
   onPrimary:               '#ffffff',
   onPrimaryContainer:      '#641e0e',
-  secondary:               '#006970',
-  secondaryContainer:      '#90f2fc',
+  secondary:               '#0e4d49',
+  secondaryContainer:      '#b8e6e0',
   tertiary:                '#a8315c',
   tertiaryContainer:       '#fa719c',
   onSurface:               '#281814',
@@ -225,6 +225,8 @@ function TopBar({
     >
       <View style={styles.topBarInner}>
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
           hitSlop={8}
           onPress={onBack}
           style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
@@ -233,6 +235,8 @@ function TopBar({
         </Pressable>
         <Text style={styles.topTitle}>Soul Match Quiz</Text>
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Close"
           hitSlop={8}
           onPress={onClose}
           style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
@@ -287,6 +291,8 @@ function GoalOptionCard({
 }) {
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
       onPress={onSelect}
       style={({ pressed }) => [
         styles.optionCard,

@@ -181,6 +181,8 @@ function TopBar({ topInset, onBack }: { topInset: number; onBack: () => void }) 
     >
       <View style={styles.topBarInner}>
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
           hitSlop={8}
           onPress={onBack}
           style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
@@ -262,6 +264,8 @@ function QuizOptionCard({
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
       onPress={onSelect}
       style={({ pressed }) => [
         styles.optionCard,

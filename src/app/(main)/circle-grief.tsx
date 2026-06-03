@@ -231,7 +231,7 @@ export default function CircleGriefScreen() {
     <View style={s.root}>
       {/* Header */}
       <View style={[s.topBar, { paddingTop: insets.top, height: insets.top + headerH }]}>
-        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn}>
+        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Back">
           <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurface} />
         </TouchableOpacity>
         <Text style={s.topTitle} numberOfLines={1}>Grief</Text>
@@ -240,10 +240,12 @@ export default function CircleGriefScreen() {
             style={s.iconBtn}
             activeOpacity={0.7}
             onPress={() => router.push('/(main)/notifications')}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
           >
             <MaterialCommunityIcons name="bell-outline" size={22} color={C.onSurface} />
           </TouchableOpacity>
-          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="More options">
             <MaterialCommunityIcons name="dots-vertical" size={22} color={C.onSurface} />
           </TouchableOpacity>
         </View>
@@ -330,7 +332,7 @@ export default function CircleGriefScreen() {
         <Animated.View entering={FadeInUp.delay(140).springify()} style={s.section}>
           <View style={s.sectionHeaderRow}>
             <Text style={s.sectionHeading}>Yours</Text>
-            <TouchableOpacity activeOpacity={0.7}>
+            <TouchableOpacity activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Add a memorial" hitSlop={8}>
               <MaterialCommunityIcons name="plus-circle-outline" size={22} color={C.outline} />
             </TouchableOpacity>
           </View>
@@ -558,6 +560,8 @@ export default function CircleGriefScreen() {
         activeOpacity={0.85}
         onPress={openComposer}
         style={[s.fab, { bottom: insets.bottom + TAB_BAR_H + 24 }]}
+        accessibilityRole="button"
+        accessibilityLabel="New post"
       >
         <Animated.View style={flickerStyle}>
           <MaterialCommunityIcons name="candle" size={28} color="#ffffff" />
@@ -593,9 +597,9 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(255,248,246,0.92)',
   },
   iconBtn: {
-    width: 40, height: 40,
+    width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 22,
   },
   topTitle: {
     flex: 1,

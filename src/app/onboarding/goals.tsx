@@ -58,7 +58,13 @@ export default function OnboardingGoalsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+            style={styles.backButton}
+            onPress={() => router.back()}
+            hitSlop={8}
+          >
             <Ionicons name="arrow-back" size={24} color="#55433E" />
           </TouchableOpacity>
           <Text style={styles.brandName}>InnerBloom</Text>
@@ -99,6 +105,8 @@ export default function OnboardingGoalsScreen() {
               entering={FadeInDown.delay(300 + index * 50).springify()}
             >
               <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityState={{ selected: selectedGoals.includes(goal.key) }}
                 style={[
                   styles.pill,
                   selectedGoals.includes(goal.key) && styles.pillActive,

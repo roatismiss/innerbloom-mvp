@@ -37,9 +37,9 @@ const C = {
   primaryContainer:       '#e8836b',
   primaryFixed:           '#ffdad2',
   onPrimaryContainer:     '#641e0e',
-  secondary:              '#006970',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondary:              '#0e4d49',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   tertiary:               '#a8315c',
   tertiaryFixed:          '#ffd9e1',
   onTertiaryFixedVariant: '#881645',
@@ -104,6 +104,8 @@ export default function GardenScreen() {
             style={s.backBtn}
             activeOpacity={0.7}
             onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
           >
             <MaterialCommunityIcons name="arrow-left" size={22} color={C.primary} />
           </TouchableOpacity>
@@ -349,7 +351,7 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 12,
   },
   backBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
     backgroundColor: 'rgba(255,255,255,0.85)',
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: C.outlineVariant,

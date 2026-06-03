@@ -24,8 +24,8 @@ const C = {
   primaryContainer:       '#e8836b',
   primaryFixed:           '#ffdad2',
   onPrimaryContainer:     '#641e0e',
-  secondaryContainer:     '#90f2fc',
-  onSecondaryContainer:   '#006f77',
+  secondaryContainer:     '#b8e6e0',
+  onSecondaryContainer:   '#0e4d49',
   error:                  '#ba1a1a',
   errorContainer:         '#ffdad6',
   outline:                '#88726d',
@@ -161,6 +161,8 @@ export default function BodyScanScreen() {
           onPress={() => router.back()}
           style={s.iconBtn}
           hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
         >
           <MaterialCommunityIcons name="close" size={22} color={C.onSurface} />
         </Pressable>

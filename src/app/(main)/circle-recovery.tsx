@@ -41,8 +41,8 @@ const C = {
   primaryFixedDim:       '#ffb4a3',
   onPrimary:             '#ffffff',
   onPrimaryContainer:    '#641e0e',
-  secondary:             '#006970',
-  secondaryContainer:    '#90f2fc',
+  secondary:             '#0e4d49',
+  secondaryContainer:    '#b8e6e0',
   onSurface:             '#281814',
   onSurfaceVariant:      '#55433e',
   outline:               '#88726d',
@@ -184,11 +184,11 @@ export default function CircleRecoveryScreen() {
     <View style={s.root}>
       {/* Top App Bar */}
       <View style={[s.topBar, { paddingTop: insets.top, height: insets.top + headerH }]}>
-        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn}>
+        <TouchableOpacity onPress={goBack} activeOpacity={0.7} style={s.iconBtn} accessibilityRole="button" accessibilityLabel="Back">
           <MaterialCommunityIcons name="arrow-left" size={22} color={C.primary} />
         </TouchableOpacity>
         <Text style={s.topTitle} numberOfLines={1}>Recovery</Text>
-        <TouchableOpacity style={s.iconBtn} activeOpacity={0.7}>
+        <TouchableOpacity style={s.iconBtn} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Settings">
           <MaterialCommunityIcons name="cog-outline" size={22} color={C.primary} />
         </TouchableOpacity>
       </View>
@@ -431,6 +431,8 @@ export default function CircleRecoveryScreen() {
         activeOpacity={0.85}
         onPress={openComposer}
         style={[s.fab, { bottom: insets.bottom + TAB_BAR_H + 24 }]}
+        accessibilityRole="button"
+        accessibilityLabel="New post"
       >
         <MaterialCommunityIcons name="pencil-plus-outline" size={24} color={C.onPrimary} />
       </TouchableOpacity>
@@ -464,9 +466,9 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(255,248,246,0.82)',
   },
   iconBtn: {
-    width: 40, height: 40,
+    width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 22,
   },
   topTitle: {
     flex: 1,

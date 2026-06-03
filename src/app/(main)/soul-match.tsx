@@ -6,22 +6,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// ─── Design tokens (1:1 with the HTML reference) ─────────────────────────────
-const C = {
-  surface:                '#fff8f6',
-  surfaceContainerLow:    '#fff1ed',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerHigh:   '#ffe2db',
-  surfaceVariant:         '#fadcd5',
-  primaryFixed:           '#ffdad2',
-  primary:                '#994531',
-  primaryContainer:       '#e8836b',
-  onPrimaryContainer:     '#641e0e',
-  onSurface:              '#281814',
-  onSurfaceVariant:       '#55433e',
-  outlineVariant:         '#dbc1bb',
-  outline:                '#88726d',
-} as const;
+import { ui as C } from '@/constants/palette';
+// Design tokens centralized in src/constants/palette.ts.
 
 const HERO_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBsQ9wjjx58wnl3MMuvbjB6Z0nipcuZU6WdkAYCv1MwY2YDSD4Llcn8ytFUPfcOvj8EI9KVmq1fO5oxUGvLhi-Z8yCzqrPWqLMbHteaGV0_jg4DvPVQhyOsqt5sWKwMCmCCpvo8j9NR05vdXV4klrbYb9Qzogeg9mvuZh1XK46mmRXgzwPnBV1ytB8Rii-4rVdNKdaETL9oyN-MskYm5MbAcb2VBBT0IXsBkLLsRltsKMwQKSxMxvd_QxbE60cok4yY0rssEc5le5rD';
@@ -70,14 +56,20 @@ export default function SoulMatchScreen() {
             </Text>
             <View style={s.quoteAttrib}>
               <View style={s.quoteLine} />
-              <Text style={s.quoteAuthor}>WILLOW REED</Text>
+              <Text style={s.quoteAuthor}>INNERBLOOM</Text>
               <View style={s.quoteLine} />
             </View>
           </Animated.View>
 
           {/* Action CTA */}
           <Animated.View entering={FadeInDown.delay(240).springify()} style={s.ctaWrap}>
-            <TouchableOpacity style={s.cta} activeOpacity={0.87} onPress={handleStart}>
+            <TouchableOpacity
+              style={s.cta}
+              activeOpacity={0.87}
+              onPress={handleStart}
+              accessibilityRole="button"
+              accessibilityLabel="Start discovery"
+            >
               <Text style={s.ctaText}>Start Discovery</Text>
               <MaterialCommunityIcons name="auto-fix" size={22} color={C.onPrimaryContainer} />
             </TouchableOpacity>
@@ -170,10 +162,12 @@ const s = StyleSheet.create({
     gap: 8,
   },
   title: {
-    fontFamily: 'NunitoSans_600SemiBold',
-    fontSize: 32,         // headline-xl-mobile
+    // Editorial hero — Fraunces gives the Soul Match landing its boutique
+    // voice. (Was NunitoSans with a phantom fontWeight:'700' that no-ops on a
+    // named font family.)
+    fontFamily: 'Fraunces_600SemiBold',
+    fontSize: 34,         // headline-xl-mobile
     lineHeight: 40,
-    fontWeight: '700',
     color: C.primary,
     letterSpacing: -0.6,  // tracking-tight
     textAlign: 'center',
