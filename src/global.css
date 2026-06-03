@@ -1,7 +1,23 @@
 html,
-body {
+body,
+#root {
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
+}
+
+/* iOS standalone PWA only: black-translucent makes 100dvh resolve one
+   status-bar-height short of the screen (873 vs 932), shrinking the
+   safe-area frame (= documentElement.offsetHeight) so the bottom tab bar
+   stops short and a strip of background shows below it. 100lvh is the full
+   physical screen — sizing the shell to it makes the frame and tab bar reach
+   the real bottom. No strip, edge-to-edge top preserved. */
+@media (display-mode: standalone) {
+  html,
+  body,
+  #root {
+    height: 100lvh;
+  }
 }
 
 :root {

@@ -25,10 +25,15 @@ export default function Root({ children }: PropsWithChildren) {
 
         {/* iOS Safari — Add to Home Screen support */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        {/* black-translucent: content fills the full screen including behind the
-            status bar (edge-to-edge, like Instagram Reels). The status bar has a
-            black semi-transparent overlay so white icons stay readable over any
-            background. `default` would render a separate white bar above the app. */}
+        {/* black-translucent = content edge-to-edge under the status bar (clock/
+            battery sit over the app). On iOS standalone this makes the DYNAMIC
+            viewport (100dvh / innerHeight) report one status-bar-height short of
+            the screen (873 vs 932); since react-native-safe-area-context derives
+            its frame from document.documentElement.offsetHeight, the bottom tab
+            bar then lays out at 873 and a strip of background shows below it.
+            Fix (see bodyStyles): in standalone, size html/body/#root to 100lvh
+            (the LARGE viewport = full physical screen, 932) so the frame — and
+            the tab bar — reach the real bottom. No strip, edge-to-edge top. */}
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="InnerBloom" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -63,6 +68,15 @@ const bodyStyles = `
     height: 100dvh;
     max-width: 100vw;
     overflow-x: hidden;
+  }
+  /* iOS standalone PWA only: 100dvh resolves one status-bar-height short of the
+     screen with black-translucent (873 vs 932), shrinking the safe-area frame
+     (= documentElement.offsetHeight) so the tab bar stops short and leaves a
+     bottom strip. 100lvh is the full physical screen — sizing html/body/#root to
+     it makes the frame, and the tab bar, reach the real bottom. Static (glued),
+     so iOS handles the keyboard natively — no viewport push. */
+  @media (display-mode: standalone) {
+    html, body, #root { height: 100lvh; }
   }
   body {
     overscroll-behavior: none;

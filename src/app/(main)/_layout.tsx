@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Tabs, usePathname } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -97,19 +97,9 @@ export default function MainLayout() {
   }, []);
 
   const dynTab = { height: tabH, paddingBottom: tabPad } as const;
-  const pathname = usePathname();
-  const onReels = pathname === '/reels';
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* White fill that covers the gap between the tab bar bottom edge and the
-          screen bottom. React Navigation adds paddingBottom: insets.bottom to its
-          container so the bar ends insets.bottom pixels above the screen — this
-          rectangle, anchored to the true screen bottom, closes the gap visually.
-          Hidden on reels where the floating bar sits over dark video content. */}
-      {insets.bottom > 0 && !onReels && (
-        <View style={[s.tabBarFiller, { height: insets.bottom }]} />
-      )}
+    <View style={{ flex: 1, backgroundColor: C.surfaceRaised }}>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -199,13 +189,6 @@ const s = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-  },
-  tabBarFiller: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: C.surfaceRaised,
   },
   activePill: {
     flexDirection: 'column',
