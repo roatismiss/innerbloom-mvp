@@ -23,6 +23,7 @@ import { supabase } from '../lib/supabase';
 import { usePendingKindredRequests } from '../lib/queries/kindred';
 import { unregisterPushTokenForCurrentDevice } from '../lib/queries/notifications';
 import { useMyProfile } from '../lib/queries/profile';
+import { queryClient } from '../lib/queries/query-client';
 import { useAuthStore } from '../store/auth';
 import { useMoodStore } from '../store/mood';
 import { useUIStore } from '../store/ui';
@@ -55,7 +56,7 @@ const PRIMARY_NAV: NavItem[] = [
 const SECONDARY_NAV: NavItem[] = [
   { key: 'edit-profile', label: 'Edit Profile',        icon: 'account-edit-outline', route: '/(main)/edit-profile' },
   { key: 'notifications', label: 'Notifications',      icon: 'bell-outline',         route: '/(main)/notifications' },
-  { key: 'settings',     label: 'Settings & Privacy', icon: 'cog-outline',          comingSoon: true },
+  { key: 'settings',     label: 'Settings & Privacy', icon: 'cog-outline',          route: '/(main)/settings' },
   { key: 'help',         label: 'Help & Support',     icon: 'help-circle-outline',  comingSoon: true },
 ];
 
@@ -131,6 +132,10 @@ export function SideMenu() {
     // Clear the persisted mood cache too — otherwise the next account logged
     // in on this device sees the previous user's mood locked as today's.
     useMoodStore.getState().reset();
+    // Wipe the React Query cache. Query keys (['my-profile'], ['feed'], etc.)
+    // are not scoped by user id, so without this the next account on a shared
+    // device would briefly read the previous user's profile/journal/feed.
+    queryClient.clear();
     setTimeout(() => router.replace('/(auth)/login'), 150);
   }
 

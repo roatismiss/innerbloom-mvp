@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
+import { track } from '../../lib/analytics';
 import { useOnboardingDraft } from '../../store/onboarding-draft';
 import type { CheckinFrequency } from '../../types/database';
 
@@ -104,6 +105,10 @@ export default function OnboardingFrequencyScreen() {
     if (!selected) return;
     void Haptics.selectionAsync();
     setDraftFrequency(FREQ_TO_DB[selected]);
+    track('onboarding_step_completed', {
+      step: 'frequency',
+      frequency: FREQ_TO_DB[selected],
+    });
     router.replace('/onboarding/name');
   };
 

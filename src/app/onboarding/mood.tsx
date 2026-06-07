@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { track } from '../../lib/analytics';
 import { useOnboardingDraft } from '../../store/onboarding-draft';
 
 const C = {
@@ -96,6 +97,7 @@ export default function OnboardingMoodScreen() {
     // The 5 UI mood keys are all valid EmotionCategory values (we just don't
     // surface 'hopeful' in onboarding — user can express that later).
     setDraftMood(selected);
+    track('onboarding_step_completed', { step: 'mood', mood: selected });
     router.push('/onboarding/goals');
   };
 

@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Platform,
@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { track } from '@/lib/analytics';
 import { ui as C } from '@/constants/palette';
 // Design tokens centralized in src/constants/palette.ts.
 
@@ -89,6 +90,11 @@ export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<FlatList<Slide>>(null);
+
+  // Top of the funnel — fires once when the welcome/hero flow first appears.
+  useEffect(() => {
+    track('onboarding_started');
+  }, []);
 
   const getItemLayout = useCallback(
     (_: ArrayLike<Slide> | null | undefined, index: number) => ({
@@ -174,7 +180,10 @@ export default function OnboardingScreen() {
         <View style={[styles.skipWrap, { top: insets.top + 12 }]}>
           <Pressable
             style={({ pressed }) => [styles.skipBtn, pressed && styles.skipBtnPressed]}
-            onPress={goToLogin}
+            onPress={() => {
+              track('onboarding_skipped', { from_slide: activeIndex });
+              goToLogin();
+            }}
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel="Skip onboarding"
@@ -190,7 +199,10 @@ export default function OnboardingScreen() {
           {isLastSlide && (
             <Pressable
               style={({ pressed }) => [styles.cta, { width: W - 48 }, pressed && styles.ctaPressed]}
-              onPress={goToLogin}
+              onPress={() => {
+                track('onboarding_get_started');
+                goToLogin();
+              }}
               accessibilityRole="button"
               accessibilityLabel="Get started"
             >

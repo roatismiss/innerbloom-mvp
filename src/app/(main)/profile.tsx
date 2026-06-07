@@ -17,6 +17,7 @@ import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 import { unregisterPushTokenForCurrentDevice } from '../../lib/queries/notifications';
 import { useUnreadNotificationsCount } from '../../lib/queries/notifications-inbox';
+import { queryClient } from '../../lib/queries/query-client';
 import {
   useMyProfile,
   useProfileStats,
@@ -178,11 +179,16 @@ export default function ProfileScreen() {
 
   async function handleSignOut() {
     try { await unregisterPushTokenForCurrentDevice(); } catch { /* ignore */ }
-    if (supabase) await supabase.auth.signOut();
+    if (supabase) {
+      try { await supabase.auth.signOut(); } catch { /* ignore */ }
+    }
     signOut();
     // Drop the persisted mood so a second account on this device doesn't
     // inherit the previous user's "already checked in" lock.
     useMoodStore.getState().reset();
+    // Clear the React Query cache so the next account on a shared device can't
+    // read the previous user's profile/journal/feed (query keys aren't user-scoped).
+    queryClient.clear();
     router.replace('/(auth)/login');
   }
 

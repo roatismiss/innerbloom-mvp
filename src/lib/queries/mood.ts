@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { track } from '../analytics';
 import { useMoodStore } from '../../store/mood';
 import type {
   EmotionalState,
@@ -62,6 +63,14 @@ export function useSubmitMood() {
         },
       ),
     onMutate: async (input) => {
+      // Snapshot the current store so we can roll back if the network write
+      // fails — otherwise the optimistic value sticks, the picker stays locked
+      // (dashboard reads `todayMood !== null` as "already checked in"), and the
+      // user's mood is silently lost with no way to retry today.
+      const prev = {
+        todayMood: useMoodStore.getState().todayMood,
+        lastCheckinDate: useMoodStore.getState().lastCheckinDate,
+      };
       const optimistic: EmotionalState = {
         category: input.category,
         intensity: input.intensity,
@@ -69,8 +78,25 @@ export function useSubmitMood() {
         colorHex: input.color_hex,
       };
       setTodayMood(optimistic);
+      return { prev };
     },
-    onSuccess: () => {
+    onError: (_err, _input, context) => {
+      // Restore the pre-optimistic state so the picker unlocks and the user can
+      // try again. The screen surfaces the mutation's isError separately.
+      if (context?.prev) {
+        useMoodStore.setState({
+          todayMood: context.prev.todayMood,
+          lastCheckinDate: context.prev.lastCheckinDate,
+        });
+      }
+    },
+    onSuccess: (_data, input) => {
+      // Health-adjacent but coarse: category + 1–5 intensity only, never the
+      // free-text anchor word. Drives the core "are people checking in?" metric.
+      track('mood_logged', {
+        category: input.category,
+        intensity: input.intensity,
+      });
       qc.invalidateQueries({ queryKey: ['today-for-me'] });
       qc.invalidateQueries({ queryKey: ['mood-history'] });
       qc.invalidateQueries({ queryKey: ['feed'] });

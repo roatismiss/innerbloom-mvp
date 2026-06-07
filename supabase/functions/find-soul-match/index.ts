@@ -128,7 +128,10 @@ Deno.serve(async (req) => {
     .eq('quiz_date', today)
     .maybeSingle<Quiz>();
 
-  if (quizErr) return jsonResponse({ error: quizErr.message }, { status: 500 });
+  if (quizErr) {
+    console.error('quiz_lookup_failed', quizErr);
+    return jsonResponse({ error: 'quiz_lookup_failed' }, { status: 500 });
+  }
   if (!myQuiz) return jsonResponse({ error: 'quiz_required' }, { status: 400 });
 
   const { data: myMood } = await admin
@@ -193,7 +196,10 @@ Deno.serve(async (req) => {
     .gte('openness_level', opennessMin)
     .lte('openness_level', opennessMax);
 
-  if (candErr) return jsonResponse({ error: candErr.message }, { status: 500 });
+  if (candErr) {
+    console.error('candidate_lookup_failed', candErr);
+    return jsonResponse({ error: 'candidate_lookup_failed' }, { status: 500 });
+  }
   if (!candidates || candidates.length === 0) {
     return jsonResponse({ status: 'waiting', reason: 'no_candidates_yet' });
   }

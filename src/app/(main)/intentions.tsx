@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -214,18 +214,30 @@ export default function IntentionsScreen() {
 
   // Single source-of-truth write-through. Every mutating handler builds the
   // next-state in JS, calls the store, then fires this so the row stays in
-  // sync. Errors are silent for now — the local optimistic write already
-  // landed and will re-sync the next time the screen mounts.
+  // sync. The local optimistic write already landed; if the SERVER write
+  // fails we keep the last payload so the user can retry — otherwise the
+  // intention is only on this device and is lost on reinstall / second device.
+  const lastPersistRef = useRef<{
+    primary: string;
+    tasks: IntentionTask[];
+    honored: boolean | null;
+  } | null>(null);
+
   function persist(next: {
     primary: string;
     tasks: IntentionTask[];
     honored: boolean | null;
   }) {
+    lastPersistRef.current = next;
     upsert.mutate({
       primary_text: next.primary,
       tasks: next.tasks,
       honored: next.honored,
     });
+  }
+
+  function retryPersist() {
+    if (lastPersistRef.current) persist(lastPersistRef.current);
   }
 
   // Local draft of the textarea so users can edit freely; we commit to the
@@ -333,6 +345,22 @@ export default function IntentionsScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Sync-failure banner — the local copy is saved, but the server write
+            failed, so the intention would be lost on reinstall/another device.
+            Surface it (instead of failing silently) with a one-tap retry. */}
+        {upsert.isError ? (
+          <Pressable
+            onPress={retryPersist}
+            accessibilityRole="button"
+            accessibilityLabel="Not synced — tap to retry saving"
+            style={s.syncBanner}
+          >
+            <Text style={s.syncBannerText}>
+              Saved on this device but not synced. Tap to retry.
+            </Text>
+          </Pressable>
+        ) : null}
+
         {/* ── Morning Focus ── */}
         <Animated.View entering={FadeInDown.delay(60).springify()} style={s.section}>
           <View style={s.sectionHeaderRow}>
@@ -557,6 +585,18 @@ const s = StyleSheet.create({
 
   // Scroll
   scroll: { paddingHorizontal: 24, gap: 32 },
+  syncBanner: {
+    backgroundColor: C.tertiaryFixed,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  syncBannerText: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 13,
+    color: C.onTertiaryFixedVariant,
+    textAlign: 'center',
+  },
 
   // Section base
   section: { gap: 14 },

@@ -251,6 +251,27 @@ Deno.serve(async (req) => {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
+  // ── 2b. Rate limit ────────────────────────────────────────────────────────
+  // Every call hits gpt-4o with a long system prompt + history, so an
+  // unthrottled client (a retry loop, a leaked JWT, a scripted abuser) could
+  // drive unbounded OpenAI cost. Cap each user's *own* message volume in a
+  // short rolling window. Tune RL_MAX/RL_WINDOW_MS as real usage settles.
+  const RL_WINDOW_MS = 60_000;
+  const RL_MAX = 15;
+  const rlWindowStart = new Date(Date.now() - RL_WINDOW_MS).toISOString();
+  const { count: recentUserMsgs } = await admin
+    .from('bloom_chat_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('role', 'user')
+    .gte('created_at', rlWindowStart);
+  if ((recentUserMsgs ?? 0) >= RL_MAX) {
+    return jsonResponse(
+      { error: 'rate_limited', retry_after_seconds: Math.ceil(RL_WINDOW_MS / 1000) },
+      { status: 429 },
+    );
+  }
+
   // ── 3. Find or create active session ─────────────────────────────────────
   const cutoff = new Date(Date.now() - SESSION_GAP_HOURS * 3600 * 1000).toISOString();
 

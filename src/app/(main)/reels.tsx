@@ -23,6 +23,7 @@ import {
 import Animated, { FadeIn, FadeInUp, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { track } from '../../lib/analytics';
 import { ReelBackground, isSchemeDark } from '../../components/reels/ReelBackground';
 import { ShareReelSheet, type SharedReelPayload } from '../../components/reels/ShareReelSheet';
 import {
@@ -180,8 +181,9 @@ export default function ReelsScreen() {
 
   const handleMutePress = useCallback(() => {
     Haptics.selectionAsync();
+    track('reels_muted_toggled', { muted: !reelsMuted });
     toggleMuted();
-  }, [toggleMuted]);
+  }, [toggleMuted, reelsMuted]);
 
   const handleToggleSave = useCallback((id: string) => {
     Haptics.selectionAsync();
@@ -189,13 +191,17 @@ export default function ReelsScreen() {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      track('reel_saved', { reel_id: id, saved: next.has(id) });
       return next;
     });
   }, []);
 
   const handleToggleSavedView = useCallback(() => {
     Haptics.selectionAsync();
-    setShowSaved((prev) => !prev);
+    setShowSaved((prev) => {
+      if (!prev) track('reels_saved_viewed');
+      return !prev;
+    });
     setVisibleIndex(0);
     setAudioIndex(0);
     listRef.current?.scrollToOffset?.({ offset: 0, animated: false });
@@ -203,6 +209,7 @@ export default function ReelsScreen() {
 
   const handleShuffle = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    track('reels_shuffled');
     setShuffleSeed((s) => s + 1);
     setVisibleIndex(0);
     setAudioIndex(0);
@@ -239,6 +246,45 @@ export default function ReelsScreen() {
     ? REEL_AUDIO_VOLUME[activeAudioKey] * (activeVideoTrack?.hasVoiceover ? 0.15 : 1)
     : 1;
 
+  // ─── Analytics: one view + a dwell time per reel ───────────────────────────
+  // visibleIndex (80% on-screen) is the natural "now watching reel X" signal.
+  // We emit `reel_viewed` when the active reel changes and `reel_dwell` with the
+  // watch time of the reel just left — together they give views + watch-through,
+  // the core reels metrics. viewRef carries the open view across renders; it's
+  // only ever touched inside effects (never during render).
+  const viewedReel = visibleIndex >= 0 && visibleIndex < feedData.length ? feedData[visibleIndex] : null;
+  const viewedReelId = viewedReel?.id ?? null;
+  const viewedIsVideo = !!viewedReel?.videoKey;
+  const viewRef = useRef<{ id: string; start: number } | null>(null);
+
+  useEffect(() => {
+    if (!isFocused || !viewedReelId) return;
+    const prev = viewRef.current;
+    if (prev?.id === viewedReelId) return;
+    if (prev) track('reel_dwell', { reel_id: prev.id, dwell_ms: Date.now() - prev.start });
+    track('reel_viewed', { reel_id: viewedReelId, index: visibleIndex, is_video: viewedIsVideo });
+    viewRef.current = { id: viewedReelId, start: Date.now() };
+  }, [viewedReelId, isFocused, visibleIndex, viewedIsVideo]);
+
+  // Close out the open dwell when the tab loses focus or the screen unmounts,
+  // so the last reel's watch time is never dropped.
+  useEffect(() => {
+    if (isFocused) return;
+    const prev = viewRef.current;
+    if (prev) {
+      track('reel_dwell', { reel_id: prev.id, dwell_ms: Date.now() - prev.start });
+      viewRef.current = null;
+    }
+  }, [isFocused]);
+
+  useEffect(
+    () => () => {
+      const prev = viewRef.current;
+      if (prev) track('reel_dwell', { reel_id: prev.id, dwell_ms: Date.now() - prev.start });
+    },
+    [],
+  );
+
   return (
     <View style={s.root}>
       {/* Full-screen snap feed */}
@@ -259,6 +305,11 @@ export default function ReelsScreen() {
               width={width}
               height={reelH}
               tabBarH={tabBarH}
+              // Only instantiate the (memory-heavy, CDN-streaming) video player
+              // for the visible reel and its immediate neighbours. Cards further
+              // out render their gradient/poster background instead, so we never
+              // hold more than ~3 decoders open at once on cheap Android.
+              active={Math.abs(index - visibleIndex) <= 1}
               isPlaying={index === visibleIndex && isFocused}
               audioActive={index === visibleIndex && isFocused && audioIndex >= 0}
               muted={reelsMuted}
@@ -290,11 +341,13 @@ export default function ReelsScreen() {
           onViewableItemsChanged={onViewableItemsChanged}
           onMomentumScrollEnd={handleScrollSnap}
           onScrollEndDrag={handleScrollSnap}
-          // Keep current ± 2 reels mounted so expo-video pre-initialises
-          // the next player before the user swipes to it (Instagram pattern).
-          windowSize={5}
-          initialNumToRender={2}
-          maxToRenderPerBatch={2}
+          // Keep current ± 1 reels mounted. Combined with the `active` gate on
+          // ReelCard (only ±1 instantiates a video player), this caps the number
+          // of simultaneous CDN video decoders at ~3 — down from ~5, which was
+          // enough to OOM / stall the network on low-end Android.
+          windowSize={3}
+          initialNumToRender={1}
+          maxToRenderPerBatch={1}
           // Don't unmount off-screen players — avoids audio/video restart
           // when the user swipes back to a previously-viewed reel.
           removeClippedSubviews={false}
@@ -383,6 +436,7 @@ function ReelCard({
   width,
   height,
   tabBarH,
+  active,
   isPlaying,
   audioActive,
   muted,
@@ -395,6 +449,8 @@ function ReelCard({
   width: number;
   height: number;
   tabBarH: number;
+  // Within ±1 of the visible reel. Only then do we mount the video player.
+  active: boolean;
   isPlaying: boolean;
   // True only after the scroll has snapped to this reel. Drives audio so
   // sound never leaks in mid-swipe (the visible reel can still play silently).
@@ -429,6 +485,7 @@ function ReelCard({
       lastTap.current = 0;
       if (!hugged) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        track('reel_hugged', { reel_id: reel.id, gesture: 'double_tap' });
         setHugged(true);
         setHugCount((c) => c + 1);
         setShowHeart(true);
@@ -447,6 +504,7 @@ function ReelCard({
 
   function handleHugPress() {
     Haptics.selectionAsync();
+    if (!hugged) track('reel_hugged', { reel_id: reel.id, gesture: 'button' });
     setHugged((prev) => !prev);
     setHugCount((c) => (hugged ? c - 1 : c + 1));
   }
@@ -467,7 +525,7 @@ function ReelCard({
           bgImage > legacy color blobs. Video covers everything below it.
           Video keeps playing visually during the swipe but is muted until
           audioActive flips, so the voiceover doesn't bleed across the snap. */}
-      {videoTrack ? (
+      {videoTrack && active ? (
         <ReelVideo
           source={videoTrack.source}
           isPlaying={effectivePlaying}

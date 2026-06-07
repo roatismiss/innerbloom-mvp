@@ -674,6 +674,12 @@ export default function AICompanionScreen() {
             <MaterialCommunityIcons name="microphone-outline" size={22} color={C.primary} />
           </TouchableOpacity>
         </View>
+        {/* Safety/clinical disclaimer — Bloom is an AI companion, not a clinician.
+            Required for any AI surface that discusses mental health. */}
+        <Text style={s.disclaimer}>
+          Bloom is an AI companion, not a substitute for professional care. In a
+          crisis, call 1553 (NCMH) or 911.
+        </Text>
       </KeyboardAvoidingView>
     </View>
   );
@@ -1062,6 +1068,15 @@ const s = StyleSheet.create({
     paddingRight: 6,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  disclaimer: {
+    fontFamily: 'NunitoSans_400Regular',
+    fontSize: 11,
+    lineHeight: 15,
+    color: C.outline,
+    textAlign: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 8,
   },
   input: {
     flex: 1,

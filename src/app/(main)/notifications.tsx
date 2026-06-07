@@ -153,6 +153,11 @@ export default function NotificationsScreen() {
           <View style={s.loading}>
             <ActivityIndicator color={C.primary} />
           </View>
+        ) : inbox.isError ? (
+          // A failed load must NOT masquerade as "you have no notifications" —
+          // that makes users think nobody interacted with them. Show a distinct
+          // retry state instead.
+          <ErrorInbox onRetry={() => void inbox.refetch()} />
         ) : rows.length === 0 ? (
           <EmptyInbox />
         ) : (
@@ -245,6 +250,29 @@ function EmptyInbox() {
         When someone sends you a hug, matches with you, or asks to keep
         blooming, you&apos;ll see it here.
       </Text>
+    </View>
+  );
+}
+
+function ErrorInbox({ onRetry }: { onRetry: () => void }) {
+  return (
+    <View style={s.empty}>
+      <View style={s.emptyIcon}>
+        <MaterialCommunityIcons name="cloud-off-outline" size={32} color={C.primary} />
+      </View>
+      <Text style={s.emptyTitle}>Couldn&apos;t load your inbox</Text>
+      <Text style={s.emptyBody}>
+        Something went wrong reaching the server. Your moments are safe — pull
+        down to refresh, or tap below to try again.
+      </Text>
+      <Pressable
+        onPress={onRetry}
+        accessibilityRole="button"
+        accessibilityLabel="Try again"
+        style={({ pressed }) => [s.retryBtn, pressed && { opacity: 0.85 }]}
+      >
+        <Text style={s.retryBtnText}>TRY AGAIN</Text>
+      </Pressable>
     </View>
   );
 }
@@ -403,5 +431,20 @@ const s = StyleSheet.create({
     fontFamily: 'NunitoSans_400Regular',
     fontSize: 14, lineHeight: 22, color: C.onSurfaceVariant,
     textAlign: 'center', maxWidth: 320,
+  },
+  retryBtn: {
+    marginTop: 20,
+    height: 48,
+    paddingHorizontal: 32,
+    borderRadius: 9999,
+    backgroundColor: C.primaryContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  retryBtnText: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 13,
+    letterSpacing: 0.8,
+    color: C.onPrimaryContainer,
   },
 });

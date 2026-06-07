@@ -1,7 +1,7 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -31,19 +31,33 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Explicit consent to process wellbeing data — required on sign-up.
+  const [consent, setConsent] = useState(false);
 
   const setUser = useAuthStore((s) => s.setUser);
   const setOnboarded = useAuthStore((s) => s.setOnboarded);
 
+  // Synchronous re-entrancy guard. `disabled={loading}` relies on async React
+  // state, so a fast double-tap on a laggy device can enter handleSubmit twice
+  // before the disabled state commits — firing two signUp/signIn calls. This ref
+  // blocks the second call immediately.
+  const submittingRef = useRef(false);
+
   const handleSubmit = async () => {
+    if (submittingRef.current) return;
     if (!email || !password) {
       setError('Please fill in all fields.');
+      return;
+    }
+    if (isSignUp && !consent) {
+      setError('Please accept the Terms and Privacy Policy to continue.');
       return;
     }
     if (!supabase) {
       setError('Supabase is not configured yet.');
       return;
     }
+    submittingRef.current = true;
     setLoading(true);
     setError('');
     try {
@@ -85,6 +99,7 @@ export default function LoginScreen() {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setLoading(false);
+      submittingRef.current = false;
     }
   };
 
@@ -179,6 +194,30 @@ export default function LoginScreen() {
               </Pressable>
             </View>
           </View>
+
+          {isSignUp ? (
+            <View style={styles.consentRow}>
+              <Pressable
+                onPress={() => setConsent((c) => !c)}
+                style={styles.checkbox}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: consent }}
+                accessibilityLabel="I agree to the Terms and Privacy Policy"
+                hitSlop={8}
+              >
+                <View style={[styles.checkboxBox, consent && styles.checkboxBoxOn]}>
+                  {consent ? <MaterialCommunityIcons name="check" size={14} color="#fff" /> : null}
+                </View>
+              </Pressable>
+              <Text style={styles.consentText}>
+                I agree to the{' '}
+                <Text style={styles.consentLink} onPress={() => router.push('/legal?doc=terms')}>Terms</Text>
+                {' '}and{' '}
+                <Text style={styles.consentLink} onPress={() => router.push('/legal?doc=privacy')}>Privacy Policy</Text>
+                , and consent to InnerBloom processing my wellbeing data.
+              </Text>
+            </View>
+          ) : null}
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -388,6 +427,39 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#ba1a1a',
     textAlign: 'center',
+  },
+  consentRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingHorizontal: 4,
+    marginTop: 2,
+  },
+  checkbox: { paddingTop: 1 },
+  checkboxBox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: C.outlineVariant,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxBoxOn: {
+    backgroundColor: C.primary,
+    borderColor: C.primary,
+  },
+  consentText: {
+    flex: 1,
+    fontFamily: 'NunitoSans_400Regular',
+    fontSize: 12.5,
+    lineHeight: 18,
+    color: C.onSurfaceVariant,
+  },
+  consentLink: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    color: C.tertiary,
+    textDecorationLine: 'underline',
   },
   submitButton: {
     backgroundColor: C.primaryContainer,

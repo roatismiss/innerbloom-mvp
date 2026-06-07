@@ -9,7 +9,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/images/icon.png",
-      "bundleIdentifier": "com.anonymous.innerbloommvp",
+      "bundleIdentifier": "com.innerbloom.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -25,13 +25,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.innerbloommvp",
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
-      ]
+      "package": "com.innerbloom.app",
+      "permissions": []
     },
     "web": {
       "output": "static",
@@ -62,7 +57,24 @@
           "supportsBackgroundPlayback": false,
           "supportsPictureInPicture": false
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "InnerBloom uses your photos so you can set a profile picture.",
+          "cameraPermission": "InnerBloom uses your camera so you can take a profile picture.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#994531"
+        }
+      ],
+      "expo-localization",
+      "expo-asset",
+      "@sentry/react-native"
     ],
     "experiments": {
       "typedRoutes": true,

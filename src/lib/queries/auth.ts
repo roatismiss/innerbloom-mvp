@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { AppState, Platform } from 'react-native';
 
+import { identify, resetAnalytics } from '../analytics';
 import { useAuthStore } from '../../store/auth';
 import type { User } from '../../types';
 import { sb } from './client';
@@ -19,6 +20,8 @@ export function useSessionBootstrap() {
 
     async function hydrateFromSession(sessionUserId: string | null) {
       if (!sessionUserId) {
+        // Logout / no session — stop attributing events to the previous user.
+        resetAnalytics();
         setUser(null);
         setOnboarded(false);
         setLoading(false);
@@ -26,12 +29,24 @@ export function useSessionBootstrap() {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: profile } = await (sb().from('profiles') as any)
-        .select(
-          'id, anonymous_alias, city, institution_id, onboarding_completed_at, created_at',
-        )
-        .eq('id', sessionUserId)
-        .maybeSingle();
+      let profile: any = null;
+      try {
+        const res = await (sb().from('profiles') as any)
+          .select(
+            'id, anonymous_alias, city, institution_id, onboarding_completed_at, created_at',
+          )
+          .eq('id', sessionUserId)
+          .maybeSingle();
+        profile = res.data;
+      } catch (err) {
+        // Network/RLS hiccup fetching the profile. Do NOT hang the splash and
+        // do NOT wipe the session — just stop loading and let the app proceed;
+        // the next foreground refresh will re-hydrate.
+        // eslint-disable-next-line no-console
+        console.error('[AuthBootstrap] profile fetch failed', err);
+        if (mounted) setLoading(false);
+        return;
+      }
 
       if (!mounted) return;
 
@@ -55,23 +70,56 @@ export function useSessionBootstrap() {
           }
         : null;
 
+      // Attribute analytics to this user. Only the anonymous alias + coarse
+      // city ever reach PostHog — never the real name (the app has none on file).
+      if (user) {
+        identify(user.id, {
+          alias: user.anonymousAlias,
+          city: user.city ?? null,
+        });
+      }
+
       setUser(user);
       setOnboarded(!!row?.onboarding_completed_at);
       setLoading(false);
     }
 
+    let unsubscribe: (() => void) | null = null;
+
     (async () => {
-      const { data } = await sb().auth.getSession();
-      await hydrateFromSession(data.session?.user.id ?? null);
+      try {
+        const { data } = await sb().auth.getSession();
+        await hydrateFromSession(data.session?.user.id ?? null);
+      } catch (err) {
+        // sb() throws if Supabase env vars are unset (e.g. forgotten on the
+        // Vercel build), and getSession() can reject on a storage/network
+        // fault. Either way the splash must not hang forever: clear loading and
+        // route as a logged-out user.
+        // eslint-disable-next-line no-console
+        console.error('[AuthBootstrap] getSession failed', err);
+        if (mounted) {
+          setUser(null);
+          setOnboarded(false);
+        }
+      } finally {
+        // Belt-and-suspenders: whatever happened above, never leave isLoading
+        // stuck true (that is what freezes the index splash indefinitely).
+        if (mounted) setLoading(false);
+      }
     })();
 
-    const { data: sub } = sb().auth.onAuthStateChange((_event, session) => {
-      void hydrateFromSession(session?.user.id ?? null);
-    });
+    try {
+      const { data: sub } = sb().auth.onAuthStateChange((_event, session) => {
+        void hydrateFromSession(session?.user.id ?? null);
+      });
+      unsubscribe = () => sub.subscription.unsubscribe();
+    } catch {
+      // No client — nothing to subscribe to. Loading was already settled above.
+    }
 
     return () => {
       mounted = false;
-      sub.subscription.unsubscribe();
+      unsubscribe?.();
     };
   }, [setLoading, setOnboarded, setUser]);
 

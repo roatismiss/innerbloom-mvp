@@ -11,6 +11,7 @@ import Svg, {
   Stop,
 } from 'react-native-svg';
 
+import { track } from '../../lib/analytics';
 import { useCompleteOnboarding } from '../../lib/queries/onboarding';
 import { useOnboardingDraft } from '../../store/onboarding-draft';
 
@@ -126,6 +127,12 @@ export default function BloomingScreen() {
         notification_opt_in: true,
       })
       .then(() => {
+        // Funnel exit — the user finished setup and an account now exists.
+        track('onboarding_completed', {
+          mood: draft.mood,
+          frequency: draft.frequency,
+          goal_count: draft.goals.length,
+        });
         rpcDone = true;
         tryNavigate();
       })

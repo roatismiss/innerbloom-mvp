@@ -20,6 +20,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BLOOM_PRESETS } from '../../components/BloomAvatar';
+import { track } from '../../lib/analytics';
 import { useSetMyIdentity, useUploadAvatar } from '../../lib/queries/identity';
 
 const C = {
@@ -126,6 +127,12 @@ export default function OnboardingNameScreen() {
     } finally {
       setSubmitting(false);
     }
+    // Last step. Never send the name itself (PII) — only whether they personalized.
+    track('onboarding_step_completed', {
+      step: 'name',
+      has_name: name.trim().length > 0,
+      has_avatar: !!selectedAvatar,
+    });
     router.replace('/onboarding/blooming');
   }
 

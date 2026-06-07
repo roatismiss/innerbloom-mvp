@@ -568,7 +568,7 @@ const s = StyleSheet.create({
   },
   toggleTabTextActive: {
     color: C.onPrimaryContainer,
-    fontFamily: 'NunitoSans_700Bold',
+    fontFamily: 'NunitoSans_600SemiBold',
   },
 
   // Donut card
@@ -597,7 +597,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   donutValue: {
-    fontFamily: 'NunitoSans_700Bold',
+    fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 32, lineHeight: 40,
     color: C.primary,
     letterSpacing: -0.32,
@@ -672,7 +672,7 @@ const s = StyleSheet.create({
     color: C.onSurfaceVariant,
   },
   insightHighlight: {
-    fontFamily: 'NunitoSans_700Bold',
+    fontFamily: 'NunitoSans_600SemiBold',
   },
 
   // Activity scroll
@@ -690,7 +690,7 @@ const s = StyleSheet.create({
     borderColor: 'rgba(219,193,187,0.3)',
   },
   activityValue: {
-    fontFamily: 'NunitoSans_700Bold',
+    fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 28, lineHeight: 34,
     letterSpacing: -0.2,
   },

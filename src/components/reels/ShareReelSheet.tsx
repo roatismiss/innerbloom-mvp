@@ -17,6 +17,7 @@ import {
 import Animated, { FadeIn, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { track } from '../../lib/analytics';
 import { useBloomSend } from '../../lib/queries/bloom';
 import { callRpc } from '../../lib/queries/client';
 import { useKindredGarden } from '../../lib/queries/kindred';
@@ -107,6 +108,12 @@ export function ShareReelSheet({
       if (includesAI) {
         await bloomSend.mutateAsync({ message: formatBloomAiPrompt(reel, note) });
       }
+
+      track('reel_shared', {
+        reel_id: reel.reelId,
+        recipients: realConvIds.length + (includesAI ? 1 : 0),
+        includes_ai: includesAI,
+      });
 
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       handleClose();

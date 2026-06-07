@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
+import { track } from '../../lib/analytics';
 import { useOnboardingDraft } from '../../store/onboarding-draft';
 
 type GoalType =
@@ -49,6 +50,13 @@ export default function OnboardingGoalsScreen() {
   const handleNext = () => {
     if (selectedGoals.length > 0) {
       setDraftGoals(selectedGoals);
+      track('onboarding_step_completed', {
+        step: 'goals',
+        goal_count: selectedGoals.length,
+        // Predefined interest categories (not free text) — tells us what content
+        // to build. Sorted so PostHog can group identical selections.
+        goals: [...selectedGoals].sort().join(','),
+      });
       router.push('/onboarding/frequency');
     }
   };
@@ -265,7 +273,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   title: {
-    fontFamily: 'NunitoSans_700Bold',
+    fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 32,
     lineHeight: 40,
     color: '#281814',

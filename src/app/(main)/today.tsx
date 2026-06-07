@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   welcomeTitle: {
-    fontFamily: 'NunitoSans_700Bold',
+    fontFamily: 'NunitoSans_600SemiBold',
     fontSize: 32,
     lineHeight: 40,
     letterSpacing: -0.32,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   moodLabelActive: {
     color: '#994531',
-    fontFamily: 'NunitoSans_700Bold',
+    fontFamily: 'NunitoSans_600SemiBold',
   },
 
   // Quote Card
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   },
   recommendedBadgeText: {
     fontSize: 10,
-    fontFamily: 'NunitoSans_700Bold',
+    fontFamily: 'NunitoSans_600SemiBold',
     color: '#281814',
   },
   recommendedContent: {

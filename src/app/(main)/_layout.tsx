@@ -1,11 +1,12 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { aiInputRef } from '../../lib/ai-input-ref';
 import { SideMenu } from '../../components/SideMenu';
+import { useAuthStore } from '../../store/auth';
 
 const C = {
   surface:               '#fff8f6',
@@ -42,7 +43,7 @@ const TABS: TabDef[] = [
 ];
 
 // Screens that exist as routes but must not appear in the tab bar
-const HIDDEN = ['today', 'checkin', 'bloom-ai', 'breathing', 'body-scan', 'journal', 'profile', 'feed', 'bloom', 'bloom-circle', 'circle', 'circle-burnout', 'circle-mindfulness', 'circle-depression', 'circle-grief', 'circle-recovery', 'reflections', 'intentions', 'resources', 'garden', 'post-composer', 'article', 'notifications', 'edit-profile', 'insights'];
+const HIDDEN = ['today', 'checkin', 'bloom-ai', 'breathing', 'body-scan', 'journal', 'profile', 'feed', 'bloom', 'bloom-circle', 'circle', 'circle-burnout', 'circle-mindfulness', 'circle-depression', 'circle-grief', 'circle-recovery', 'reflections', 'intentions', 'resources', 'garden', 'post-composer', 'article', 'notifications', 'edit-profile', 'insights', 'settings'];
 
 function TabIcon({
   label, icon, iconFocused, focused, isCenter,
@@ -78,6 +79,17 @@ function TabIcon({
 
 export default function MainLayout() {
   const insets = useSafeAreaInsets();
+
+  // ── Auth guard ──────────────────────────────────────────────────────────
+  // On web/PWA, expo-router maps URLs directly to routes, so a hard refresh,
+  // a deep link, or the home-screen shortcut can mount a (main) screen WITHOUT
+  // ever passing through the index splash that normally gates auth. Without
+  // this guard, a logged-out user lands on an empty authenticated screen with
+  // no way back to login. We re-assert the routing rules here so the group is
+  // self-protecting regardless of entry point.
+  const authLoading = useAuthStore((s) => s.isLoading);
+  const user = useAuthStore((s) => s.user);
+  const isOnboarded = useAuthStore((s) => s.isOnboarded);
   // Bottom padding: use the home-indicator inset when available (iOS PWA / native),
   // fall back to 16. This prevents React Navigation from applying the inset as a
   // separate offset that raises the bar and leaves a gap below it.
@@ -101,6 +113,12 @@ export default function MainLayout() {
   }, []);
 
   const dynTab = { height: tabH, paddingBottom: tabPad } as const;
+
+  // While the session is still hydrating, render nothing rather than flashing
+  // either the tabs or a redirect. Once settled, enforce the routing rules.
+  if (authLoading) return <View style={{ flex: 1, backgroundColor: C.surface }} />;
+  if (!user) return <Redirect href="/(auth)/login" />;
+  if (!isOnboarded) return <Redirect href="/onboarding/mood" />;
 
   return (
     <View style={{ flex: 1, backgroundColor: C.surfaceRaised }}>

@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -201,6 +202,19 @@ export default function CircleBurnoutScreen() {
         </TouchableOpacity>
         <Text style={s.topTitle} numberOfLines={1}>Burnout Recovery</Text>
         <View style={s.topRight}>
+          <TouchableOpacity
+            style={s.sosBtn}
+            activeOpacity={0.85}
+            onPress={() => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              void Linking.openURL('tel:1553');
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Call the crisis hotline, 1553"
+          >
+            <MaterialCommunityIcons name="phone-in-talk" size={16} color="#ffffff" />
+            <Text style={s.sosBtnText}>SOS</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={s.iconBtn}
             activeOpacity={0.7}
@@ -519,6 +533,22 @@ const s = StyleSheet.create({
     textAlign: 'center',
   },
   topRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  sosBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ba1a1a',
+    paddingHorizontal: 12,
+    height: 32,
+    borderRadius: 9999,
+    marginRight: 2,
+  },
+  sosBtnText: {
+    fontFamily: 'NunitoSans_600SemiBold',
+    fontSize: 12,
+    letterSpacing: 0.6,
+    color: '#ffffff',
+  },
 
   // Hero band
   hero: {

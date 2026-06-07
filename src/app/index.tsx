@@ -57,6 +57,19 @@ export default function Splash() {
     return () => clearTimeout(t);
   }, [isLoading, user, isOnboarded]);
 
+  // Hard ceiling on the splash. AuthBootstrap now always settles isLoading,
+  // but if anything upstream still wedges (storage fault, env misconfig), this
+  // forces the user off the splash to onboarding after 6s instead of trapping
+  // them on it forever.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (useAuthStore.getState().isLoading) {
+        router.replace('/onboarding');
+      }
+    }, 6000);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <View style={styles.root}>
       {/* Three soft organic blobs — opacity alone gives the diffused look */}
