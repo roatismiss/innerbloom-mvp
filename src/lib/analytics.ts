@@ -37,20 +37,50 @@ const customStorage: PostHogCustomStorage = {
   setItem: (key, value) => AsyncStorage.setItem(key, value),
 };
 
-// `null` when no key is configured (local dev, CI) — every wrapper below then
-// no-ops, so the app runs fine without analytics. No crashes, no warnings spam.
-export const posthog: PostHog | null = apiKey
+// PostHog's constructor synchronously reads persisted state through
+// `customStorage.getItem` → AsyncStorage, whose web build dereferences
+// `window.localStorage`. During Expo's static web export the route modules run
+// in Node, where `window` is undefined, so instantiating here throws
+// "window is not defined" and fails the build (`expo export --platform web`).
+// React Native and the browser client both define `window`; only the Node
+// static render doesn't — and that render must not emit analytics anyway. So we
+// skip instantiation there and let every wrapper below no-op.
+const isStaticRender = typeof window === 'undefined';
+
+// `null` when no key is configured (local dev, CI) or during the static render
+// — every wrapper below then no-ops, so the app runs fine without analytics.
+// No crashes, no warnings spam.
+export const posthog: PostHog | null = apiKey && !isStaticRender
   ? new PostHog(apiKey, {
       host,
       customStorage,
       // "Application Opened/Backgrounded/Installed/Updated" — powers retention
       // and DAU/WAU out of the box.
       captureAppLifecycleEvents: true,
+      // Flush quickly while we verify the pipe (default is 20). Drop or raise
+      // once events are confirmed flowing.
+      flushAt: 1,
       // We capture screen views manually from expo-router (see
       // useAnalyticsScreenTracking) — expo-router doesn't support PostHog's
       // automatic screen autocapture.
     })
   : null;
+
+// Dev-only diagnostics: tells you in the console whether the SDK is live and
+// logs every capture + network flush. Remove once events are confirmed.
+if (__DEV__) {
+  if (posthog) {
+    posthog.debug();
+    // eslint-disable-next-line no-console
+    console.log(`[analytics] PostHog LIVE → ${host} (key ${apiKey!.slice(0, 8)}…)`);
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[analytics] DISABLED — EXPO_PUBLIC_POSTHOG_KEY is empty at build time. ' +
+        'Set it in .env and FULLY restart `npx expo start -c`.',
+    );
+  }
+}
 
 // ─── Event taxonomy ─────────────────────────────────────────────────────────
 // Keep this list as the single source of truth. A closed union means a typo
