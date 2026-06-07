@@ -340,7 +340,11 @@ export default function IntentionsScreen() {
       <ScrollView
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + HEADER_H + 24, paddingBottom: 32 },
+          // This is a pushed full-screen route with NO tab bar, so unlike the
+          // tab screens it must add the bottom safe-area itself — otherwise the
+          // last card (Evening Reflection + image) sits under the home indicator
+          // and can't be scrolled fully into view.
+          { paddingTop: insets.top + HEADER_H + 24, paddingBottom: insets.bottom + 40 },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"

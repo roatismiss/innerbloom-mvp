@@ -46,7 +46,6 @@ const BLOOM_AVATAR =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuB23GMOBJc4wUxKqUTWd2iaHGfe78CyEB8cQKfzW0xe6GzVFghdQg4QP4BuhwrgvwyMhqgpqFg-ALR0wXUTCzXK6QZgFt_gKfhalbQX6WNrxuSglpi96Bcqx1cpwjmUYbp14YbrF7fmRzopL6XgSxdPtshyhw9NlDiU5OnR1NxkMuwujMMXwMbrH7ieyJ5CaX66srpPT1E4EneCyu8-mmrv2rUsVoNwfS13EpN2y-p1B_C1jG6x9KqL3y1-UTdnOFJK_pL4fZGTVQuC';
 
 const HEADER_H = 72;
-const INPUT_BAR_H = 76;
 
 type LocalErrorMsg = { id: string; role: 'error'; content: string; created_at: string };
 type DisplayMsg = BloomChatMessage | LocalErrorMsg;
@@ -491,13 +490,19 @@ export default function AICompanionScreen() {
       >
         <ScrollView
           ref={scrollRef}
+          // flex:1 so the list fills the space ABOVE the composer (which is a
+          // normal-flow sibling below). Without this, RN-Web sizes the list to
+          // its content and the composer overlaps the last message.
+          style={s.chatScrollView}
           contentContainerStyle={[
             s.chatScroll,
             {
               // Header is absolutely positioned (height = insets.top + HEADER_H)
               // so we must push the chat content below it.
               paddingTop: insets.top + HEADER_H + 16,
-              paddingBottom: INPUT_BAR_H + bottomBarPad + 32,
+              // Composer is in normal flow below, so we only need a small gap
+              // here — not the full bar height.
+              paddingBottom: 16,
             },
           ]}
           showsVerticalScrollIndicator={false}
@@ -779,6 +784,9 @@ const s = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
+  chatScrollView: {
+    flex: 1,
+  },
   chatScroll: {
     paddingHorizontal: 20,
     gap: 24,

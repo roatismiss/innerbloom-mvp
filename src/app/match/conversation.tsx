@@ -76,7 +76,6 @@ const C = {
 } as const;
 
 const HEADER_H = 72;
-const INPUT_H = 72;
 
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
@@ -287,11 +286,16 @@ export default function ConversationScreen() {
       >
         <ScrollView
           ref={scrollRef}
+          // flex:1 so the message list fills the space above the composer
+          // (a normal-flow sibling below). Without it, RN-Web sizes the list to
+          // its content and the composer overlaps the last message.
+          style={{ flex: 1 }}
           contentContainerStyle={[
             s.chatScroll,
             {
               paddingTop: 24,
-              paddingBottom: INPUT_H + bottomPad + 32,
+              // Composer is in normal flow below — only need a small gap here.
+              paddingBottom: 16,
             },
           ]}
           showsVerticalScrollIndicator={false}

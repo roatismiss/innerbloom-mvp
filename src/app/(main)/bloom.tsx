@@ -53,7 +53,6 @@ const BLOOM_AVATAR =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuB23GMOBJc4wUxKqUTWd2iaHGfe78CyEB8cQKfzW0xe6GzVFghdQg4QP4BuhwrgvwyMhqgpqFg-ALR0wXUTCzXK6QZgFt_gKfhalbQX6WNrxuSglpi96Bcqx1cpwjmUYbp14YbrF7fmRzopL6XgSxdPtshyhw9NlDiU5OnR1NxkMuwujMMXwMbrH7ieyJ5CaX66srpPT1E4EneCyu8-mmrv2rUsVoNwfS13EpN2y-p1B_C1jG6x9KqL3y1-UTdnOFJK_pL4fZGTVQuC';
 
 const HEADER_H = 72;
-const INPUT_BAR_H = 76;
 
 const FEELING_PILLS = ['Anxious', 'Restless', 'Tired', 'Heavy'] as const;
 type Feeling = (typeof FEELING_PILLS)[number];
@@ -176,11 +175,14 @@ export default function BloomChatScreen() {
       >
         <ScrollView
           ref={scrollRef}
+          // flex:1 so the list fills the space above the composer (flow sibling
+          // below); without it RN-Web overlaps the composer on the last message.
+          style={{ flex: 1 }}
           contentContainerStyle={[
             s.chatScroll,
             {
               paddingTop: insets.top + HEADER_H + 24,
-              paddingBottom: INPUT_BAR_H + bottomBarPad + 32,
+              paddingBottom: 16,
             },
           ]}
           showsVerticalScrollIndicator={false}
