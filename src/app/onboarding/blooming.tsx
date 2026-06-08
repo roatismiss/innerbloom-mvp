@@ -13,6 +13,7 @@ import Svg, {
 
 import { track } from '../../lib/analytics';
 import { useCompleteOnboarding } from '../../lib/queries/onboarding';
+import { ageBandFromISO, useAgeGate } from '../../store/age-gate';
 import { useOnboardingDraft } from '../../store/onboarding-draft';
 
 const C = {
@@ -119,12 +120,19 @@ export default function BloomingScreen() {
       tryNavigate();
     }, TOTAL_MS);
 
+    // Age band is derived from the DOB the age gate already collected — we never
+    // ask for age twice. Gender is the optional answer from the about-you step.
+    const birthDate = useAgeGate.getState().birthDate;
+    const ageBand = birthDate ? ageBandFromISO(birthDate) : null;
+
     completeOnboarding
       .mutateAsync({
         baseline_mood: draft.mood,
         checkin_frequency: draft.frequency,
         growth_goals: draft.goals,
         notification_opt_in: true,
+        gender: draft.gender ?? undefined,
+        age_band: ageBand ?? undefined,
       })
       .then(() => {
         // Funnel exit — the user finished setup and an account now exists.

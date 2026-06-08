@@ -697,6 +697,8 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          age_band: string | null
+          gender: string | null
           institution_id: string | null
           notifications_seen_at: string
           onboarding_completed_at: string | null
@@ -709,6 +711,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          age_band?: string | null
+          gender?: string | null
           institution_id?: string | null
           notifications_seen_at?: string
           onboarding_completed_at?: string | null
@@ -721,6 +725,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          age_band?: string | null
+          gender?: string | null
           institution_id?: string | null
           notifications_seen_at?: string
           onboarding_completed_at?: string | null
@@ -1262,6 +1268,8 @@ export type LookingFor =
   | 'listener' | 'similar_story' | 'perspective' | 'just_presence';
 
 export type CheckinFrequency = 'daily' | 'few_per_week' | 'flexible';
+export type Gender           = 'male' | 'female' | 'non_binary' | 'prefer_not_to_say';
+export type AgeBand          = '16-17' | '18-24' | '25-34' | '35-44' | '45+';
 export type MatchStatus      = 'pending' | 'connected' | 'passed';
 export type InstitutionType  = 'bpo' | 'university';
 export type HugContextType   = 'reel' | 'match' | 'post';
@@ -1278,6 +1286,9 @@ export type CompleteOnboardingArgs = {
     baseline_color_hex?: string;
     baseline_intensity?: number;
     baseline_anchor_word?: string;
+    // Demographics — persisted to profiles, sent to PostHog as person properties.
+    gender?: Gender;
+    age_band?: AgeBand;
   };
 };
 export type CompleteOnboardingResult = {

@@ -33,7 +33,7 @@ export function useSessionBootstrap() {
       try {
         const res = await (sb().from('profiles') as any)
           .select(
-            'id, anonymous_alias, city, institution_id, onboarding_completed_at, created_at',
+            'id, anonymous_alias, city, institution_id, onboarding_completed_at, created_at, gender, age_band',
           )
           .eq('id', sessionUserId)
           .maybeSingle();
@@ -58,6 +58,8 @@ export function useSessionBootstrap() {
             institution_id: string | null;
             onboarding_completed_at: string | null;
             created_at: string;
+            gender: string | null;
+            age_band: string | null;
           }
         | null;
 
@@ -76,6 +78,10 @@ export function useSessionBootstrap() {
         identify(user.id, {
           alias: user.anonymousAlias,
           city: user.city ?? null,
+          // Demographics as PERSON properties — lets PostHog segment USERS (not
+          // events) by age band / gender. Coarse + non-identifying.
+          age_band: row?.age_band ?? null,
+          gender: row?.gender ?? null,
         });
       }
 

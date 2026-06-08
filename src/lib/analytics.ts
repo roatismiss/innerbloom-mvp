@@ -96,6 +96,10 @@ export type AnalyticsEvent =
   | 'reels_muted_toggled'
   | 'reels_shuffled'
   | 'reels_saved_viewed'
+  // Age gate (first step — self-declared 16+)
+  | 'age_gate_shown'
+  | 'age_gate_passed'
+  | 'age_gate_blocked'
   // Onboarding funnel
   | 'onboarding_started'
   | 'onboarding_get_started'

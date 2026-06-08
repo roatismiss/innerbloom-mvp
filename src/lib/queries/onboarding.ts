@@ -2,10 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuthStore } from '../../store/auth';
 import type {
+  AgeBand,
   CheckinFrequency,
   CompleteOnboardingArgs,
   CompleteOnboardingResult,
   EmotionCategory,
+  Gender,
 } from '../../types/database';
 import { callRpc, sb } from './client';
 
@@ -18,6 +20,9 @@ export type OnboardingPayload = {
   checkin_frequency: CheckinFrequency;
   blooming_focus?: string[];
   notification_opt_in?: boolean;
+  // Demographics — persisted to profiles; surfaced to PostHog via identify().
+  gender?: Gender;
+  age_band?: AgeBand;
 };
 
 // Read whether the current session user has completed onboarding.

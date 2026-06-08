@@ -12,6 +12,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useAgeGate } from '../store/age-gate';
 import { useAuthStore } from '../store/auth';
 
 // Canonical InnerBloom tokens (per AGENTS.md). Mirrored locally so this
@@ -38,15 +39,22 @@ export default function Splash() {
   const isLoading = useAuthStore((s) => s.isLoading);
   const user = useAuthStore((s) => s.user);
   const isOnboarded = useAuthStore((s) => s.isOnboarded);
+  const ageStatus = useAgeGate((s) => s.status);
+  const ageHydrated = useAgeGate((s) => s.hydrated);
 
   useEffect(() => {
-    // Wait for AuthBootstrap to finish hydrating before deciding where to
-    // route. If the user is already signed in, they should never have to
-    // tap through the intro slides again.
-    if (isLoading) return;
+    // Wait for AuthBootstrap AND the age-gate store to finish hydrating before
+    // deciding where to route. Gating on `ageHydrated` prevents a one-frame
+    // flash of the age gate for users who already passed it on a prior launch.
+    if (isLoading || !ageHydrated) return;
 
     const t = setTimeout(() => {
-      if (user && isOnboarded) {
+      // Age gate is the first step — it precedes auth. Anyone whose device has
+      // not yet declared a 13+ date of birth (or who declared under-age) is
+      // routed to the gate before anything else.
+      if (ageStatus !== 'allowed') {
+        router.replace('/age-gate');
+      } else if (user && isOnboarded) {
         router.replace('/(main)/dashboard');
       } else if (user && !isOnboarded) {
         router.replace('/onboarding/mood');
@@ -55,7 +63,7 @@ export default function Splash() {
       }
     }, REDIRECT_AFTER_MS);
     return () => clearTimeout(t);
-  }, [isLoading, user, isOnboarded]);
+  }, [isLoading, ageHydrated, ageStatus, user, isOnboarded]);
 
   // Hard ceiling on the splash. AuthBootstrap now always settles isLoading,
   // but if anything upstream still wedges (storage fault, env misconfig), this
@@ -64,7 +72,9 @@ export default function Splash() {
   useEffect(() => {
     const t = setTimeout(() => {
       if (useAuthStore.getState().isLoading) {
-        router.replace('/onboarding');
+        // Honor the age gate even on the emergency escape hatch.
+        const allowed = useAgeGate.getState().status === 'allowed';
+        router.replace(allowed ? '/onboarding' : '/age-gate');
       }
     }, 6000);
     return () => clearTimeout(t);

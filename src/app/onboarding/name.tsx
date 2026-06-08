@@ -287,7 +287,7 @@ export default function OnboardingNameScreen() {
                 color={C.onPrimaryContainer}
               />
             </TouchableOpacity>
-            <Text style={s.stepLabel}>Step 4 of 4</Text>
+            <Text style={s.stepLabel}>Step 5 of 5</Text>
           </View>
         </View>
       </KeyboardAvoidingView>

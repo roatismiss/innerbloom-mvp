@@ -210,7 +210,7 @@ export default function OnboardingMoodScreen() {
             color={enabled ? C.onPrimary : 'rgba(255,255,255,0.55)'}
           />
         </Pressable>
-        <Text style={styles.stepLabel}>Step 1 of 4</Text>
+        <Text style={styles.stepLabel}>Step 1 of 5</Text>
       </View>
     </View>
   );
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     zIndex: 50,
   },
   progressFill: {
-    width: '25%',
+    width: '20%',
     height: 8,
     backgroundColor: C.primaryContainer,
   },

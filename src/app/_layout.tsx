@@ -84,6 +84,7 @@ function RootLayout() {
             <View style={{ flex: 1, backgroundColor: tokens.light.surface }}>
               <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
                 <Stack.Screen name="index" />
+                <Stack.Screen name="age-gate" />
                 <Stack.Screen name="onboarding" />
                 <Stack.Screen name="(auth)" />
                 <Stack.Screen name="(main)" />

@@ -109,7 +109,7 @@ export default function OnboardingFrequencyScreen() {
       step: 'frequency',
       frequency: FREQ_TO_DB[selected],
     });
-    router.replace('/onboarding/name');
+    router.replace('/onboarding/about-you');
   };
 
   const enabled = selected !== null;
@@ -119,7 +119,7 @@ export default function OnboardingFrequencyScreen() {
       {/* ── Header ── */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: '100%' }]} />
+          <View style={[styles.progressFill, { width: '60%' }]} />
         </View>
         <View style={styles.headerRow}>
           <Pressable
@@ -130,7 +130,7 @@ export default function OnboardingFrequencyScreen() {
             <MaterialIcons name="chevron-left" size={20} color={C.onSurfaceVariant} />
             <Text style={styles.backLabel}>Back</Text>
           </Pressable>
-          <Text style={styles.stepLabel}>3 of 3</Text>
+          <Text style={styles.stepLabel}>3 of 5</Text>
         </View>
       </View>
 
